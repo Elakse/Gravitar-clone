@@ -72,8 +72,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Alejo\VS\Gravitar-clone\Gravitar-clone\SDL2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Alejo\VS\Gravitar-clone\Gravitar-clone\SDL2\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Alejo\VS\Gravitar-clone\Gravitar-clone\SDL2\include;$(VC_IncludePath)\SDL2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Alejo\VS\Gravitar-clone\Gravitar-clone\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
