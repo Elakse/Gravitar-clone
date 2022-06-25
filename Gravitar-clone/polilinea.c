@@ -49,7 +49,7 @@ size_t polilinea_cantidad_puntos(const polilinea_t *polilinea) {
 }
 
 bool polilinea_obtener_punto(const polilinea_t *polilinea, size_t pos, float *x, float *y) {
-  if(pos>=polilinea->n) //Comprueba que la posición sea valida
+  if(pos>=polilinea->n || pos<0) //Comprueba que la posición sea valida
     return false;
   *x=polilinea->puntos[pos][0];  //Asigna los valores del punto en donde apuntan los punteros dados
   *y=polilinea->puntos[pos][1];
@@ -57,7 +57,7 @@ bool polilinea_obtener_punto(const polilinea_t *polilinea, size_t pos, float *x,
 }
 
 bool polilinea_setear_punto(polilinea_t *polilinea, size_t pos, float x, float y){
-  if(pos>=polilinea->n)  //Comprueba que la posición sea valida
+  if(pos>=polilinea->n || pos<0)  //Comprueba que la posición sea valida
     return false;
   polilinea->puntos[pos][0]=x; //Asigna los valores
   polilinea->puntos[pos][1]=y;

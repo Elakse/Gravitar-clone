@@ -11,7 +11,6 @@ struct nave{
   double ang_nave;
   float a_thrust;
   double ang_g;
-  float a_grav;
   size_t vidas;
   size_t fuel;
   nivel_t niv;
@@ -27,7 +26,6 @@ nave_t *crear_nave(size_t vidas, size_t fuel, nivel_t nivel, char *figura) {
   nave->ang_nave=0;
   nave->a_thrust=0;
   nave->ang_g=0;
-  nave->a_grav=0;
   nave->vidas=vidas;
   nave->fuel=fuel;
   nave->niv=nivel;
@@ -57,10 +55,6 @@ void setear_a_thrust(nave_t *nave, float a) {
 
 void setear_ang_g(nave_t *nave, double ang) {
   nave->ang_g = ang;
-}
-
-void setear_a_grav(nave_t *nave, float a) {
-  nave->a_grav = a;
 }
 
 bool cambiar_nombre_fig(nave_t *nave, char *nombre) {
@@ -111,8 +105,8 @@ double com_y(double mod, double ang) {
 }
 
 void mover_nave(nave_t *nave, double dt) {
-  double ax = com_x(nave->a_thrust, nave->ang_nave) + com_x(nave->a_grav, nave->ang_g);
-  double ay = com_y(nave->a_thrust, nave->ang_nave) + com_y(nave->a_grav, nave->ang_g);
+  double ax = com_x(nave->a_thrust, nave->ang_nave) + com_x(G, nave->ang_g);
+  double ay = com_y(nave->a_thrust, nave->ang_nave) + com_y(G, nave->ang_g);
   nave->pos[0] = computar_posicion(nave->pos[0], nave->vel[0], dt);
   nave->pos[1] = computar_posicion(nave->pos[1], nave->vel[1], dt);
   nave->vel[0] = computar_velocidad(nave->vel[0], ax, dt);
