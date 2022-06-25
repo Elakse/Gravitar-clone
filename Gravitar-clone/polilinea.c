@@ -56,6 +56,10 @@ bool polilinea_obtener_punto(const polilinea_t *polilinea, size_t pos, float *x,
   return true;
 }
 
+color_t polilinea_obtener_color(const polilinea_t *polilinea) {
+  return polilinea->color;
+}
+
 bool polilinea_setear_punto(polilinea_t *polilinea, size_t pos, float x, float y){
   if(pos>=polilinea->n || pos<0)  //Comprueba que la posición sea valida
     return false;

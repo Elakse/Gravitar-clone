@@ -5,7 +5,7 @@
 #include "nave.h"
 #include "polilinea.h"
 
-int main(int argc, char *argv[]) {
+int main() {
     SDL_Init(SDL_INIT_VIDEO);
 
     SDL_Window *window;
@@ -21,15 +21,22 @@ int main(int argc, char *argv[]) {
     // Mi nave:
     const float nave[][2] = {{8, 0}, {-1, 6}, {-4, 4}, {-4, 2}, {-2, 0}, {-4, -2}, {-4, -4}, {-1, -6}, {8, 0}};
     size_t nave_tam = 9;
+    polilinea_t *poli = polilinea_crear(nave, nave_tam, color_crear(0,0,1));
+    nave_t *jugador = nave_crear(3, 1000, INICIO, "Nave");
+    nave_setear_pos(jugador, VENTANA_ANCHO/2, VENTANA_ALTO/2);
+    nave_setear_ang_nave(jugador, NAVE_ANGULO_INICIAL);
+    nave_setear_ang_g(jugador, 3*PI/2);
 
     // El chorro de la nave:
-    const float chorro[][2] = {{-4, 2}, {-8, 0}, {-4, -2}};
-    size_t chorro_tam = 3;
+    //const float chorro[][2] = {{-4, 2}, {-8, 0}, {-4, -2}};
+    //size_t chorro_tam = 3;
 
     bool chorro_prendido = false;
+    bool gira_der = false;
+    bool gira_izq = false;
 
     // Queremos que todo se dibuje escalado por f:
-    float f = 10;
+    //float f = 10;
     // END código del alumno
 
     unsigned int ticks = SDL_GetTicks();
@@ -47,7 +54,10 @@ int main(int argc, char *argv[]) {
                         break;
                     case SDLK_DOWN:
                     case SDLK_RIGHT:
+                        gira_der = true;
+                        break;
                     case SDLK_LEFT:
+                        gira_izq = true;
                         break;
                 }
             }
@@ -58,9 +68,14 @@ int main(int argc, char *argv[]) {
                         // Apagamos el chorro:
                         chorro_prendido = false;
                         break;
+                    case SDLK_RIGHT:
+                        gira_der = false;
+                        break;
+                    case SDLK_LEFT:
+                        gira_izq = false;
+                        break;
                 }
             }
-            // END código del alumno
             continue;
         }
 
@@ -69,29 +84,34 @@ int main(int argc, char *argv[]) {
         SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0x00);
 
         // BEGIN código del alumno
+        if(chorro_prendido)
+          nave_setear_a_thrust(jugador, NAVE_ACELERACION);
+        else {
+          nave_setear_a_thrust(jugador, 0);
+        }
+        if(gira_der && !gira_izq)
+          nave_girar_der(jugador, NAVE_ROTACION_PASO);
+        if(!gira_der && gira_izq)
+          nave_girar_izq(jugador, NAVE_ROTACION_PASO);
+        nave_mover(jugador, 1.0/JUEGO_FPS);
         // Dibujamos la nave escalada por f en el centro de la pantalla:
-        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0x00);
-        for(size_t i = 0; i < nave_tam - 1; i++)
+        polilinea_t *poli2 = polilinea_clonar(poli);
+        rotar(poli2, nave_get_ang(jugador));
+        trasladar(poli2, nave_get_posx(jugador), nave_get_posy(jugador));
+        SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0x00);
+        float x1, y1, x2, y2;
+        for(int i = 0; i < polilinea_cantidad_puntos(poli2) - 1; i++) {
+            polilinea_obtener_punto(poli2, i, &x1, &y1);
+            polilinea_obtener_punto(poli2, i+1, &x2, &y2);
             SDL_RenderDrawLine(
                 renderer,
-                nave[i][0] * f + VENTANA_ANCHO / 2,
-                -nave[i][1] * f + VENTANA_ALTO / 2,
-                nave[i+1][0] * f + VENTANA_ANCHO / 2,
-                -nave[i+1][1] * f + VENTANA_ALTO / 2
+                x1,
+                (VENTANA_ALTO - y1),
+                x2,
+                (VENTANA_ALTO - y2)
             );
-
-        if(chorro_prendido) {
-            // Dibujamos el chorro escalado por f en el centro de la pantalla:
-            SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0x00);
-            for(size_t i = 0; i < chorro_tam - 1; i++)
-                SDL_RenderDrawLine(
-                    renderer,
-                    chorro[i][0] * f + VENTANA_ANCHO / 2,
-                    -chorro[i][1] * f + VENTANA_ALTO / 2,
-                    chorro[i+1][0] * f + VENTANA_ANCHO / 2,
-                    -chorro[i+1][1] * f + VENTANA_ALTO / 2
-                );
         }
+        polilinea_destruir(poli2);
         // END código del alumno
 
         SDL_RenderPresent(renderer);
@@ -106,7 +126,8 @@ int main(int argc, char *argv[]) {
     }
 
     // BEGIN código del alumno
-    // No tengo nada que destruir.
+    polilinea_destruir(poli);
+    free(jugador);
     // END código del alumno
 
     SDL_DestroyRenderer(renderer);
