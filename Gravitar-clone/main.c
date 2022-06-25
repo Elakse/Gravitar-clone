@@ -4,6 +4,7 @@
 #include "config.h"
 #include "nave.h"
 #include "polilinea.h"
+#include "figuras.h"
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);

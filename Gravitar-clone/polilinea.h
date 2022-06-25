@@ -3,11 +3,19 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 #include "color.h"
+#define ROJO        0x04
+#define VERDE       0x02
+#define AZUL        0x01
+#define INFINITO    0x40
+#define TIPO        0x07
+#define CANT_PUNTOS 0x03FF
 
 typedef struct polilinea polilinea_t;
 
 polilinea_t *polilinea_crear_vacia(size_t n);
+polilinea_t* leer_polilinea(FILE* f);
 polilinea_t *polilinea_crear(const float puntos[][2], size_t n, color_t color);
 void polilinea_destruir(polilinea_t *polilinea);
 

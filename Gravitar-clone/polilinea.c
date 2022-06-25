@@ -4,9 +4,9 @@
 #include "polilinea.h"
 
 struct polilinea{
-  float (*puntos)[2]; //Punetro a la polilinea
-  size_t n;
-  color_t color;           //Cant. de puntos
+  color_t color;
+  size_t n;             //Cantidad de puntos
+  float (*puntos)[2];   //Array de puntos (vectores)
 };
 
 //CREACIÓN Y DESTRUCCIÓN
@@ -43,6 +43,32 @@ void polilinea_destruir(polilinea_t *polilinea) {
 }
 
 //GETTERS Y SETTERS
+
+polilinea_t* leer_polilinea(FILE* f) {
+	uint16_t encabezado = 0;
+	size_t encabezado_size = fread(&encabezado, sizeof(uint16_t), 1, f);
+	if (encabezado_size < 1) return NULL;
+
+	uint16_t color_enc = encabezado >> 13;
+	color_t color = color_crear(color_enc & ROJO, color_enc & VERDE, color_enc & AZUL);
+
+	uint16_t cant_puntos = encabezado & CANT_PUNTOS;
+	polilinea_t* poli = polilinea_crear_vacia(cant_puntos);
+	polilinea_setear_color(poli, color);
+	for (size_t i = 0; i < cant_puntos; i++) {
+		float x, y;
+		if (fread(&x, sizeof(float), 1, f) != 1) {
+			polilinea_destruir(poli);
+			return NULL;
+		}
+		if (fread(&y, sizeof(float), 1, f) != 1) {
+			polilinea_destruir(poli);
+			return NULL;
+		}
+		polilinea_setear_punto(poli, i, x, y);
+	}
+	return poli;
+}
 
 size_t polilinea_cantidad_puntos(const polilinea_t *polilinea) {
   return polilinea->n;

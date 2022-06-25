@@ -136,6 +136,7 @@
   <ItemGroup>
     <ClCompile Include="caracteres.c" />
     <ClCompile Include="color.c" />
+    <ClCompile Include="figuras.c" />
     <ClCompile Include="lista.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="nave.c" />
@@ -145,6 +146,7 @@
     <ClInclude Include="caracteres.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="figuras.h" />
     <ClInclude Include="lista.h" />
     <ClInclude Include="nave.h" />
     <ClInclude Include="polilinea.h" />
