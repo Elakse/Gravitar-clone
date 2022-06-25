@@ -20,6 +20,7 @@ typedef enum {
 
 figura_t* figura_crear(bool inf, size_t cant, figura_tipo_t tipo, char* nombre);
 figura_t* figura_leer(FILE* f);
+polilinea_t** figura_obtener_polis(figura_t* figura);
 bool figura_insertar_poli(figura_t* figura, polilinea_t* poli, size_t pos);
 bool figura_remover_poli(figura_t* figura, size_t pos);
 bool figura_set_cant_polis(figura_t* figura, size_t cant);

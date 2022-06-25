@@ -13,6 +13,7 @@ int main() {
     SDL_Renderer *renderer;
     SDL_Event event;
 
+    //SDL_CreateWindowAndRenderer(VENTANA_ANCHO, VENTANA_ALTO, SDL_WINDOW_FULLSCREEN_DESKTOP, &window, &renderer);
     SDL_CreateWindowAndRenderer(VENTANA_ANCHO, VENTANA_ALTO, 0, &window, &renderer);
     SDL_SetWindowTitle(window, "Gravitar");
 
@@ -20,10 +21,26 @@ int main() {
 
     // BEGIN código del alumno
     // Mi nave:
-    const float nave[][2] = {{8, 0}, {-1, 6}, {-4, 4}, {-4, 2}, {-2, 0}, {-4, -2}, {-4, -4}, {-1, -6}, {8, 0}};
-    size_t nave_tam = 9;
-    polilinea_t *poli = polilinea_crear(nave, nave_tam, color_crear(0,0,1));
+    FILE* f = fopen("figuras.bin", "rb");
+    figura_t* nave = figura_leer(f);
+    figura_t* nave_chorro = figura_leer(f);
+    figura_t* f3 = figura_leer(f);
+    figura_t* f4 = figura_leer(f);
+    figura_t* f5 = figura_leer(f);
+    figura_t* f6 = figura_leer(f);
+    figura_t* f7 = figura_leer(f);
+    figura_t* f8 = figura_leer(f);
+    figura_t* f9 = figura_leer(f);
+    figura_t* f10 = figura_leer(f);
+    polilinea_t** polis_nave = figura_obtener_polis(nave);
+    polilinea_t** polis_nave_con_chorro = figura_obtener_polis(nave_chorro);
+
+    //const float nave[][2] = {{8, 0}, {-1, 6}, {-4, 4}, {-4, 2}, {-2, 0}, {-4, -2}, {-4, -4}, {-1, -6}, {8, 0}};
+    //size_t nave_tam = 9;
+    //polilinea_t *poli = polilinea_crear(nave, nave_tam, color_crear(0,0,1));
+    //if (poli == NULL) return 1;
     nave_t *jugador = nave_crear(3, 1000, INICIO, "Nave");
+    if(jugador == NULL) return 1;
     nave_setear_pos(jugador, VENTANA_ANCHO/2, VENTANA_ALTO/2);
     nave_setear_ang_nave(jugador, NAVE_ANGULO_INICIAL);
     nave_setear_ang_g(jugador, 3*PI/2);
@@ -85,8 +102,9 @@ int main() {
         SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0x00);
 
         // BEGIN código del alumno
-        if(chorro_prendido)
-          nave_setear_a_thrust(jugador, NAVE_ACELERACION);
+        if (chorro_prendido) {
+            nave_setear_a_thrust(jugador, NAVE_ACELERACION);
+        }
         else {
           nave_setear_a_thrust(jugador, 0);
         }
@@ -94,12 +112,19 @@ int main() {
           nave_girar_der(jugador, NAVE_ROTACION_PASO);
         if(!gira_der && gira_izq)
           nave_girar_izq(jugador, NAVE_ROTACION_PASO);
+
+        if (nave_get_posy(jugador) <= 3 || nave_get_posy(jugador) >= VENTANA_ALTO) {
+            nave_setear_vel_y(jugador, nave_get_vel_y(jugador) * -1);
+        }
+        if (nave_get_posx(jugador) <= 3 || nave_get_posx(jugador) >= VENTANA_ANCHO) {
+            nave_setear_vel_x(jugador, nave_get_vel_x(jugador) * -1);
+        }
         nave_mover(jugador, 1.0/JUEGO_FPS);
         // Dibujamos la nave escalada por f en el centro de la pantalla:
-        polilinea_t *poli2 = polilinea_clonar(poli);
+        polilinea_t *poli2 = polilinea_clonar(polis_nave_con_chorro[0]);
         rotar(poli2, nave_get_ang(jugador));
         trasladar(poli2, nave_get_posx(jugador), nave_get_posy(jugador));
-        SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0x00);
+        SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0x00);
         float x1, y1, x2, y2;
         for(int i = 0; i < polilinea_cantidad_puntos(poli2) - 1; i++) {
             polilinea_obtener_punto(poli2, i, &x1, &y1);
@@ -111,6 +136,23 @@ int main() {
                 x2,
                 (VENTANA_ALTO - y2)
             );
+        }
+        if (chorro_prendido) {
+            poli2 = polilinea_clonar(polis_nave_con_chorro[1]);
+            rotar(poli2, nave_get_ang(jugador));
+            trasladar(poli2, nave_get_posx(jugador), nave_get_posy(jugador));
+            SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0x00);
+            for (int i = 0; i < polilinea_cantidad_puntos(poli2) - 1; i++) {
+                polilinea_obtener_punto(poli2, i, &x1, &y1);
+                polilinea_obtener_punto(poli2, i + 1, &x2, &y2);
+                SDL_RenderDrawLine(
+                    renderer,
+                    x1,
+                    (VENTANA_ALTO - y1),
+                    x2,
+                    (VENTANA_ALTO - y2)
+                );
+            }
         }
         polilinea_destruir(poli2);
         // END código del alumno
@@ -127,7 +169,8 @@ int main() {
     }
 
     // BEGIN código del alumno
-    polilinea_destruir(poli);
+    polilinea_destruir(polis_nave_con_chorro[0]);
+    polilinea_destruir(polis_nave_con_chorro[1]);
     free(jugador);
     // END código del alumno
 

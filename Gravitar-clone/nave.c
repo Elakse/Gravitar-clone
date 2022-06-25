@@ -46,8 +46,16 @@ void nave_setear_pos(nave_t *nave, double px, double py) {
 }
 
 void nave_setear_vel(nave_t *nave, double vx, double vy) {
-  nave->vel[0] = vx;
-  nave->vel[1] = vy;
+    nave_setear_vel_y(nave, vy);
+    nave_setear_vel_x(nave, vx);
+}
+
+void nave_setear_vel_x(nave_t* nave, double vx) {
+    nave->vel[0] = vx;
+}
+
+void nave_setear_vel_y(nave_t* nave, double vy) {
+    nave->vel[1] = vy;
 }
 
 void nave_setear_ang_nave(nave_t *nave, double ang) {
@@ -79,6 +87,14 @@ double nave_get_posy(nave_t *nave) {
 
 double nave_get_ang(nave_t *nave) {
   return nave->ang_nave;
+}
+
+double nave_get_vel_x(nave_t *nave) {
+    return nave->vel[0];
+}
+
+double nave_get_vel_y(nave_t *nave) {
+   return nave->vel[1];
 }
 
 void nave_girar_der(nave_t *nave, double ang) {

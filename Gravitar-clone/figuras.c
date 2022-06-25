@@ -107,3 +107,8 @@ figura_t* figura_leer(FILE* f) {
 	}
 	return figura;
 }
+
+polilinea_t** figura_obtener_polis(figura_t* figura){
+	polilinea_t** polis = figura->polis;
+	return polis;
+}
