@@ -1,6 +1,7 @@
 #ifndef NAVE_H
 #define NAVE_H
 
+#include<SDL.h>
 #include "polilinea.h"
 
 typedef enum{INICIO, NIVEL1, NIVEL2, NIVEL3, NIVEL4, NIVEL5} nivel_t;
@@ -9,6 +10,7 @@ typedef struct nave nave_t;
 //CREACION Y DESTRUCCION
 
 nave_t *nave_crear(size_t vidas, size_t fuel, nivel_t nivel, char *figura);
+void nave_dibujar(nave_t *nave, polilinea_t* poli, SDL_Renderer* renderer);
 void nave_destruir(nave_t *nave);
 
 //SETTERS

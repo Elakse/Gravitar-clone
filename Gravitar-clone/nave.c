@@ -3,6 +3,7 @@
 #include<string.h>
 #include<stdlib.h>
 #include<stdio.h>
+#include<SDL.h>
 #include "nave.h"
 #include "config.h"
 
@@ -136,4 +137,23 @@ void nave_mover(nave_t *nave, double dt) {
   nave->vel[1] = computar_velocidad(nave->vel[1], ay, dt);
   nave->pos[0] = computar_posicion(nave->pos[0], nave->vel[0], dt);
   nave->pos[1] = computar_posicion(nave->pos[1], nave->vel[1], dt);
+}
+
+void nave_dibujar(nave_t *nave, polilinea_t* poli, SDL_Renderer* renderer) {
+    polilinea_t* poli2 = polilinea_clonar(poli);
+    rotar(poli2, nave_get_ang(nave));
+    trasladar(poli2, nave_get_posx(nave), nave_get_posy(nave));
+    float x1, y1, x2, y2;
+    for (int i = 0; i < polilinea_cantidad_puntos(poli2) - 1; i++) {
+        polilinea_obtener_punto(poli2, i, &x1, &y1);
+        polilinea_obtener_punto(poli2, i + 1, &x2, &y2);
+        SDL_RenderDrawLine(
+            renderer,
+            x1,
+            (VENTANA_ALTO - y1),
+            x2,
+            (VENTANA_ALTO - y2)
+        );
+    }
+    free(poli2);
 }
