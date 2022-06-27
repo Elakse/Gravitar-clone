@@ -68,7 +68,7 @@ void figura_destruir(figura_t* figura) {
 	free(figura);
 }
 
-bool leer_encabezado_figura(FILE* f, char nombre[], figura_tipo_t* tipo, bool* infinito, size_t* cantidad_polilineas) {
+static bool leer_encabezado_figura(FILE* f, char nombre[], figura_tipo_t* tipo, bool* infinito, size_t* cantidad_polilineas) {
 	size_t nom_size, carac_size, cant_size;
 
 	nom_size = fread(nombre, sizeof(char), 20, f);
@@ -118,4 +118,10 @@ char* figura_obtener_nombre(figura_t* figura) {
 polilinea_t** figura_obtener_polis(figura_t* figura){
 	polilinea_t** polis = figura->polis;
 	return polis;
+}
+
+void figura_dibujar(figura_t* figura, double pos_x, double pos_y, double ang, double escala, SDL_Renderer* renderer) {
+	for (size_t i = 0; i < figura->cant; i++) {
+		polilinea_dibujar(figura->polis[i], pos_x, pos_y, ang, escala, renderer);
+	}
 }

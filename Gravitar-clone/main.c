@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "config.h"
 #include "nave.h"
@@ -52,8 +53,8 @@ int main() {
     }
 
 
-    figura_t* nave = figura_buscar_nombre(figuras, "NAVE");
-    figura_t* nave_chorro = figura_buscar_nombre(figuras, "NAVE+CHORRO");
+    //figura_t* nave = figura_buscar_nombre(figuras, "NAVE");
+    //figura_t* nave_chorro = figura_buscar_nombre(figuras, "NAVE+CHORRO");
     /*figura_t* nave_chorro = figura_leer(f);
     figura_t* f3 = figura_leer(f);
     figura_t* f4 = figura_leer(f);
@@ -68,17 +69,17 @@ int main() {
     figura_t* nivel = figura_leer(f);
     figura_t* f14 = figura_leer(f);
     figura_t* f15 = figura_leer(f);*/
-    polilinea_t** polis_nave = figura_obtener_polis(nave);
-    polilinea_t** polis_nave_chorro = figura_obtener_polis(nave_chorro);
+    //polilinea_t** polis_nave = figura_obtener_polis(nave);
+    //polilinea_t** polis_nave_chorro = figura_obtener_polis(nave_chorro);
     //polilinea_t** polis_nivel = figura_obtener_polis(nivel);
 
     //const float bala_a[2][2] = {{0, 0}, {2, 0}};
     const float bala_a[5][2] = { {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {-1, -1} };
     polilinea_t* poli_bala = polilinea_crear(bala_a, 5, color_crear(1, 0, 0));
 
-    nave_t *jugador = nave_crear(3, 1000, INICIO, "Nave");
+    nave_t *jugador = nave_crear(3, 1000, INICIO, "NAVE");
     if(jugador == NULL) return 1;
-    nave_setear_pos(jugador, VENTANA_ANCHO/2, VENTANA_ALTO/2);
+    nave_setear_pos(jugador, 388, 218);
     nave_setear_ang_nave(jugador, NAVE_ANGULO_INICIAL);
     nave_setear_ang_g(jugador, 3*PI/2);
 
@@ -173,13 +174,34 @@ int main() {
         /*SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0x00);
         polilinea_dibujar(polis_nivel[0], 0, 0, 0, renderer);*/
 
-        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0x00);
+        /*SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0xFF, 0x00);
         polilinea_dibujar(polis_nave_chorro[0], nave_get_posx(jugador), nave_get_posy(jugador), nave_get_ang(jugador), renderer);
 
         if (chorro_prendido) {
             SDL_SetRenderDrawColor(renderer, 0xFF, 0x00, 0x00, 0x00);
             polilinea_dibujar(polis_nave_chorro[1], nave_get_posx(jugador), nave_get_posy(jugador), nave_get_ang(jugador), renderer);
+        }*/
+
+
+        figura_dibujar(figura_buscar_nombre(figuras, "BASE"), 388, 218, 0, 1, renderer);
+        figura_dibujar(figura_buscar_nombre(figuras, "ESTRELLA"), 457, 364, 0, 1, renderer);
+        figura_dibujar(figura_buscar_nombre(figuras, "PLANETA1"), 663, 473, 0, 1, renderer);
+        figura_dibujar(figura_buscar_nombre(figuras, "PLANETA2"), 671, 145, 0, 1, renderer);
+        figura_dibujar(figura_buscar_nombre(figuras, "PLANETA3"), 110, 79, 0, 1, renderer);
+        figura_dibujar(figura_buscar_nombre(figuras, "PLANETA4"), 204, 455, 0, 1, renderer);
+        figura_dibujar(figura_buscar_nombre(figuras, "PLANETA5"), 111, 307, 0, 1, renderer);
+
+
+        if (chorro_prendido) {
+            nave_cambiar_nombre_fig(jugador, "NAVE+CHORRO");
         }
+        else {
+            nave_cambiar_nombre_fig(jugador, "NAVE");
+        }
+
+        figura_t* fig_a_dibujar = figura_buscar_nombre(figuras, nave_get_nombre_fig(jugador));
+
+        figura_dibujar(fig_a_dibujar, nave_get_posx(jugador), nave_get_posy(jugador), nave_get_ang(jugador), 1, renderer);
 
         if (bala != NULL) {
             /*if (distancia_punto_a_polilinea(polis_nivel[0], nave_get_posx(bala), nave_get_posy(bala)) < 5) {
@@ -188,8 +210,8 @@ int main() {
             }
             else {*/
                 bala_mover(bala, 1.0 / JUEGO_FPS);
-                SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0x00);
-                polilinea_dibujar(poli_bala, bala_get_posx(bala), bala_get_posy(bala), bala_get_ang(bala), renderer);
+                //SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0x00);
+                polilinea_dibujar(poli_bala, bala_get_posx(bala), bala_get_posy(bala), bala_get_ang(bala), 1, renderer);
             //}
         }
 
@@ -208,9 +230,10 @@ int main() {
     }
 
     // BEGIN código del alumno
-    polilinea_destruir(polis_nave[0]);
-    polilinea_destruir(polis_nave_chorro[1]);
-    free(jugador);
+    //polilinea_destruir(polis_nave[0]);
+    //polilinea_destruir(polis_nave_chorro[1]);
+    lista_destruir(figuras, figura_destruir);
+    nave_destruir(jugador);
     // END código del alumno
 
     SDL_DestroyRenderer(renderer);

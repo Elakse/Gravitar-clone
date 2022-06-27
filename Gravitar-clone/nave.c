@@ -103,6 +103,10 @@ double nave_get_vel(nave_t* nave) {
     return com_modulo(nave_get_velx(nave), nave_get_vely(nave));
 }
 
+char* nave_get_nombre_fig(nave_t* nave) {
+    return nave->nombre_fig;
+}
+
 void nave_girar_der(nave_t *nave, double ang) {
   if(nave->ang_nave == 0) {
     nave_setear_ang_nave(nave, 2*PI);

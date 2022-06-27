@@ -132,14 +132,14 @@ static double distancia_punto_a_segmento(const float a[2], const float b[2], flo
 
 //MOVIMIENTO Y DISTANCIAS
 
-void trasladar(polilinea_t *polilinea, float dx, float dy) {
+void polilinea_trasladar(polilinea_t *polilinea, float dx, float dy) {
   for(size_t i=0; i<polilinea->n; i++) {
     polilinea->puntos[i][0] += dx;  //aumenta un dx y dy los valores de cada punto
     polilinea->puntos[i][1] += dy;
   };
 }
 
-void rotar(polilinea_t *polilinea, double rad) {
+void polilinea_rotar(polilinea_t *polilinea, double rad) {
   double x_rotado;  //declara variables para asignarle los valores rotados, luego se le asignan esos valores a la polilinea
   double y_rotado;
   double c=cos(rad);
@@ -150,6 +150,13 @@ void rotar(polilinea_t *polilinea, double rad) {
     polilinea->puntos[i][0] = x_rotado;
     polilinea->puntos[i][1] = y_rotado;
   };
+}
+
+void polilinea_escalar(polilinea_t* polilinea, double escala) {
+    for (size_t i = 0; i < polilinea->n; i++) {
+        polilinea->puntos[i][0] *= escala;
+        polilinea->puntos[i][1] *= escala;
+    }
 }
 
 double distancia_punto_a_polilinea(const polilinea_t *polilinea, float px, float py) {
@@ -163,10 +170,14 @@ double distancia_punto_a_polilinea(const polilinea_t *polilinea, float px, float
   return distancia_a_polilinea;
 }
 
-void polilinea_dibujar(polilinea_t* poli, double pos_x, double pos_y, double ang, SDL_Renderer* renderer) {
+void polilinea_dibujar(polilinea_t* poli, double pos_x, double pos_y, double ang, double escala, SDL_Renderer* renderer) {
     polilinea_t* poli2 = polilinea_clonar(poli);
-    rotar(poli2, ang);
-    trasladar(poli2, pos_x, pos_y);
+    if (escala != 1) polilinea_escalar(poli2, escala);
+    polilinea_rotar(poli2, ang);
+    polilinea_trasladar(poli2, pos_x, pos_y);
+    uint8_t r, g, b;
+    color_a_rgb(poli->color, &r, &g, &b);
+    SDL_SetRenderDrawColor(renderer, r, g, b, 0x00);
     float x1, y1, x2, y2;
     for (int i = 0; i < polilinea_cantidad_puntos(poli2) - 1; i++) {
         polilinea_obtener_punto(poli2, i, &x1, &y1);
@@ -179,7 +190,7 @@ void polilinea_dibujar(polilinea_t* poli, double pos_x, double pos_y, double ang
             (VENTANA_ALTO - y2)
         );
     }
-    free(poli2);
+    polilinea_destruir(poli2);
 }
 
 //MEMORIA

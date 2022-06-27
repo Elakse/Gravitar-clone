@@ -26,12 +26,13 @@ color_t polilinea_obtener_color(const polilinea_t *polilinea);
 bool polilinea_setear_punto(polilinea_t *polilinea, size_t pos, float x, float y);
 void polilinea_setear_color(polilinea_t *polilinea, color_t color);
 
-void trasladar(polilinea_t *polilinea, float dx, float dy);
-void rotar(polilinea_t *polilinea, double rad);
+void polilinea_trasladar(polilinea_t *polilinea, float dx, float dy);
+void polilinea_rotar(polilinea_t *polilinea, double rad);
+void polilinea_escalar(polilinea_t* polilinea, double escala);
 double distancia_punto_a_polilinea(const polilinea_t *polilinea, float px, float py);
 
 polilinea_t *polilinea_clonar(const polilinea_t *polilinea);
 
-void polilinea_dibujar(polilinea_t* poli, double pos_x, double pos_y, double ang, SDL_Renderer* renderer);
+void polilinea_dibujar(polilinea_t* poli, double pos_x, double pos_y, double ang, double escala, SDL_Renderer* renderer);
 
 #endif

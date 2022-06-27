@@ -31,6 +31,7 @@ double nave_get_ang(nave_t *nave);
 double nave_get_vel(nave_t *nave);
 double nave_get_velx(nave_t *nave);
 double nave_get_vely(nave_t *nave);
+char* nave_get_nombre_fig(nave_t* nave);
 
 //MOVIMIENTO
 
