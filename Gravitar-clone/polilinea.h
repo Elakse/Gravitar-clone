@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <SDL.h>
 #include "color.h"
 #define ROJO        0x04
 #define VERDE       0x02
@@ -30,5 +31,7 @@ void rotar(polilinea_t *polilinea, double rad);
 double distancia_punto_a_polilinea(const polilinea_t *polilinea, float px, float py);
 
 polilinea_t *polilinea_clonar(const polilinea_t *polilinea);
+
+void polilinea_dibujar(polilinea_t* poli, double pos_x, double pos_y, double ang, SDL_Renderer* renderer);
 
 #endif

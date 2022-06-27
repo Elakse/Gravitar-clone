@@ -57,8 +57,7 @@ bool figura_set_cant_polis(figura_t* figura, size_t cant) {
 }
 
 bool figura_comparar_nombres(figura_t* figura, char* nombre) {
-	if(strcmp(figura->nombre, nombre) != 0) return false;
-	return true;
+	return strcmp(figura->nombre, nombre) ? false : true;
 }
 
 void figura_destruir(figura_t* figura) {
@@ -106,6 +105,14 @@ figura_t* figura_leer(FILE* f) {
 		figura_insertar_poli(figura, poli, i);
 	}
 	return figura;
+}
+
+figura_tipo_t figura_obtener_tipo(figura_t* figura) {
+	return figura->tipo;
+}
+
+char* figura_obtener_nombre(figura_t* figura) {
+	return figura->nombre;
 }
 
 polilinea_t** figura_obtener_polis(figura_t* figura){

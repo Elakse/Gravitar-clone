@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <math.h>
+#include <SDL.h>
 #include "color.h"
 #include "polilinea.h"
+#include "config.h"
 
 struct polilinea{
   color_t color;
@@ -159,6 +161,25 @@ double distancia_punto_a_polilinea(const polilinea_t *polilinea, float px, float
       distancia_a_polilinea = nueva_distancia;
   };
   return distancia_a_polilinea;
+}
+
+void polilinea_dibujar(polilinea_t* poli, double pos_x, double pos_y, double ang, SDL_Renderer* renderer) {
+    polilinea_t* poli2 = polilinea_clonar(poli);
+    rotar(poli2, ang);
+    trasladar(poli2, pos_x, pos_y);
+    float x1, y1, x2, y2;
+    for (int i = 0; i < polilinea_cantidad_puntos(poli2) - 1; i++) {
+        polilinea_obtener_punto(poli2, i, &x1, &y1);
+        polilinea_obtener_punto(poli2, i + 1, &x2, &y2);
+        SDL_RenderDrawLine(
+            renderer,
+            x1,
+            (VENTANA_ALTO - y1),
+            x2,
+            (VENTANA_ALTO - y2)
+        );
+    }
+    free(poli2);
 }
 
 //MEMORIA

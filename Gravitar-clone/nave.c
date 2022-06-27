@@ -6,6 +6,7 @@
 #include<SDL.h>
 #include "nave.h"
 #include "config.h"
+#include "fisica.h"
 
 struct nave{
   double pos[2]; //pos[0] = x,  pos[1] = y
@@ -47,15 +48,15 @@ void nave_setear_pos(nave_t *nave, double px, double py) {
 }
 
 void nave_setear_vel(nave_t *nave, double vx, double vy) {
-    nave_setear_vel_y(nave, vy);
-    nave_setear_vel_x(nave, vx);
+    nave_setear_vely(nave, vy);
+    nave_setear_velx(nave, vx);
 }
 
-void nave_setear_vel_x(nave_t* nave, double vx) {
+void nave_setear_velx(nave_t* nave, double vx) {
     nave->vel[0] = vx;
 }
 
-void nave_setear_vel_y(nave_t* nave, double vy) {
+void nave_setear_vely(nave_t* nave, double vy) {
     nave->vel[1] = vy;
 }
 
@@ -90,12 +91,16 @@ double nave_get_ang(nave_t *nave) {
   return nave->ang_nave;
 }
 
-double nave_get_vel_x(nave_t *nave) {
+double nave_get_velx(nave_t *nave) {
     return nave->vel[0];
 }
 
-double nave_get_vel_y(nave_t *nave) {
+double nave_get_vely(nave_t *nave) {
    return nave->vel[1];
+}
+
+double nave_get_vel(nave_t* nave) {
+    return com_modulo(nave_get_velx(nave), nave_get_vely(nave));
 }
 
 void nave_girar_der(nave_t *nave, double ang) {
@@ -114,22 +119,6 @@ void nave_girar_izq(nave_t *nave, double ang) {
   nave->ang_nave+=ang;
 }
 
-double computar_velocidad(double vi, double a, double dt) {
-  return dt*a+vi;
-}
-
-double computar_posicion(double pi, double vi, double dt) {
-  return dt*vi+pi;
-}
-
-double com_x(double mod, double ang) {
-  return mod*cos(ang);
-}
-
-double com_y(double mod, double ang) {
-  return mod*sin(ang);
-}
-
 void nave_mover(nave_t *nave, double dt) {
   double ax = com_x(nave->a_thrust, nave->ang_nave) + com_x(G, nave->ang_g);
   double ay = com_y(nave->a_thrust, nave->ang_nave) + com_y(G, nave->ang_g);
@@ -137,23 +126,4 @@ void nave_mover(nave_t *nave, double dt) {
   nave->vel[1] = computar_velocidad(nave->vel[1], ay, dt);
   nave->pos[0] = computar_posicion(nave->pos[0], nave->vel[0], dt);
   nave->pos[1] = computar_posicion(nave->pos[1], nave->vel[1], dt);
-}
-
-void nave_dibujar(nave_t *nave, polilinea_t* poli, SDL_Renderer* renderer) {
-    polilinea_t* poli2 = polilinea_clonar(poli);
-    rotar(poli2, nave_get_ang(nave));
-    trasladar(poli2, nave_get_posx(nave), nave_get_posy(nave));
-    float x1, y1, x2, y2;
-    for (int i = 0; i < polilinea_cantidad_puntos(poli2) - 1; i++) {
-        polilinea_obtener_punto(poli2, i, &x1, &y1);
-        polilinea_obtener_punto(poli2, i + 1, &x2, &y2);
-        SDL_RenderDrawLine(
-            renderer,
-            x1,
-            (VENTANA_ALTO - y1),
-            x2,
-            (VENTANA_ALTO - y2)
-        );
-    }
-    free(poli2);
 }

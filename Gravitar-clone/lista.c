@@ -219,7 +219,7 @@ void *lista_iter_borrar(lista_iter_t *iter) {
 
 
 void lista_iterar(lista_t *lista,
-                  bool (*visitar)(void *, void *),
+                  bool (*visitar)(void *dato, void *extra),
                   void *extra) {
     nodo_t *nodo = lista->primero;
     while (nodo) {
