@@ -143,6 +143,7 @@
     <ClCompile Include="lista.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="nave.c" />
+    <ClCompile Include="nivel.c" />
     <ClCompile Include="polilinea.c" />
     <ClCompile Include="torreta.c" />
   </ItemGroup>
@@ -156,6 +157,7 @@
     <ClInclude Include="fisica.h" />
     <ClInclude Include="lista.h" />
     <ClInclude Include="nave.h" />
+    <ClInclude Include="nivel.h" />
     <ClInclude Include="polilinea.h" />
     <ClInclude Include="torreta.h" />
   </ItemGroup>

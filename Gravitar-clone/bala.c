@@ -10,7 +10,7 @@ struct bala {
 	double pos[2]; //pos[0] = x,  pos[1] = y
 	double vel; //vel[0] = vel en x,  vel[1] = vel en y
 	double ang;
-	nivel_t nivel;
+	nivel_enum_t nivel;
 	bool jugador;
 	size_t contador;
 };
@@ -48,7 +48,7 @@ double bala_get_velx(bala_t *bala) {
 double bala_get_vely(bala_t* bala) {
 	return com_y(bala->vel, bala->ang);
 }
-nivel_t bala_get_nivel(bala_t* bala) {
+nivel_enum_t bala_get_nivel(bala_t* bala) {
 	return bala->nivel;
 }
 bool bala_es_de_jugador(bala_t* bala) {
@@ -62,7 +62,7 @@ void bala_set_pos(bala_t* bala, double posx, double posy) {
 void bala_set_vel(bala_t* bala, double vel) {
 	bala->vel = vel;
 }
-void bala_set_nivel(bala_t* bala, nivel_t nivel) {
+void bala_set_nivel(bala_t* bala, nivel_enum_t nivel) {
 	bala->nivel = nivel;
 }
 void bala_setear_ang(bala_t *bala, double ang) {

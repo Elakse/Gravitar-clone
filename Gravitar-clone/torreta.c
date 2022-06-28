@@ -3,10 +3,10 @@
 struct torreta {
 	double pos[2];
 	double ang;
-	nivel_t nivel;
+	nivel_enum_t nivel;
 };
 
-torreta_t* torreta_crear(nivel_t nivel, double posx, double posy, double ang) {
+torreta_t* torreta_crear(nivel_enum_t nivel, double posx, double posy, double ang) {
 	torreta_t* torreta = malloc(sizeof(torreta_t));
 	if (torreta == NULL) return NULL;
 	torreta->pos[0] = posx;
@@ -27,7 +27,7 @@ double torreta_get_posy(torreta_t* torreta) {
 double torreta_get_ang(torreta_t* torreta) {
 	return torreta->ang;
 }
-nivel_t torreta_get_nivel(torreta_t* torreta) {
+nivel_enum_t torreta_get_nivel(torreta_t* torreta) {
 	return torreta->nivel;
 }
 
@@ -38,6 +38,6 @@ void torreta_set_pos(torreta_t* torreta, double posx, double posy) {
 void torreta_set_ang(torreta_t* torreta, double ang) {
 	torreta->ang = ang;
 }
-void torreta_set_nivel(torreta_t* torreta, nivel_t nivel) {
+void torreta_set_nivel(torreta_t* torreta, nivel_enum_t nivel) {
 	torreta->nivel = nivel;
 }

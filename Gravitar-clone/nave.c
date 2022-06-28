@@ -16,11 +16,11 @@ struct nave{
   double ang_g;
   size_t vidas;
   size_t fuel;
-  nivel_t niv;
+  nivel_enum_t niv;
   char nombre_fig[20];
 };
 
-nave_t *nave_crear(size_t vidas, size_t fuel, nivel_t nivel, char *figura) {
+nave_t *nave_crear(size_t vidas, size_t fuel, nivel_enum_t nivel, char *figura) {
   nave_t *nave = malloc(sizeof(nave_t));
   if(nave == NULL)
     return NULL;
@@ -72,7 +72,7 @@ void nave_setear_vely(nave_t* nave, double vy) {
     nave->vel[1] = vy;
 }
 
-void nave_setear_nivel(nave_t* nave, nivel_t nivel) {
+void nave_setear_nivel(nave_t* nave, nivel_enum_t nivel) {
     nave->niv = nivel;
 }
 
@@ -107,7 +107,7 @@ size_t nave_get_vidas(nave_t *nave) {
     return nave->vidas;
 }
 
-nivel_t nave_get_nivel(nave_t* nave) {
+nivel_enum_t nave_get_nivel(nave_t* nave) {
     return nave->niv;
 }
 

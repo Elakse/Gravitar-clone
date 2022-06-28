@@ -3,10 +3,10 @@
 struct combustible {
 	double pos[2];
 	double ang;
-	nivel_t nivel;
+	nivel_enum_t nivel;
 };
 
-combustible_t* combustible_crear(nivel_t nivel, double posx, double posy, double ang) {
+combustible_t* combustible_crear(nivel_enum_t nivel, double posx, double posy, double ang) {
 	combustible_t* combustible = malloc(sizeof(combustible_t));
 	if (combustible == NULL) return NULL;
 	combustible->pos[0] = posx;
@@ -29,7 +29,7 @@ double combustible_get_posy(combustible_t* combustible) {
 double combustible_get_ang(combustible_t* combustible) {
 	return combustible->ang;
 }
-nivel_t combustible_get_nivel(combustible_t* combustible) {
+nivel_enum_t combustible_get_nivel(combustible_t* combustible) {
 	return combustible->nivel;
 }
 
@@ -40,6 +40,6 @@ void combustible_set_pos(combustible_t* combustible, double posx, double posy) {
 void combustible_set_ang(combustible_t* combustible, double ang) {
 	combustible->ang = ang;
 }
-void combustible_set_nivel(combustible_t* combustible, nivel_t nivel) {
+void combustible_set_nivel(combustible_t* combustible, nivel_enum_t nivel) {
 	combustible->nivel = nivel;
 }

@@ -43,6 +43,7 @@ int main() {
     // Mi nave:
 
     lista_t* balas = lista_crear();
+    lista_t* nivel1 = lista_crear();
 
     FILE* f = fopen("figuras.bin", "rb");
     lista_t* figuras = lista_crear();
@@ -217,12 +218,17 @@ int main() {
                 nave_setear_ang_nave(jugador, PI + PI / 4);
             }
 
+            if (nave_get_posy(jugador) > VENTANA_ALTO * MARGEN_ALTURA)
+                escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(jugador);
+            if (escala < ESCALA_MINIMA)
+                escala = ESCALA_MINIMA;
+
             if (nave_get_posy(jugador) <= 0)
                 nave_setear_vely(jugador, nave_get_vely(jugador) * -1);
             if (nave_get_posx(jugador) <= 0 || nave_get_posx(jugador) >= VENTANA_ANCHO * 0.99)
                 nave_setear_velx(jugador, nave_get_velx(jugador) * -1);
 
-            figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1NE"), 0, 0, 0, 1, renderer);
+            figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1NE"), 0, 0, 0, escala, renderer);
         }
         if (nave_get_nivel(jugador) == NIVEL2) {
             if (nave_get_posy(jugador) >= VENTANA_ALTO) {
