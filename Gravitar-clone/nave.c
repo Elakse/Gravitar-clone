@@ -60,6 +60,10 @@ void nave_setear_vely(nave_t* nave, double vy) {
     nave->vel[1] = vy;
 }
 
+void nave_setear_nivel(nave_t* nave, nivel_t nivel) {
+    nave->niv = nivel;
+}
+
 void nave_setear_ang_nave(nave_t *nave, double ang) {
   nave->ang_nave = ang;
 }
@@ -85,6 +89,10 @@ double nave_get_posx(nave_t *nave) {
 
 double nave_get_posy(nave_t *nave) {
   return nave->pos[1];
+}
+
+nivel_t nave_get_nivel(nave_t* nave) {
+    return nave->niv;
 }
 
 double nave_get_ang(nave_t *nave) {

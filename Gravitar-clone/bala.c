@@ -2,6 +2,7 @@
 #include "nave.h"
 #include "fisica.h"
 #include "config.h"
+#include "lista.h"
 
 struct bala {
 	double pos[2]; //pos[0] = x,  pos[1] = y
@@ -32,9 +33,24 @@ double bala_get_posy(bala_t* bala) {
 	return bala->pos[1];
 }
 
+void bala_setear_ang(bala_t* bala, double ang) {
+	bala->ang = ang;
+}
+
 void bala_mover(bala_t* bala, double dt) {
 	bala->pos[0] = computar_posicion(bala->pos[0], com_x(bala->vel, bala->ang), dt);
 	bala->pos[1] = computar_posicion(bala->pos[1], com_y(bala->vel, bala->ang), dt);
+}
+
+void balas_mover(lista_t *balas) {
+	if (lista_esta_vacia(balas)) return;
+	lista_iter_t *iter = lista_iter_crear(balas);
+	bala_t* bala;
+	do {
+		bala = lista_iter_ver_actual(iter);
+		bala_mover(bala, 1.0/JUEGO_FPS);
+	} while (lista_iter_avanzar(iter));
+	free(iter);
 }
 
 void bala_destruir(bala_t *bala) {
