@@ -19,6 +19,9 @@ void nave_setear_vel(nave_t *nave, double vx, double vy);
 void nave_setear_vely(nave_t *nave, double vy);
 void nave_setear_velx(nave_t *nave, double vx);
 void nave_setear_nivel(nave_t* nave, nivel_t nivel);
+void nave_setear_vidas(nave_t* nave, size_t vidas);
+void nave_restar_vida(nave_t* nave);
+void nave_sumar_vida(nave_t* nave);
 void nave_setear_ang_nave(nave_t *nave, double ang);
 void nave_setear_a_thrust(nave_t *nave, float a);
 void nave_setear_ang_g(nave_t *nave, double ang);
@@ -28,6 +31,7 @@ bool nave_cambiar_nombre_fig(nave_t *nave, char *nombre);
 
 double nave_get_posx(nave_t *nave);
 double nave_get_posy(nave_t *nave);
+size_t nave_get_vidas(nave_t* nave);
 nivel_t nave_get_nivel(nave_t *nave);
 double nave_get_ang(nave_t *nave);
 double nave_get_vel(nave_t *nave);

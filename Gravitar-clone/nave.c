@@ -42,6 +42,18 @@ void nave_destruir(nave_t *nave) {
   free(nave);
 }
 
+void nave_setear_vidas(nave_t *nave, size_t vidas) {
+    nave->vidas = vidas;
+}
+
+void nave_restar_vida(nave_t* nave) {
+    nave->vidas--;
+}
+
+void nave_sumar_vida(nave_t* nave) {
+    nave->vidas++;
+}
+
 void nave_setear_pos(nave_t *nave, double px, double py) {
   nave->pos[0] = px;
   nave->pos[1] = py;
@@ -89,6 +101,10 @@ double nave_get_posx(nave_t *nave) {
 
 double nave_get_posy(nave_t *nave) {
   return nave->pos[1];
+}
+
+size_t nave_get_vidas(nave_t *nave) {
+    return nave->vidas;
 }
 
 nivel_t nave_get_nivel(nave_t* nave) {

@@ -9,6 +9,8 @@
 #include "figuras.h"
 #include "fisica.h"
 #include "lista.h"
+#include "torreta.h"
+#include "combustible.h"
 
 figura_t* figura_buscar_nombre(lista_t *figuras, char* nombre) {
     if (lista_esta_vacia(figuras)) return NULL;
@@ -50,7 +52,7 @@ int main() {
         figura = figura_leer(f);
     }
 
-    nave_t *jugador = nave_crear(3, 1000, INICIO, "NAVE");
+    nave_t *jugador = nave_crear(3, JUEGO_COMBUSTIBLE_INICIAL, INICIO, "NAVE");
     if(jugador == NULL) return 1;
     nave_setear_pos(jugador, 388, 218);
     nave_setear_ang_nave(jugador, NAVE_ANGULO_INICIAL);
@@ -61,6 +63,9 @@ int main() {
     bool gira_izq = false;
     bool dispara = false;
     bool escudo = false;
+
+    double escala = 1;
+    double centro = 0;
 
     // Queremos que todo se dibuje escalado por f:
     // float f = 10;
@@ -135,14 +140,6 @@ int main() {
         if (!gira_der && gira_izq)
             nave_girar_izq(jugador, NAVE_ROTACION_PASO);
 
-        if (nave_get_posy(jugador) <= 5 || nave_get_posy(jugador) >= VENTANA_ALTO)
-            nave_setear_vely(jugador, nave_get_vely(jugador) * -1);
-        if (nave_get_posx(jugador) <= 5 || nave_get_posx(jugador) >= VENTANA_ANCHO)
-            nave_setear_velx(jugador, nave_get_velx(jugador) * -1);
-
-        if (nave_get_nivel(jugador) == INICIO)
-            nave_setear_ang_g(jugador, computar_angulo(nave_get_posx(jugador), nave_get_posy(jugador), 457, 364));
-
         nave_mover(jugador, 1.0/JUEGO_FPS);
 
         /*if (dispara) {
@@ -158,6 +155,13 @@ int main() {
             figura_dibujar(figura_buscar_nombre(figuras, "PLANETA3"), 110, 79, 0, 1, renderer);
             figura_dibujar(figura_buscar_nombre(figuras, "PLANETA4"), 204, 455, 0, 1, renderer);
             figura_dibujar(figura_buscar_nombre(figuras, "PLANETA5"), 111, 307, 0, 1, renderer);
+
+            if (nave_get_posy(jugador) <= 5 || nave_get_posy(jugador) >= VENTANA_ALTO)
+                nave_setear_vely(jugador, nave_get_vely(jugador) * -1);
+            if (nave_get_posx(jugador) <= 5 || nave_get_posx(jugador) >= VENTANA_ANCHO)
+                nave_setear_velx(jugador, nave_get_velx(jugador) * -1);
+
+            nave_setear_ang_g(jugador, computar_angulo(nave_get_posx(jugador), nave_get_posy(jugador), 457, 364));
 
             if (computar_distancia(nave_get_posx(jugador), nave_get_posy(jugador), 663, 473) < 20) {
                 nave_setear_nivel(jugador, NIVEL1);
@@ -194,40 +198,16 @@ int main() {
                 nave_setear_ang_nave(jugador, PI * 1.5);
                 nave_setear_ang_g(jugador, PI * 1.5);
             }
+            if (computar_distancia(nave_get_posx(jugador), nave_get_posy(jugador), 457, 364) < 20) {
+                nave_setear_pos(jugador, 388, 218);
+                nave_setear_vel(jugador, 0, 0);
+                nave_setear_ang_nave(jugador, PI/4);
+                nave_restar_vida(jugador);
+                if (nave_get_vidas(jugador) == 0) break;
+            }
         }
 
         //Entra en Nivel de reactor
-        if (nave_get_nivel(jugador) == NIVEL5){
-            if (nave_get_posy(jugador) >= VENTANA_ALTO) {
-                nave_setear_nivel(jugador, INICIO);
-                nave_setear_ang_nave(jugador, PI * 2);
-                nave_setear_vel(jugador, 10, 0);
-                nave_setear_pos(jugador, 150, 307);
-            }
-            if (nave_get_posy(jugador) <= 0)
-                nave_setear_vely(jugador, nave_get_vely(jugador) * -1);
-            if (nave_get_posx(jugador) <= 0 || nave_get_posx(jugador) >= VENTANA_ANCHO * 0.99)
-                nave_setear_velx(jugador, nave_get_velx(jugador) * -1);
-
-            figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1R"), 25, 20, 0, 0.65, renderer);
-            figura_dibujar(figura_buscar_nombre(figuras, "REACTOR"), 0, 0, 0, 0.65, renderer);
-        }
-
-        if (nave_get_nivel(jugador) == NIVEL2) {
-            if (nave_get_posy(jugador) >= VENTANA_ALTO) {
-                nave_setear_nivel(jugador, INICIO);
-                nave_setear_ang_nave(jugador, PI);
-                nave_setear_vel(jugador, -10, 0);
-                nave_setear_pos(jugador, 645, 145);
-            }
-
-            if (nave_get_posy(jugador) <= 0)
-                nave_setear_vely(jugador, nave_get_vely(jugador) * -1);
-            if (nave_get_posx(jugador) <= 0 || nave_get_posx(jugador) >= VENTANA_ANCHO * 0.99)
-                nave_setear_velx(jugador, nave_get_velx(jugador) * -1);
-
-            figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1SE"), 0, 0,  0, 1, renderer);
-        }
 
         if (nave_get_nivel(jugador) == NIVEL1) {
             if (nave_get_posy(jugador) >= VENTANA_ALTO) {
@@ -244,7 +224,21 @@ int main() {
 
             figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1NE"), 0, 0, 0, 1, renderer);
         }
+        if (nave_get_nivel(jugador) == NIVEL2) {
+            if (nave_get_posy(jugador) >= VENTANA_ALTO) {
+                nave_setear_nivel(jugador, INICIO);
+                nave_setear_ang_nave(jugador, PI);
+                nave_setear_vel(jugador, -10, 0);
+                nave_setear_pos(jugador, 645, 145);
+            }
 
+            if (nave_get_posy(jugador) <= 0)
+                nave_setear_vely(jugador, nave_get_vely(jugador) * -1);
+            if (nave_get_posx(jugador) <= 0 || nave_get_posx(jugador) >= VENTANA_ANCHO * 0.99)
+                nave_setear_velx(jugador, nave_get_velx(jugador) * -1);
+
+            figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1SE"), 0, 0,  0, 1, renderer);
+        }
         if (nave_get_nivel(jugador) == NIVEL3) {
             if (nave_get_posy(jugador) >= VENTANA_ALTO) {
                 nave_setear_nivel(jugador, INICIO);
@@ -253,14 +247,18 @@ int main() {
                 nave_setear_ang_nave(jugador, PI / 4);
             }
 
-            if (nave_get_posy(jugador) <= 0)
-                nave_setear_vely(jugador, nave_get_vely(jugador) * -1);
-            if (nave_get_posx(jugador) <= 0 || nave_get_posx(jugador) >= VENTANA_ANCHO * 0.99)
-                nave_setear_velx(jugador, nave_get_velx(jugador) * -1);
+            if (nave_get_posy(jugador) > VENTANA_ALTO * MARGEN_ALTURA)
+                escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(jugador);
+            if (escala < ESCALA_MINIMA)
+                escala = ESCALA_MINIMA;
 
-            figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1SW"), 0, 0, 0, 1, renderer);
+            if ((nave_get_posx(jugador) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                centro = nave_get_posx(jugador) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+            else if ((nave_get_posx(jugador) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                centro = nave_get_posx(jugador) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+
+            figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1SW"), 0, 0, 0, escala, renderer);
         }
-
         if (nave_get_nivel(jugador) == NIVEL4) {
             if (nave_get_posy(jugador) >= VENTANA_ALTO) {
                 nave_setear_nivel(jugador, INICIO);
@@ -276,8 +274,36 @@ int main() {
 
             figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1NW"), 0, 0, 0, 1, renderer);
         }
+        if (nave_get_nivel(jugador) == NIVEL5) {
+            if (nave_get_posy(jugador) >= VENTANA_ALTO) {
+                nave_setear_nivel(jugador, INICIO);
+                nave_setear_ang_nave(jugador, PI * 2);
+                nave_setear_vel(jugador, 10, 0);
+                nave_setear_pos(jugador, 150, 307);
+            }
+            if (nave_get_posy(jugador) <= 0)
+                nave_setear_vely(jugador, nave_get_vely(jugador) * -1);
+            if (nave_get_posx(jugador) <= 0 || nave_get_posx(jugador) >= VENTANA_ANCHO * 0.99)
+                nave_setear_velx(jugador, nave_get_velx(jugador) * -1);
 
-         
+            figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1R"), 25, 20, 0, 0.65, renderer);
+            figura_dibujar(figura_buscar_nombre(figuras, "REACTOR"), 525, 235, 0, 2, renderer);
+
+            /*figura_t* nivel = figura_buscar_nombre(figuras, "NIVEL1R");
+            polilinea_t** polis = figura_obtener_polis(nivel);
+            polilinea_t *poli2 = polilinea_clonar(polis[0]);
+            polilinea_escalar(poli2, 0.65);
+            polilinea_trasladar(poli2, 25, 20);
+            if (distancia_punto_a_polilinea(poli2, nave_get_posx(jugador), nave_get_posy(jugador)) < 5) {
+                nave_setear_ang_nave(jugador, PI/4);
+                nave_setear_vel(jugador, 0, 0);
+                nave_setear_nivel(jugador, INICIO);
+                nave_setear_pos(jugador, 388, 218);
+                nave_restar_vida(jugador);
+                if (nave_get_vidas(jugador) == 0) break;
+            }*/
+        }
+
         if (escudo) figura_dibujar(figura_buscar_nombre(figuras, "ESCUDO2"), nave_get_posx(jugador), nave_get_posy(jugador), nave_get_ang(jugador) + PI/2, 1, renderer);
         if (chorro_prendido) nave_cambiar_nombre_fig(jugador, "NAVE+CHORRO");
         else nave_cambiar_nombre_fig(jugador, "NAVE");

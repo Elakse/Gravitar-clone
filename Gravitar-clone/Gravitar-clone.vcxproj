@@ -137,6 +137,7 @@
     <ClCompile Include="bala.c" />
     <ClCompile Include="caracteres.c" />
     <ClCompile Include="color.c" />
+    <ClCompile Include="combustible.c" />
     <ClCompile Include="figuras.c" />
     <ClCompile Include="fisica.c" />
     <ClCompile Include="lista.c" />
@@ -149,6 +150,7 @@
     <ClInclude Include="bala.h" />
     <ClInclude Include="caracteres.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="combustible.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="figuras.h" />
     <ClInclude Include="fisica.h" />
