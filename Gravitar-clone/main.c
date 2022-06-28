@@ -32,7 +32,6 @@ int main() {
     SDL_Renderer *renderer;
     SDL_Event event;
 
-    //SDL_CreateWindowAndRenderer(VENTANA_ANCHO, VENTANA_ALTO, SDL_WINDOW_FULLSCREEN_DESKTOP, &window, &renderer);
     SDL_CreateWindowAndRenderer(VENTANA_ANCHO, VENTANA_ALTO, 0, &window, &renderer);
     SDL_SetWindowTitle(window, "Gravitar");
 
@@ -42,7 +41,6 @@ int main() {
     // Mi nave:
 
     lista_t* balas = lista_crear();
-    //bala_t* bala = NULL;
 
     FILE* f = fopen("figuras.bin", "rb");
     lista_t* figuras = lista_crear();
@@ -51,10 +49,6 @@ int main() {
         lista_insertar_ultimo(figuras, figura);
         figura = figura_leer(f);
     }
-
-    //const float bala_a[2][2] = {{0, 0}, {2, 0}};
-    const float bala_a[5][2] = { {-1, -1}, {-1, 1}, {1, 1}, {1, -1}, {-1, -1} };
-    polilinea_t* poli_bala = polilinea_crear(bala_a, 5, color_crear(1, 0, 0));
 
     nave_t *jugador = nave_crear(3, 1000, INICIO, "NAVE");
     if(jugador == NULL) return 1;
@@ -69,7 +63,7 @@ int main() {
     bool escudo = false;
 
     // Queremos que todo se dibuje escalado por f:
-    //float f = 10;
+    // float f = 10;
     // END código del alumno
 
     unsigned int ticks = SDL_GetTicks();
@@ -143,19 +137,17 @@ int main() {
 
         if (nave_get_posy(jugador) <= 5 || nave_get_posy(jugador) >= VENTANA_ALTO)
             nave_setear_vely(jugador, nave_get_vely(jugador) * -1);
-
         if (nave_get_posx(jugador) <= 5 || nave_get_posx(jugador) >= VENTANA_ANCHO)
             nave_setear_velx(jugador, nave_get_velx(jugador) * -1);
 
-        if (nave_get_nivel(jugador) == INICIO) {
+        if (nave_get_nivel(jugador) == INICIO)
             nave_setear_ang_g(jugador, computar_angulo(nave_get_posx(jugador), nave_get_posy(jugador), 457, 364));
-        }
 
         nave_mover(jugador, 1.0/JUEGO_FPS);
 
-        if (dispara) {
+        /*if (dispara) {
             lista_insertar_ultimo(balas, bala_crear(jugador));
-        }
+        }*/
 
         // Dibujamos la nave escalada por f en el centro de la pantalla:
         if (nave_get_nivel(jugador) == INICIO) {
@@ -293,7 +285,7 @@ int main() {
 
         figura_dibujar(nave_fig_a_dibujar, nave_get_posx(jugador), nave_get_posy(jugador), nave_get_ang(jugador), 1, renderer);
 
-        balas_mover(balas);
+        //balas_mover(balas);
 
         // END código del alumno
 
@@ -310,8 +302,6 @@ int main() {
     }
 
     // BEGIN código del alumno
-    //polilinea_destruir(polis_nave[0]);
-    //polilinea_destruir(polis_nave_chorro[1]);
     lista_destruir(figuras, figura_destruir);
     nave_destruir(jugador);
     // END código del alumno

@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdbool.h>
 #include "bala.h"
 #include "nave.h"
 #include "fisica.h"
@@ -9,6 +11,8 @@ struct bala {
 	double vel; //vel[0] = vel en x,  vel[1] = vel en y
 	double ang;
 	nivel_t niv;
+	bool jugador;
+	size_t contador;
 };
 
 bala_t* bala_crear(nave_t *nave) {
@@ -18,6 +22,8 @@ bala_t* bala_crear(nave_t *nave) {
 	bala->pos[1] = nave_get_posy(nave);
 	bala->vel = nave_get_vel(nave) + BALA_VELOCIDAD;
 	bala->ang = nave_get_ang(nave);
+	bala->niv = nave_get_nivel(nave);
+	bala->contador = 400;
 	return bala;
 }
 
