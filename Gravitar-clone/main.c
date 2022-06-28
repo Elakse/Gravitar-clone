@@ -11,6 +11,7 @@
 #include "lista.h"
 #include "torreta.h"
 #include "combustible.h"
+#include "nivel.h"
 
 figura_t* figura_buscar_nombre(lista_t *figuras, char* nombre) {
     if (lista_esta_vacia(figuras)) return NULL;
@@ -19,11 +20,12 @@ figura_t* figura_buscar_nombre(lista_t *figuras, char* nombre) {
     do {
         figura_t* figura = lista_iter_ver_actual(iter);
         if (!strcmp(figura_obtener_nombre(figura), nombre)) {
-            free(iter);
+            lista_iter_destruir(iter);
             return figura;
         }
-    } while (lista_iter_avanzar(iter));
-    free(iter);
+        lista_iter_avanzar(iter);
+    } while (!lista_iter_al_final(iter));
+    lista_iter_destruir(iter);
     return NULL;
 }
 
@@ -42,16 +44,42 @@ int main() {
     // BEGIN código del alumno
     // Mi nave:
 
-    lista_t* balas = lista_crear();
-    lista_t* nivel1 = lista_crear();
+    lista_t *balas = lista_crear();
 
-    FILE* f = fopen("figuras.bin", "rb");
-    lista_t* figuras = lista_crear();
-    figura_t* figura = figura_leer(f);
+    FILE *f = fopen("figuras.bin", "rb");
+    lista_t *figuras = lista_crear();
+    figura_t *figura = figura_leer(f);
     while (figura != NULL) {
         lista_insertar_ultimo(figuras, figura);
         figura = figura_leer(f);
     }
+
+    nivel_t* inicio = nivel_crear(INICIO);
+    nivel_insertar_figura(inicio, figura_buscar_nombre(figuras, "BASE"), 388, 218, 0, 1);
+    nivel_insertar_figura(inicio, figura_buscar_nombre(figuras, "ESTRELLA"), 457, 364, 0, 1);
+    nivel_insertar_figura(inicio, figura_buscar_nombre(figuras, "PLANETA1"), 663, 473, 0, 1);
+    nivel_insertar_figura(inicio, figura_buscar_nombre(figuras, "PLANETA2"), 671, 145, 0, 1);
+    nivel_insertar_figura(inicio, figura_buscar_nombre(figuras, "PLANETA3"), 110, 79, 0, 1);
+    nivel_insertar_figura(inicio, figura_buscar_nombre(figuras, "PLANETA4"), 204, 455, 0, 1);
+    nivel_insertar_figura(inicio, figura_buscar_nombre(figuras, "PLANETA5"), 111, 307, 0, 1);
+
+    nivel_t* nivel1 = nivel_crear(NIVEL1);
+    nivel_insertar_figura(nivel1, figura_buscar_nombre(figuras, "NIVEL1NE"), 0, 0, 0, 1);
+
+    nivel_t* nivel2 = nivel_crear(NIVEL2);
+    nivel_insertar_figura(nivel2, figura_buscar_nombre(figuras, "NIVEL1SE"), 0, 0, 0, 1);
+
+    nivel_t* nivel3 = nivel_crear(NIVEL3);
+    nivel_insertar_figura(nivel3, figura_buscar_nombre(figuras, "NIVEL1SW"), 0, 0, 0, 1);
+
+    nivel_t* nivel4 = nivel_crear(NIVEL4);
+    nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "NIVEL1NW"), 0, 0, 0, 1);
+
+    nivel_t* nivel5 = nivel_crear(NIVEL5);
+    nivel_insertar_figura(nivel5, figura_buscar_nombre(figuras, "NIVEL1R"), 0, 0, 0, 1);
+    nivel_insertar_figura(nivel5, figura_buscar_nombre(figuras, "REACTOR"), 815, 309, 0, 1);
+    
+    nivel_t* niveles[6] = { inicio, nivel1, nivel2, nivel3, nivel4, nivel5 };
 
     nave_t *jugador = nave_crear(3, JUEGO_COMBUSTIBLE_INICIAL, INICIO, "NAVE");
     if(jugador == NULL) return 1;
@@ -148,7 +176,10 @@ int main() {
         }*/
 
         // Dibujamos la nave escalada por f en el centro de la pantalla:
-        if (nave_get_nivel(jugador) == INICIO) {
+
+        nivel_tickear(niveles[nave_get_nivel(jugador)], jugador, escala, centro, renderer);
+
+        /*if (nave_get_nivel(jugador) == INICIO) {
             figura_dibujar(figura_buscar_nombre(figuras, "BASE"), 388, 218, 0, 1, renderer);
             figura_dibujar(figura_buscar_nombre(figuras, "ESTRELLA"), 457, 364, 0, 1, renderer);
             figura_dibujar(figura_buscar_nombre(figuras, "PLANETA1"), 663, 473, 0, 1, renderer);
@@ -207,8 +238,6 @@ int main() {
                 if (nave_get_vidas(jugador) == 0) break;
             }
         }
-
-        //Entra en Nivel de reactor
 
         if (nave_get_nivel(jugador) == NIVEL1) {
             if (nave_get_posy(jugador) >= VENTANA_ALTO) {
@@ -307,8 +336,8 @@ int main() {
                 nave_setear_pos(jugador, 388, 218);
                 nave_restar_vida(jugador);
                 if (nave_get_vidas(jugador) == 0) break;
-            }*/
-        }
+            }
+        }*/
 
         if (escudo) figura_dibujar(figura_buscar_nombre(figuras, "ESCUDO2"), nave_get_posx(jugador), nave_get_posy(jugador), nave_get_ang(jugador) + PI/2, 1, renderer);
         if (chorro_prendido) nave_cambiar_nombre_fig(jugador, "NAVE+CHORRO");

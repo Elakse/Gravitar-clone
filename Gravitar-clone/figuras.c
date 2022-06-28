@@ -1,6 +1,7 @@
 #include "figuras.h"
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include "polilinea.h"
 #include <stdio.h>
 	
@@ -11,6 +12,29 @@ struct figura {
 	size_t cant;
 	polilinea_t** polis;
 };
+
+struct figura_render {
+	figura_t* figura;
+	double posx;
+	double posy;
+	double ang;
+	double escala;
+};
+
+figura_render_t* figura_render_crear(figura_t *figura, double posx, double posy, double ang, double escala) {
+	figura_render_t* figura_render = malloc(sizeof(figura_render_t));
+	if (figura_render == NULL) return NULL;
+	figura_render->figura = figura;
+	figura_render->posx = posx;
+	figura_render->posy = posy;
+	figura_render->ang = ang;
+	figura_render->escala = escala;
+	return figura_render;
+}
+
+void figura_render_destruir(figura_render_t* figura_render) {
+	free(figura_render);
+}
 
 figura_t* figura_crear(bool inf, size_t cant, figura_tipo_t tipo, char* nombre) {
 	figura_t* figura = malloc(sizeof(figura_t));
@@ -34,6 +58,26 @@ figura_t* figura_crear(bool inf, size_t cant, figura_tipo_t tipo, char* nombre) 
 		return NULL;
 	}
 	return figura;
+}
+
+figura_t* figura_clonar(figura_t* figura) {
+	figura_t* clon = malloc(sizeof(figura_t));
+	if (clon == NULL) return NULL;
+
+	clon->polis = malloc(sizeof(polilinea_t*) * figura->cant);
+	if (clon->polis == NULL) {
+		free(clon);
+		return NULL;
+	}
+
+	for(size_t i = 0; i < figura->cant; i++)
+		clon->polis[i] = polilinea_clonar(figura->polis[i]);
+
+	clon->inf = figura->inf;
+	clon->cant = figura->cant;
+	clon->tipo = figura->tipo;
+	strcpy(clon->nombre, figura->nombre);
+	return clon;
 }
 
 bool figura_insertar_poli(figura_t* figura, polilinea_t* poli, size_t pos) {
@@ -118,6 +162,10 @@ char* figura_obtener_nombre(figura_t* figura) {
 polilinea_t** figura_obtener_polis(figura_t* figura){
 	polilinea_t** polis = figura->polis;
 	return polis;
+}
+
+void figura_render_dibujar(figura_render_t* figura_render, double escala, double centro, SDL_Renderer* renderer) {
+	figura_dibujar(figura_render->figura, figura_render->posx + centro, figura_render->posy, figura_render->ang, figura_render->escala * escala, renderer);
 }
 
 void figura_dibujar(figura_t* figura, double pos_x, double pos_y, double ang, double escala, SDL_Renderer* renderer) {

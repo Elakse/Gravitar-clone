@@ -81,6 +81,7 @@ void balas_mover(lista_t *balas) {
 	do {
 		bala = lista_iter_ver_actual(iter);
 		bala_mover(bala, 1.0/JUEGO_FPS);
-	} while (lista_iter_avanzar(iter));
-	free(iter);
+		lista_iter_avanzar(iter);
+	} while (!lista_iter_al_final(iter));
+	lista_iter_destruir(iter);
 }
