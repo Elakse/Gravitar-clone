@@ -44,5 +44,6 @@ char* nave_get_nombre_fig(nave_t* nave);
 void nave_girar_der(nave_t *nave, double ang);
 void nave_girar_izq(nave_t *nave, double ang);
 void nave_mover(nave_t *nave, double dt);
+double nave_distancia_a_punto(nave_t* nave, double x, double y);
 
 #endif

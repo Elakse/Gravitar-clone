@@ -124,6 +124,7 @@ int main() {
     bool gira_izq = false;
     bool dispara = false;
     bool escudo = false;
+    size_t disparo_delay = 0;
 
     double escala = 1;
     double centro = 0;
@@ -139,10 +140,8 @@ int main() {
                 break;
             // BEGIN código del alumno
             if (event.type == SDL_KEYDOWN) {
-                // Se apretó una tecla
                 switch (event.key.keysym.sym) {
                 case SDLK_w:
-                    // Prendemos el chorro:
                     chorro_prendido = true;
                     break;
                 case SDLK_s:
@@ -161,10 +160,8 @@ int main() {
                 }
             }
             else if (event.type == SDL_KEYUP) {
-                // Se soltó una tecla
                 switch (event.key.keysym.sym) {
                 case SDLK_w:
-                    // Apagamos el chorro:
                     chorro_prendido = false;
                     break;
                 case SDLK_s:
@@ -182,7 +179,6 @@ int main() {
                     break;
                 }
             }
-            //END códigod el alumno
             continue;
         }
 
@@ -201,15 +197,37 @@ int main() {
         if (!gira_der && gira_izq)
             nave_girar_izq(jugador, NAVE_ROTACION_PASO);
 
-        nave_mover(jugador, 1.0/JUEGO_FPS);
+        nave_mover(jugador, DT);
 
-        /*if (dispara) {
-            lista_insertar_ultimo(balas, bala_crear(jugador));
-        }*/
+        //Parametros de la nave en lo que queda del intervalo while
 
+        double x_nav = nave_get_posx(jugador);
+        double y_nav = nave_get_posy(jugador);
+        double vel_nav = nave_get_vel(jugador);
+        double ang_nav = nave_get_ang(jugador);
+        nivel_enum_t nivel_nav = nave_get_nivel(jugador);
+
+
+        if (dispara && disparo_delay == 0) {
+            lista_insertar_ultimo(balas, bala_crear(x_nav, y_nav, BALA_VELOCIDAD, ang_nav, nivel_nav, true));
+            disparo_delay = 100;
+        }
+
+        if (disparo_delay != 0) disparo_delay--;
+
+        lista_iter_t* iter = lista_iter_crear(balas);
+        while (!lista_iter_al_final(iter)) {
+            bala_t* bala = lista_iter_ver_actual(iter);
+            if (!bala_actualizar(bala, DT)) {
+                bala_destruir(lista_iter_borrar(iter));
+            }
+            lista_iter_avanzar(iter);
+        }
+        lista_iter_destruir(iter);
         // Dibujamos la nave escalada por f en el centro de la pantalla:
 
         nivel_tickear(niveles[nave_get_nivel(jugador)], jugador, escala, centro, renderer);
+
 
         /*if (nave_get_nivel(jugador) == INICIO) {
             figura_dibujar(figura_buscar_nombre(figuras, "BASE"), 388, 218, 0, 1, renderer);
@@ -377,6 +395,13 @@ int main() {
         figura_t* nave_fig_a_dibujar = figura_buscar_nombre(figuras, nave_get_nombre_fig(jugador));
 
         figura_dibujar(nave_fig_a_dibujar, nave_get_posx(jugador), nave_get_posy(jugador), nave_get_ang(jugador), 1, renderer);
+
+        figura_t* bala_a_dibujar = figura_buscar_nombre(figuras, "DISPARO");
+
+        for (lista_iter_t* iter = lista_iter_crear(balas); !lista_iter_al_final(iter); lista_iter_avanzar(iter)) {
+            bala_t* bala = lista_iter_ver_actual(iter);
+            figura_dibujar(bala_a_dibujar, bala_get_posx(bala), bala_get_posy(bala), 0, 1, renderer);
+        }
 
         //balas_mover(balas);
 

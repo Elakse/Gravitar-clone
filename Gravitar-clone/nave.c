@@ -155,3 +155,7 @@ void nave_mover(nave_t *nave, double dt) {
   nave->pos[0] = computar_posicion(nave->pos[0], nave->vel[0], dt);
   nave->pos[1] = computar_posicion(nave->pos[1], nave->vel[1], dt);
 }
+
+double nave_distancia_a_punto(nave_t* nave, double x, double y) {
+    return computar_distancia(nave->pos[0], nave->pos[1], x, y);
+}
