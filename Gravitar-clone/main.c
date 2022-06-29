@@ -46,6 +46,7 @@ int main() {
 
     lista_t* balas = lista_crear();
 
+    // Leemos todas las figuras y las metemos en una lista enlazada
     FILE* f = fopen("figuras.bin", "rb");
     lista_t* figuras = lista_crear();
     figura_t* figura = figura_leer(f);
@@ -54,6 +55,7 @@ int main() {
         figura = figura_leer(f);
     }
 
+    // Creamos todos los niveles con sus figuras
     nivel_t* inicio = nivel_crear(INICIO);
     nivel_insertar_figura(inicio, figura_buscar_nombre(figuras, "BASE"), 388, 218, 0, 1);
     nivel_insertar_figura(inicio, figura_buscar_nombre(figuras, "ESTRELLA"), 457, 364, 0, 1);
@@ -78,7 +80,6 @@ int main() {
     nivel_insertar_figura(nivel2, figura_buscar_nombre(figuras, "TORRETA"), 1587, 223, 2.23, 1);
     nivel_insertar_figura(nivel2, figura_buscar_nombre(figuras, "COMBUSTIBLE"), 482, 94, 0, 1);
     nivel_insertar_figura(nivel2, figura_buscar_nombre(figuras, "COMBUSTIBLE"), 1751, 247, 0, 1);
-
 
     nivel_t* nivel3 = nivel_crear(NIVEL3);
     nivel_insertar_figura(nivel3, figura_buscar_nombre(figuras, "NIVEL1SW"), 0, 0, 0, 1);
@@ -113,6 +114,8 @@ int main() {
     
     nivel_t* niveles[6] = { inicio, nivel1, nivel2, nivel3, nivel4, nivel5 };
 
+    //
+
     nave_t *jugador = nave_crear(3, JUEGO_COMBUSTIBLE_INICIAL, INICIO, "NAVE");
     if(jugador == NULL) return 1;
     nave_setear_pos(jugador, 388, 218);
@@ -126,11 +129,10 @@ int main() {
     bool escudo = false;
     size_t disparo_delay = 0;
 
+    // Queremos que todo se dibuje escalado por "escala":
     double escala = 1;
     double centro = 0;
 
-    // Queremos que todo se dibuje escalado por f:
-    // float f = 10;
     // END código del alumno
 
     unsigned int ticks = SDL_GetTicks();
@@ -188,56 +190,183 @@ int main() {
 
         // BEGIN código del alumno
 
+        // Actualizacion de los valores de la nave en este tick
         if (chorro_prendido)
             nave_setear_a_thrust(jugador, NAVE_ACELERACION);
         else nave_setear_a_thrust(jugador, 0);
-
         if (gira_der && !gira_izq)
             nave_girar_der(jugador, NAVE_ROTACION_PASO);
         if (!gira_der && gira_izq)
             nave_girar_izq(jugador, NAVE_ROTACION_PASO);
-
         nave_mover(jugador, DT);
 
-        //Parametros de la nave en lo que queda del intervalo while
-
+        // Valores de la nave en este tick
         double x_nav = nave_get_posx(jugador);
         double y_nav = nave_get_posy(jugador);
         double vel_nav = nave_get_vel(jugador);
+        double x_vel_nav = nave_get_velx(jugador);
+        double y_vel_nav = nave_get_vely(jugador);
         double ang_nav = nave_get_ang(jugador);
         nivel_enum_t nivel_nav = nave_get_nivel(jugador);
 
+        // Actualizacion de todas las figuras del nivel en este tick
+        switch (nivel_nav) {
+            case INICIO: {
+                if (y_nav <= 5 || y_nav >= VENTANA_ALTO)
+                    nave_setear_vely(jugador, y_vel_nav * -1);
+                if (x_nav <= 5 || x_nav >= VENTANA_ANCHO)
+                    nave_setear_velx(jugador, x_vel_nav * -1);
 
-        if (dispara && disparo_delay == 0) {
-            lista_insertar_ultimo(balas, bala_crear(x_nav, y_nav, BALA_VELOCIDAD, ang_nav, nivel_nav, true));
-            disparo_delay = 100;
-        }
+                nave_setear_ang_g(jugador, computar_angulo(x_nav, y_nav, 457, 364));
 
-        if (disparo_delay != 0) disparo_delay--;
-
-        lista_iter_t* iter = lista_iter_crear(balas);
-        while (!lista_iter_al_final(iter)) {
-            bala_t* bala = lista_iter_ver_actual(iter);
-            if (!bala_actualizar(bala, DT)) {
-                bala_destruir(lista_iter_borrar(iter));
+                if (computar_distancia(x_nav, y_nav, 663, 473) < 20) {
+                    nave_setear_nivel(jugador, NIVEL1);
+                    nave_setear_pos(jugador, 300, 590);
+                    nave_setear_vel(jugador, 0, -20);
+                    nave_setear_ang_nave(jugador, PI * 1.5);
+                    nave_setear_ang_g(jugador, PI * 1.5);
+                }
+                if (computar_distancia(x_nav, y_nav, 671, 145) < 20) {
+                    nave_setear_nivel(jugador, NIVEL2);
+                    nave_setear_pos(jugador, 400, 590);
+                    nave_setear_vel(jugador, 0, -20);
+                    nave_setear_ang_nave(jugador, PI * 1.5);
+                    nave_setear_ang_g(jugador, PI * 1.5);
+                }
+                if (computar_distancia(x_nav, y_nav, 110, 79) < 20) {
+                    nave_setear_nivel(jugador, NIVEL3);
+                    nave_setear_pos(jugador, 400, 590);
+                    nave_setear_vel(jugador, 0, -20);;
+                    nave_setear_ang_nave(jugador, PI * 1.5);
+                    nave_setear_ang_g(jugador, PI * 1.5);
+                }
+                if (computar_distancia(x_nav, y_nav, 204, 455) < 20) {
+                    nave_setear_nivel(jugador, NIVEL4);
+                    nave_setear_pos(jugador, 400, 590);
+                    nave_setear_vel(jugador, 0, -20);
+                    nave_setear_ang_nave(jugador, PI * 1.5);
+                    nave_setear_ang_g(jugador, PI * 1.5);
+                }
+                if (computar_distancia(x_nav, y_nav, 111, 307) < 20) {
+                    nave_setear_nivel(jugador, NIVEL5);
+                    nave_setear_pos(jugador, 300, 590);
+                    nave_setear_vel(jugador, 0, -20);
+                    nave_setear_ang_nave(jugador, PI * 1.5);
+                    nave_setear_ang_g(jugador, PI * 1.5);
+                }
+                if (computar_distancia(x_nav, y_nav, 457, 364) < 20) {
+                    nave_setear_pos(jugador, 388, 218);
+                    nave_setear_vel(jugador, 0, 0);
+                    nave_setear_ang_nave(jugador, PI / 4);
+                    nave_restar_vida(jugador);
+                }
+                break;
             }
-            lista_iter_avanzar(iter);
+            case NIVEL1: {
+                if (y_nav >= VENTANA_ALTO) {
+                    nave_setear_nivel(jugador, INICIO);
+                    nave_setear_pos(jugador, 645, 455);
+                    nave_setear_vel(jugador, -10, -10);
+                    nave_setear_ang_nave(jugador, PI + PI / 4);
+                }
+
+                if (x_nav > VENTANA_ALTO * MARGEN_ALTURA)
+                    escala = VENTANA_ALTO * MARGEN_ALTURA / x_nav;
+                if (escala < ESCALA_MINIMA)
+                    escala = ESCALA_MINIMA;
+                if ((x_nav - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = x_nav - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+                else if ((x_nav - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = x_nav + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+
+                break;
+            }
+            case NIVEL2: {
+                if (y_nav >= VENTANA_ALTO) {
+                    nave_setear_nivel(jugador, INICIO);
+                    nave_setear_ang_nave(jugador, PI);
+                    nave_setear_vel(jugador, -10, 0);
+                    nave_setear_pos(jugador, 645, 145);
+                }
+
+                if (y_nav > VENTANA_ALTO * MARGEN_ALTURA)
+                    escala = VENTANA_ALTO * MARGEN_ALTURA / y_nav;
+                if (escala < ESCALA_MINIMA)
+                    escala = ESCALA_MINIMA;
+                if ((x_nav - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = x_nav - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+                else if ((x_nav - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = x_nav + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+
+                break;
+            }
+            case NIVEL3: {
+                if (y_nav >= VENTANA_ALTO) {
+                    nave_setear_nivel(jugador, INICIO);
+                    nave_setear_pos(jugador, 130, 95);
+                    nave_setear_vel(jugador, 10, 10);
+                    nave_setear_ang_nave(jugador, PI / 4);
+                }
+
+                if (y_nav > VENTANA_ALTO * MARGEN_ALTURA)
+                    escala = VENTANA_ALTO * MARGEN_ALTURA / y_nav;
+                if (escala < ESCALA_MINIMA)
+                    escala = ESCALA_MINIMA;
+
+                if ((x_nav - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = x_nav - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+                else if ((x_nav - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = x_nav + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+
+                break;
+            }
+            case NIVEL4: {
+                if (y_nav >= VENTANA_ALTO) {
+                    nave_setear_nivel(jugador, INICIO);
+                    nave_setear_pos(jugador, 204, 435);
+                    nave_setear_vel(jugador, 0, -10);
+                    nave_setear_ang_nave(jugador, PI * 1.5);
+                }
+
+                if (y_nav > VENTANA_ALTO * MARGEN_ALTURA)
+                    escala = VENTANA_ALTO * MARGEN_ALTURA / y_nav;
+                if (escala < ESCALA_MINIMA)
+                    escala = ESCALA_MINIMA;
+                if ((x_nav - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = x_nav - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+                else if ((x_nav - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = x_nav + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+
+                break;
+            }
+            case NIVEL5: {
+                if (y_nav >= VENTANA_ALTO) {
+                    nave_setear_nivel(jugador, INICIO);
+                    nave_setear_ang_nave(jugador, PI * 2);
+                    nave_setear_vel(jugador, 10, 0);
+                    nave_setear_pos(jugador, 150, 307);
+                }
+                if (y_nav <= 0)
+                    nave_setear_vely(jugador, y_vel_nav * -1);
+                if (x_nav <= 0 || x_nav >= VENTANA_ANCHO * 0.99)
+                    nave_setear_velx(jugador, x_vel_nav * -1);
+
+                if (y_nav > VENTANA_ALTO * MARGEN_ALTURA)
+                    escala = VENTANA_ALTO * MARGEN_ALTURA / y_nav;
+                if (escala < ESCALA_MINIMA)
+                    escala = ESCALA_MINIMA;
+                if ((x_nav - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = x_nav - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+                else if ((x_nav - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = x_nav + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+
+                break;
+            }
         }
-        lista_iter_destruir(iter);
-        // Dibujamos la nave escalada por f en el centro de la pantalla:
 
-        nivel_tickear(niveles[nave_get_nivel(jugador)], jugador, escala, centro, renderer);
-
-
-        /*if (nave_get_nivel(jugador) == INICIO) {
-            figura_dibujar(figura_buscar_nombre(figuras, "BASE"), 388, 218, 0, 1, renderer);
-            figura_dibujar(figura_buscar_nombre(figuras, "ESTRELLA"), 457, 364, 0, 1, renderer);
-            figura_dibujar(figura_buscar_nombre(figuras, "PLANETA1"), 663, 473, 0, 1, renderer);
-            figura_dibujar(figura_buscar_nombre(figuras, "PLANETA2"), 671, 145, 0, 1, renderer);
-            figura_dibujar(figura_buscar_nombre(figuras, "PLANETA3"), 110, 79, 0, 1, renderer);
-            figura_dibujar(figura_buscar_nombre(figuras, "PLANETA4"), 204, 455, 0, 1, renderer);
-            figura_dibujar(figura_buscar_nombre(figuras, "PLANETA5"), 111, 307, 0, 1, renderer);
-
+        // Switch calculando valores de la nave en cada uso (MAL)
+        /*switch (nave_get_nivel(jugador)) {
+        case INICIO: {
             if (nave_get_posy(jugador) <= 5 || nave_get_posy(jugador) >= VENTANA_ALTO)
                 nave_setear_vely(jugador, nave_get_vely(jugador) * -1);
             if (nave_get_posx(jugador) <= 5 || nave_get_posx(jugador) >= VENTANA_ANCHO)
@@ -283,13 +412,12 @@ int main() {
             if (computar_distancia(nave_get_posx(jugador), nave_get_posy(jugador), 457, 364) < 20) {
                 nave_setear_pos(jugador, 388, 218);
                 nave_setear_vel(jugador, 0, 0);
-                nave_setear_ang_nave(jugador, PI/4);
+                nave_setear_ang_nave(jugador, PI / 4);
                 nave_restar_vida(jugador);
-                if (nave_get_vidas(jugador) == 0) break;
             }
+            break;
         }
-
-        if (nave_get_nivel(jugador) == NIVEL1) {
+        case NIVEL1: {
             if (nave_get_posy(jugador) >= VENTANA_ALTO) {
                 nave_setear_nivel(jugador, INICIO);
                 nave_setear_pos(jugador, 645, 455);
@@ -301,15 +429,14 @@ int main() {
                 escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(jugador);
             if (escala < ESCALA_MINIMA)
                 escala = ESCALA_MINIMA;
+            if ((nave_get_posx(jugador) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                centro = nave_get_posx(jugador) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+            else if ((nave_get_posx(jugador) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                centro = nave_get_posx(jugador) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
 
-            if (nave_get_posy(jugador) <= 0)
-                nave_setear_vely(jugador, nave_get_vely(jugador) * -1);
-            if (nave_get_posx(jugador) <= 0 || nave_get_posx(jugador) >= VENTANA_ANCHO * 0.99)
-                nave_setear_velx(jugador, nave_get_velx(jugador) * -1);
-
-            figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1NE"), 0, 0, 0, escala, renderer);
+            break;
         }
-        if (nave_get_nivel(jugador) == NIVEL2) {
+        case NIVEL2: {
             if (nave_get_posy(jugador) >= VENTANA_ALTO) {
                 nave_setear_nivel(jugador, INICIO);
                 nave_setear_ang_nave(jugador, PI);
@@ -317,14 +444,18 @@ int main() {
                 nave_setear_pos(jugador, 645, 145);
             }
 
-            if (nave_get_posy(jugador) <= 0)
-                nave_setear_vely(jugador, nave_get_vely(jugador) * -1);
-            if (nave_get_posx(jugador) <= 0 || nave_get_posx(jugador) >= VENTANA_ANCHO * 0.99)
-                nave_setear_velx(jugador, nave_get_velx(jugador) * -1);
+            if (nave_get_posy(jugador) > VENTANA_ALTO * MARGEN_ALTURA)
+                escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(jugador);
+            if (escala < ESCALA_MINIMA)
+                escala = ESCALA_MINIMA;
+            if ((nave_get_posx(jugador) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                centro = nave_get_posx(jugador) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+            else if ((nave_get_posx(jugador) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                centro = nave_get_posx(jugador) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
 
-            figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1SE"), 0, 0,  0, 1, renderer);
+            break;
         }
-        if (nave_get_nivel(jugador) == NIVEL3) {
+        case NIVEL3: {
             if (nave_get_posy(jugador) >= VENTANA_ALTO) {
                 nave_setear_nivel(jugador, INICIO);
                 nave_setear_pos(jugador, 130, 95);
@@ -342,9 +473,9 @@ int main() {
             else if ((nave_get_posx(jugador) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
                 centro = nave_get_posx(jugador) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
 
-            figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1SW"), 0, 0, 0, escala, renderer);
+            break;
         }
-        if (nave_get_nivel(jugador) == NIVEL4) {
+        case NIVEL4: {
             if (nave_get_posy(jugador) >= VENTANA_ALTO) {
                 nave_setear_nivel(jugador, INICIO);
                 nave_setear_pos(jugador, 204, 435);
@@ -352,14 +483,18 @@ int main() {
                 nave_setear_ang_nave(jugador, PI * 1.5);
             }
 
-            if (nave_get_posy(jugador) <= 0)
-                nave_setear_vely(jugador, nave_get_vely(jugador) * -1);
-            if (nave_get_posx(jugador) <= 0 || nave_get_posx(jugador) >= VENTANA_ANCHO * 0.99)
-                nave_setear_velx(jugador, nave_get_velx(jugador) * -1);
+            if (nave_get_posy(jugador) > VENTANA_ALTO * MARGEN_ALTURA)
+                escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(jugador);
+            if (escala < ESCALA_MINIMA)
+                escala = ESCALA_MINIMA;
+            if ((nave_get_posx(jugador) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                centro = nave_get_posx(jugador) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+            else if ((nave_get_posx(jugador) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                centro = nave_get_posx(jugador) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
 
-            figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1NW"), 0, 0, 0, 1, renderer);
+            break;
         }
-        if (nave_get_nivel(jugador) == NIVEL5) {
+        case NIVEL5: {
             if (nave_get_posy(jugador) >= VENTANA_ALTO) {
                 nave_setear_nivel(jugador, INICIO);
                 nave_setear_ang_nave(jugador, PI * 2);
@@ -371,30 +506,44 @@ int main() {
             if (nave_get_posx(jugador) <= 0 || nave_get_posx(jugador) >= VENTANA_ANCHO * 0.99)
                 nave_setear_velx(jugador, nave_get_velx(jugador) * -1);
 
-            figura_dibujar(figura_buscar_nombre(figuras, "NIVEL1R"), 25, 20, 0, 0.65, renderer);
-            figura_dibujar(figura_buscar_nombre(figuras, "REACTOR"), 525, 235, 0, 2, renderer);
+            if (nave_get_posy(jugador) > VENTANA_ALTO * MARGEN_ALTURA)
+                escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(jugador);
+            if (escala < ESCALA_MINIMA)
+                escala = ESCALA_MINIMA;
+            if ((nave_get_posx(jugador) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                centro = nave_get_posx(jugador) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+            else if ((nave_get_posx(jugador) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                centro = nave_get_posx(jugador) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
 
-            /*figura_t* nivel = figura_buscar_nombre(figuras, "NIVEL1R");
-            polilinea_t** polis = figura_obtener_polis(nivel);
-            polilinea_t *poli2 = polilinea_clonar(polis[0]);
-            polilinea_escalar(poli2, 0.65);
-            polilinea_trasladar(poli2, 25, 20);
-            if (distancia_punto_a_polilinea(poli2, nave_get_posx(jugador), nave_get_posy(jugador)) < 5) {
-                nave_setear_ang_nave(jugador, PI/4);
-                nave_setear_vel(jugador, 0, 0);
-                nave_setear_nivel(jugador, INICIO);
-                nave_setear_pos(jugador, 388, 218);
-                nave_restar_vida(jugador);
-                if (nave_get_vidas(jugador) == 0) break;
-            }
+            break;
+        }
         }*/
 
-        if (escudo) figura_dibujar(figura_buscar_nombre(figuras, "ESCUDO2"), nave_get_posx(jugador), nave_get_posy(jugador), nave_get_ang(jugador) + PI/2, 1, renderer);
+        // Verificamos si se tienen que crear balas
+        if (dispara && disparo_delay == 0) {
+            lista_insertar_ultimo(balas, bala_crear(x_nav, y_nav, BALA_VELOCIDAD + vel_nav, ang_nav, nivel_nav, true));
+            disparo_delay = 20;
+        }
+        if (disparo_delay != 0) disparo_delay--;
+
+        lista_iter_t* iter = lista_iter_crear(balas);
+        while (!lista_iter_al_final(iter)) {
+            bala_t* bala = lista_iter_ver_actual(iter);
+            if (!bala_actualizar(bala, DT)) {
+                bala_destruir(lista_iter_borrar(iter));
+            }
+            lista_iter_avanzar(iter);
+        }
+        lista_iter_destruir(iter);
+
+        // Dibujamos todo (nivel con sus figuras, nave, escudo, chorro)
+
+        nivel_dibujar(niveles[nivel_nav], escala, 0, renderer);
+        if (escudo) figura_dibujar(figura_buscar_nombre(figuras, "ESCUDO2"), nave_get_posx(jugador), nave_get_posy(jugador), nave_get_ang(jugador) + PI / 2, 1, renderer);
         if (chorro_prendido) nave_cambiar_nombre_fig(jugador, "NAVE+CHORRO");
         else nave_cambiar_nombre_fig(jugador, "NAVE");
         figura_t* nave_fig_a_dibujar = figura_buscar_nombre(figuras, nave_get_nombre_fig(jugador));
-
-        figura_dibujar(nave_fig_a_dibujar, nave_get_posx(jugador), nave_get_posy(jugador), nave_get_ang(jugador), 1, renderer);
+        figura_dibujar(nave_fig_a_dibujar, x_nav, y_nav, ang_nav, 1, renderer);
 
         figura_t* bala_a_dibujar = figura_buscar_nombre(figuras, "DISPARO");
 
