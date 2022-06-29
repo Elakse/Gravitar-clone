@@ -539,7 +539,7 @@ int main() {
         // Dibujamos todo (nivel con sus figuras, nave, escudo, chorro)
 
         nivel_dibujar(niveles[nivel_nav], escala, 0, renderer);
-        if (escudo) figura_dibujar(figura_buscar_nombre(figuras, "ESCUDO2"), nave_get_posx(jugador), nave_get_posy(jugador), nave_get_ang(jugador) + PI / 2, 1, renderer);
+        if (escudo) figura_dibujar(figura_buscar_nombre(figuras, "ESCUDO2"), x_nav, y_nav, ang_nav + PI / 2, 1, renderer);
         if (chorro_prendido) nave_cambiar_nombre_fig(jugador, "NAVE+CHORRO");
         else nave_cambiar_nombre_fig(jugador, "NAVE");
         figura_t* nave_fig_a_dibujar = figura_buscar_nombre(figuras, nave_get_nombre_fig(jugador));
