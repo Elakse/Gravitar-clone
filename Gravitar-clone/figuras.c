@@ -4,6 +4,7 @@
 #include <string.h>
 #include "polilinea.h"
 #include <stdio.h>
+#include "config.h"
 	
 struct figura {
 	char nombre[20];
@@ -164,6 +165,8 @@ polilinea_t** figura_obtener_polis(figura_t* figura){
 	return polis;
 }
 
+
+//Esta es la funcion que deberia transladar y escalar todo al dibujarlo, No se como se haria pero estan las herramientas.
 void figura_render_dibujar(figura_render_t* figura_render, double escala, double centro, SDL_Renderer* renderer) {
 	figura_dibujar(figura_render->figura, figura_render->posx + centro, figura_render->posy, figura_render->ang, figura_render->escala * escala, renderer);
 }

@@ -83,11 +83,11 @@ void nivel_tickear(nivel_t *nivel, nave_t *nave, double escala, double centro, S
                     escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(nave);
                 if (escala < ESCALA_MINIMA)
                     escala = ESCALA_MINIMA;
+                if ((nave_get_posx(nave) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = nave_get_posx(nave) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+                else if ((nave_get_posx(nave) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = nave_get_posx(nave) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
 
-                if (nave_get_posy(nave) <= 0)
-                    nave_setear_vely(nave, nave_get_vely(nave) * -1);
-                if (nave_get_posx(nave) <= 0 || nave_get_posx(nave) >= VENTANA_ANCHO * 0.99)
-                    nave_setear_velx(nave, nave_get_velx(nave) * -1);
                 break;
             }
         case NIVEL2:{
@@ -97,11 +97,16 @@ void nivel_tickear(nivel_t *nivel, nave_t *nave, double escala, double centro, S
                     nave_setear_vel(nave, -10, 0);
                     nave_setear_pos(nave, 645, 145);
                 }
+                
+                if (nave_get_posy(nave) > VENTANA_ALTO * MARGEN_ALTURA)
+                    escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(nave);
+                if (escala < ESCALA_MINIMA)
+                    escala = ESCALA_MINIMA;
+                if ((nave_get_posx(nave) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = nave_get_posx(nave) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+                else if ((nave_get_posx(nave) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = nave_get_posx(nave) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
 
-                if (nave_get_posy(nave) <= 0)
-                    nave_setear_vely(nave, nave_get_vely(nave) * -1);
-                if (nave_get_posx(nave) <= 0 || nave_get_posx(nave) >= VENTANA_ANCHO * 0.99)
-                    nave_setear_velx(nave, nave_get_velx(nave) * -1);
                 break;
             }
         case NIVEL3:{
@@ -121,6 +126,7 @@ void nivel_tickear(nivel_t *nivel, nave_t *nave, double escala, double centro, S
                     centro = nave_get_posx(nave) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
                 else if ((nave_get_posx(nave) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
                     centro = nave_get_posx(nave) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+
                 break;
             }
         case NIVEL4:{
@@ -131,10 +137,15 @@ void nivel_tickear(nivel_t *nivel, nave_t *nave, double escala, double centro, S
                     nave_setear_ang_nave(nave, PI * 1.5);
                 }
 
-                if (nave_get_posy(nave) <= 0)
-                    nave_setear_vely(nave, nave_get_vely(nave) * -1);
-                if (nave_get_posx(nave) <= 0 || nave_get_posx(nave) >= VENTANA_ANCHO * 0.99)
-                    nave_setear_velx(nave, nave_get_velx(nave) * -1);
+                if (nave_get_posy(nave) > VENTANA_ALTO * MARGEN_ALTURA)
+                    escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(nave);
+                if (escala < ESCALA_MINIMA)
+                    escala = ESCALA_MINIMA;
+                if ((nave_get_posx(nave) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = nave_get_posx(nave) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+                else if ((nave_get_posx(nave) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = nave_get_posx(nave) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+
                 break;
             }
         case NIVEL5:{
@@ -149,23 +160,19 @@ void nivel_tickear(nivel_t *nivel, nave_t *nave, double escala, double centro, S
                 if (nave_get_posx(nave) <= 0 || nave_get_posx(nave) >= VENTANA_ANCHO * 0.99)
                     nave_setear_velx(nave, nave_get_velx(nave) * -1);
 
-                /*figura_t* nivel = figura_buscar_nombre(figuras, "NIVEL1R");
-                polilinea_t** polis = figura_obtener_polis(nivel);
-                polilinea_t *poli2 = polilinea_clonar(polis[0]);
-                polilinea_escalar(poli2, 0.65);
-                polilinea_trasladar(poli2, 25, 20);
-                if (distancia_punto_a_polilinea(poli2, nave_get_posx(jugador), nave_get_posy(jugador)) < 5) {
-                    nave_setear_ang_nave(jugador, PI/4);
-                    nave_setear_vel(jugador, 0, 0);
-                    nave_setear_nivel(jugador, INICIO);
-                    nave_setear_pos(jugador, 388, 218);
-                    nave_restar_vida(jugador);
-                    if (nave_get_vidas(jugador) == 0) break;
-                }*/
+                if (nave_get_posy(nave) > VENTANA_ALTO * MARGEN_ALTURA)
+                    escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(nave);
+                if (escala < ESCALA_MINIMA)
+                    escala = ESCALA_MINIMA;
+                if ((nave_get_posx(nave) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = nave_get_posx(nave) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+                else if ((nave_get_posx(nave) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                    centro = nave_get_posx(nave) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+
                 break;
             }
     }
-    nivel_dibujar(nivel, 1, 0, renderer);
+    nivel_dibujar(nivel, escala, 0, renderer); //El 0 ese tendria que ser "centro" pero lo pongo asi pq no anda y asi no me mueve nada
 }
 
 void nivel_dibujar(nivel_t* nivel, double escala, double centro, SDL_Renderer* renderer) {
