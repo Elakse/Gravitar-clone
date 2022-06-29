@@ -172,6 +172,7 @@ void nivel_tickear(nivel_t *nivel, nave_t *nave, double escala, double centro, S
                 break;
             }
     }
+    //Fijate que aca abajo si pones escala en 1 y centro en 0 (osea todo fijo), se dibuja todo bien alineado en casi todos los niveles menos el que es tipo un asteroide.
     nivel_dibujar(nivel, escala, 0, renderer); //El 0 ese tendria que ser "centro" pero lo pongo asi pq no anda y asi no me mueve nada
 }
 
