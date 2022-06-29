@@ -165,7 +165,7 @@ void nivel_tickear(nivel_t *nivel, nave_t *nave, double escala, double centro, S
                 break;
             }
     }
-    nivel_dibujar(nivel, escala, centro, renderer);
+    nivel_dibujar(nivel, 1, 0, renderer);
 }
 
 void nivel_dibujar(nivel_t* nivel, double escala, double centro, SDL_Renderer* renderer) {

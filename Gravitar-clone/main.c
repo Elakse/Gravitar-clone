@@ -32,8 +32,8 @@ figura_t* figura_buscar_nombre(lista_t *figuras, char* nombre) {
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
 
-    SDL_Window *window;
-    SDL_Renderer *renderer;
+    SDL_Window* window;
+    SDL_Renderer* renderer;
     SDL_Event event;
 
     SDL_CreateWindowAndRenderer(VENTANA_ANCHO, VENTANA_ALTO, 0, &window, &renderer);
@@ -44,11 +44,11 @@ int main() {
     // BEGIN código del alumno
     // Mi nave:
 
-    lista_t *balas = lista_crear();
+    lista_t* balas = lista_crear();
 
-    FILE *f = fopen("figuras.bin", "rb");
-    lista_t *figuras = lista_crear();
-    figura_t *figura = figura_leer(f);
+    FILE* f = fopen("figuras.bin", "rb");
+    lista_t* figuras = lista_crear();
+    figura_t* figura = figura_leer(f);
     while (figura != NULL) {
         lista_insertar_ultimo(figuras, figura);
         figura = figura_leer(f);
@@ -65,15 +65,47 @@ int main() {
 
     nivel_t* nivel1 = nivel_crear(NIVEL1);
     nivel_insertar_figura(nivel1, figura_buscar_nombre(figuras, "NIVEL1NE"), 0, 0, 0, 1);
+    nivel_insertar_figura(nivel1, figura_buscar_nombre(figuras, "TORRETA"), 916, 75, -0.66, 1);
+    nivel_insertar_figura(nivel1, figura_buscar_nombre(figuras, "TORRETA"), 1425, 159, 0.66, 1);
+    nivel_insertar_figura(nivel1, figura_buscar_nombre(figuras, "COMBUSTIBLE"), 1064, 13, 0, 1);
+    nivel_insertar_figura(nivel1, figura_buscar_nombre(figuras, "COMBUSTIBLE"), 1685, 113, 0, 1);
 
     nivel_t* nivel2 = nivel_crear(NIVEL2);
     nivel_insertar_figura(nivel2, figura_buscar_nombre(figuras, "NIVEL1SE"), 0, 0, 0, 1);
+    nivel_insertar_figura(nivel2, figura_buscar_nombre(figuras, "TORRETA"), 423, 195, -0.66, 1);
+    nivel_insertar_figura(nivel2, figura_buscar_nombre(figuras, "TORRETA"), 806, 215, -0.33, 1);
+    nivel_insertar_figura(nivel2, figura_buscar_nombre(figuras, "TORRETA"), 1254, 153, 0.66, 1);
+    nivel_insertar_figura(nivel2, figura_buscar_nombre(figuras, "TORRETA"), 1587, 223, 2.23, 1);
+    nivel_insertar_figura(nivel2, figura_buscar_nombre(figuras, "COMBUSTIBLE"), 482, 94, 0, 1);
+    nivel_insertar_figura(nivel2, figura_buscar_nombre(figuras, "COMBUSTIBLE"), 1751, 247, 0, 1);
+
 
     nivel_t* nivel3 = nivel_crear(NIVEL3);
     nivel_insertar_figura(nivel3, figura_buscar_nombre(figuras, "NIVEL1SW"), 0, 0, 0, 1);
+    nivel_insertar_figura(nivel3, figura_buscar_nombre(figuras, "TORRETA"), 70, 46, 0, 1);
+    nivel_insertar_figura(nivel3, figura_buscar_nombre(figuras, "TORRETA"), 506, 12, 0, 1);
+    nivel_insertar_figura(nivel3, figura_buscar_nombre(figuras, "TORRETA"), 952, 12, 0, 1);
+    nivel_insertar_figura(nivel3, figura_buscar_nombre(figuras, "TORRETA"), 1385, 12, 0, 1);
+    nivel_insertar_figura(nivel3, figura_buscar_nombre(figuras, "TORRETA"), 757, 210, 3.14, 1);
+    nivel_insertar_figura(nivel3, figura_buscar_nombre(figuras, "TORRETA"), 1161, 210, 3.14, 1);
+    nivel_insertar_figura(nivel3, figura_buscar_nombre(figuras, "COMBUSTIBLE"), 820, 46, 0, 1);
+    nivel_insertar_figura(nivel3, figura_buscar_nombre(figuras, "COMBUSTIBLE"), 1196, 68, 0, 1);
+    nivel_insertar_figura(nivel3, figura_buscar_nombre(figuras, "COMBUSTIBLE"), 1602, 46, 0, 1);
 
     nivel_t* nivel4 = nivel_crear(NIVEL4);
     nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "NIVEL1NW"), 0, 0, 0, 1);
+    nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "TORRETA"), 257, 440, 0.66, 1);
+    nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "TORRETA"), 719, 674, 2.23, 1);
+    nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "TORRETA"), 985, 565, 0, 1);
+    nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "TORRETA"), 1125, 417, 3.8, 1);
+    nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "TORRETA"), 862, 163, 3.8, 1);
+    nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "TORRETA"), 626, 323, 2.23, 1);
+    nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "TORRETA"), 505, 331, 3.8, 1);
+    nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "TORRETA"), 378, 296, 2.23, 1);
+    nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "COMBUSTIBLE"), 188, 429, 0, 1);
+    nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "COMBUSTIBLE"), 667, 600, 0, 1);
+    nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "COMBUSTIBLE"), 1054, 404, 3.14, 1);
+    nivel_insertar_figura(nivel4, figura_buscar_nombre(figuras, "COMBUSTIBLE"), 574, 344, 3.14, 1);
 
     nivel_t* nivel5 = nivel_crear(NIVEL5);
     nivel_insertar_figura(nivel5, figura_buscar_nombre(figuras, "NIVEL1R"), 0, 0, 0, 1);
@@ -365,6 +397,13 @@ int main() {
     // BEGIN código del alumno
     lista_destruir(figuras, figura_destruir);
     nave_destruir(jugador);
+    figura_destruir(figura);
+    nivel_destruir(inicio);
+    nivel_destruir(nivel1);
+    nivel_destruir(nivel2);
+    nivel_destruir(nivel3);
+    nivel_destruir(nivel4);
+    nivel_destruir(nivel5);
     // END código del alumno
 
     SDL_DestroyRenderer(renderer);
