@@ -116,7 +116,7 @@ int main() {
 
     figura_t* nave = figura_buscar_nombre(figuras, "NAVE");
     figura_t* nave_chorro = figura_buscar_nombre(figuras, "NAVE+CHORRO");
-    figura_t* escudo2 = figura_buscar_nombre(figuras, "ESCUDO");
+    figura_t* escudo2 = figura_buscar_nombre(figuras, "ESCUDO2");
     figura_t* disparo = figura_buscar_nombre(figuras, "DISPARO");
 
     nave_t *jugador = nave_crear(3, JUEGO_COMBUSTIBLE_INICIAL, INICIO, "NAVE");
@@ -215,6 +215,7 @@ int main() {
         // Actualizacion de todas las figuras del nivel (en el que está la nave) en este tick
         switch (nivel_nav) {
             case INICIO: {
+                escala = 1;
                 if (y_nav <= 5 || y_nav >= VENTANA_ALTO)
                     nave_setear_vely(jugador, y_vel_nav * -1);
                 if (x_nav <= 5 || x_nav >= VENTANA_ANCHO)
@@ -545,14 +546,16 @@ int main() {
         else nave_cambiar_nombre_fig(jugador, "NAVE");
         figura_t* nave_fig_a_dibujar = figura_buscar_nombre(figuras, nave_get_nombre_fig(jugador));*/
         nivel_dibujar(niveles[nivel_nav], escala, 0, renderer);
-        if (escudo) figura_dibujar(escudo2, x_nav, y_nav, ang_nav + PI / 2, 1, renderer);
-        if(!chorro_prendido) figura_dibujar(nave, x_nav, y_nav, ang_nav, 1, renderer);
-        else figura_dibujar(nave_chorro, x_nav, y_nav, ang_nav, 1, renderer);
+        if (escudo) figura_dibujar(escudo2, x_nav, y_nav, ang_nav + PI / 2, escala, renderer);
+        if(!chorro_prendido) figura_dibujar(nave, x_nav, y_nav, ang_nav, escala, renderer);
+        else figura_dibujar(nave_chorro, x_nav, y_nav, ang_nav, escala, renderer);
 
         for (lista_iter_t* iter = lista_iter_crear(balas); !lista_iter_al_final(iter); lista_iter_avanzar(iter)) {
             bala_t* bala = lista_iter_ver_actual(iter);
             figura_dibujar(disparo, bala_get_posx(bala), bala_get_posy(bala), 0, 1, renderer);
         }
+
+        if (nave_get_vidas(jugador) == 0) break;
 
         // END código del alumno
 
