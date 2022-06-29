@@ -114,7 +114,10 @@ int main() {
     
     nivel_t* niveles[6] = { inicio, nivel1, nivel2, nivel3, nivel4, nivel5 };
 
-    //
+    figura_t* nave = figura_buscar_nombre(figuras, "NAVE");
+    figura_t* nave_chorro = figura_buscar_nombre(figuras, "NAVE+CHORRO");
+    figura_t* escudo2 = figura_buscar_nombre(figuras, "ESCUDO");
+    figura_t* disparo = figura_buscar_nombre(figuras, "DISPARO");
 
     nave_t *jugador = nave_crear(3, JUEGO_COMBUSTIBLE_INICIAL, INICIO, "NAVE");
     if(jugador == NULL) return 1;
@@ -209,7 +212,7 @@ int main() {
         double ang_nav = nave_get_ang(jugador);
         nivel_enum_t nivel_nav = nave_get_nivel(jugador);
 
-        // Actualizacion de todas las figuras del nivel en este tick
+        // Actualizacion de todas las figuras del nivel (en el que está la nave) en este tick
         switch (nivel_nav) {
             case INICIO: {
                 if (y_nav <= 5 || y_nav >= VENTANA_ALTO)
@@ -522,7 +525,7 @@ int main() {
         // Verificamos si se tienen que crear balas
         if (dispara && disparo_delay == 0) {
             lista_insertar_ultimo(balas, bala_crear(x_nav, y_nav, BALA_VELOCIDAD + vel_nav, ang_nav, nivel_nav, true));
-            disparo_delay = 20;
+            disparo_delay = DISPARO_DELAY;
         }
         if (disparo_delay != 0) disparo_delay--;
 
@@ -538,21 +541,18 @@ int main() {
 
         // Dibujamos todo (nivel con sus figuras, nave, escudo, chorro)
 
-        nivel_dibujar(niveles[nivel_nav], escala, 0, renderer);
-        if (escudo) figura_dibujar(figura_buscar_nombre(figuras, "ESCUDO2"), x_nav, y_nav, ang_nav + PI / 2, 1, renderer);
-        if (chorro_prendido) nave_cambiar_nombre_fig(jugador, "NAVE+CHORRO");
+        /*if (chorro_prendido) nave_cambiar_nombre_fig(jugador, "NAVE+CHORRO");
         else nave_cambiar_nombre_fig(jugador, "NAVE");
-        figura_t* nave_fig_a_dibujar = figura_buscar_nombre(figuras, nave_get_nombre_fig(jugador));
-        figura_dibujar(nave_fig_a_dibujar, x_nav, y_nav, ang_nav, 1, renderer);
-
-        figura_t* bala_a_dibujar = figura_buscar_nombre(figuras, "DISPARO");
+        figura_t* nave_fig_a_dibujar = figura_buscar_nombre(figuras, nave_get_nombre_fig(jugador));*/
+        nivel_dibujar(niveles[nivel_nav], escala, 0, renderer);
+        if (escudo) figura_dibujar(escudo2, x_nav, y_nav, ang_nav + PI / 2, 1, renderer);
+        if(!chorro_prendido) figura_dibujar(nave, x_nav, y_nav, ang_nav, 1, renderer);
+        else figura_dibujar(nave_chorro, x_nav, y_nav, ang_nav, 1, renderer);
 
         for (lista_iter_t* iter = lista_iter_crear(balas); !lista_iter_al_final(iter); lista_iter_avanzar(iter)) {
             bala_t* bala = lista_iter_ver_actual(iter);
-            figura_dibujar(bala_a_dibujar, bala_get_posx(bala), bala_get_posy(bala), 0, 1, renderer);
+            figura_dibujar(disparo, bala_get_posx(bala), bala_get_posy(bala), 0, 1, renderer);
         }
-
-        //balas_mover(balas);
 
         // END código del alumno
 
