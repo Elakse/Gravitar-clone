@@ -189,10 +189,11 @@ void nivel_dibujar(nivel_t* nivel, double escala, double centro, SDL_Renderer* r
     return NULL;
 }
 
-bool nivel_insertar_figura(nivel_t* nivel, figura_t* figura, double posx, double posy, double ang, double escala) {
+figura_render_t *nivel_insertar_figura(nivel_t* nivel, figura_t* figura, double posx, double posy, double ang, double escala) {
     figura_render_t* figura_render = figura_render_crear(figura, posx, posy, ang, escala);
     if (figura_render == NULL) return false;
-    return lista_insertar_ultimo(nivel->figuras, figura_render);
+    lista_insertar_ultimo(nivel->figuras, figura_render);
+    return figura_render;
 }
 
 void nivel_destruir(nivel_t* nivel) {

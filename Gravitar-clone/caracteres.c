@@ -1,4 +1,9 @@
 #include "caracteres.h"
+#include "SDL.h"
+
+void texto_a_caracteres(char *texto, double posx, double posy, double ang, SDL_Renderer *renderer) {
+
+}
 
 const int caracter_a[7][2] = {
 	{0, 0},
