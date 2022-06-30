@@ -61,7 +61,7 @@ figura_t* figura_crear(bool inf, size_t cant, figura_tipo_t tipo, char* nombre) 
 	return figura;
 }
 
-figura_t* figura_clonar(figura_t* figura) {
+/*figura_t* figura_clonar(figura_t* figura) {
 	figura_t* clon = malloc(sizeof(figura_t));
 	if (clon == NULL) return NULL;
 
@@ -79,7 +79,7 @@ figura_t* figura_clonar(figura_t* figura) {
 	clon->tipo = figura->tipo;
 	strcpy(clon->nombre, figura->nombre);
 	return clon;
-}
+} */
 
 bool figura_insertar_poli(figura_t* figura, polilinea_t* poli, size_t pos) {
 	if (pos >= figura->cant || pos < 0) return false;
@@ -163,6 +163,10 @@ char* figura_obtener_nombre(figura_t* figura) {
 polilinea_t** figura_obtener_polis(figura_t* figura){
 	polilinea_t** polis = figura->polis;
 	return polis;
+}
+
+bool figura_es_inf(figura_t* figura) {
+	return figura->inf;
 }
 
 

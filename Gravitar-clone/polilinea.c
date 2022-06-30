@@ -170,11 +170,11 @@ double distancia_punto_a_polilinea(const polilinea_t *polilinea, float px, float
   return distancia_a_polilinea;
 }
 
-void polilinea_dibujar(polilinea_t* poli, double pos_x, double pos_y, double ang, double escala, SDL_Renderer* renderer) {
+void polilinea_dibujar(polilinea_t* poli, double posx, double posy, double ang, double escala, SDL_Renderer* renderer) {
     polilinea_t* poli2 = polilinea_clonar(poli);
     if (escala != 1) polilinea_escalar(poli2, escala);
     polilinea_rotar(poli2, ang);
-    polilinea_trasladar(poli2, pos_x, pos_y);
+    polilinea_trasladar(poli2, posx, posy);
     uint8_t r, g, b;
     color_a_rgb(poli->color, &r, &g, &b);
     SDL_SetRenderDrawColor(renderer, r, g, b, 0x00);

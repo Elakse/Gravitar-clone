@@ -12,6 +12,7 @@
 #include "torreta.h"
 #include "combustible.h"
 #include "nivel.h"
+#include "planeta.h"
 
 figura_t* figura_buscar_nombre(lista_t *figuras, char* nombre) {
     if (lista_esta_vacia(figuras)) return NULL;
@@ -114,16 +115,40 @@ int main() {
     
     nivel_t* niveles[6] = { inicio, nivel1, nivel2, nivel3, nivel4, nivel5 };
 
-    figura_t* nave = figura_buscar_nombre(figuras, "NAVE");
-    figura_t* nave_chorro = figura_buscar_nombre(figuras, "NAVE+CHORRO");
-    figura_t* escudo2 = figura_buscar_nombre(figuras, "ESCUDO2");
-    figura_t* disparo = figura_buscar_nombre(figuras, "DISPARO");
+    figura_t* nave_fig = figura_buscar_nombre(figuras, "NAVE");
+    figura_t* nave_chorro_fig = figura_buscar_nombre(figuras, "NAVE+CHORRO");
+    figura_t* escudo2_fig = figura_buscar_nombre(figuras, "ESCUDO2");
+    figura_t* disparo_fig = figura_buscar_nombre(figuras, "DISPARO");
+
+    //Creamos el jugador
 
     nave_t *jugador = nave_crear(3, JUEGO_COMBUSTIBLE_INICIAL, INICIO, "NAVE");
     if(jugador == NULL) return 1;
     nave_setear_pos(jugador, 388, 218);
     nave_setear_ang_nave(jugador, NAVE_ANGULO_INICIAL);
     nave_setear_ang_g(jugador, 3*PI/2);
+
+    //Creamos la lista de planetas en el inicio
+
+    planeta_t* planetas[5] = {
+        planeta_crear(663, 473, NIVEL1, "PLANETA1"),
+        planeta_crear(671, 145, NIVEL2, "PLANETA2"),
+        planeta_crear(110, 79, NIVEL3, "PLANETA3"),
+        planeta_crear(204, 455, NIVEL4, "PLANETA4"),
+        planeta_crear(111, 307, NIVEL5, "PLANETA5")
+    };
+
+    planeta_t* planeta_accedido = NULL; //Guarda el planeta al que accedió la nave
+
+    //Armamos una tabla de busqueda que relacione el enumerativo de nivel con el nombre de la figura que lo representa
+
+    char* niveles_nombres[] = {
+        [NIVEL1] = "NIVEL1NE" ,
+        [NIVEL2] = "NIVEL1SE" ,
+        [NIVEL3] = "NIVEL1SW" ,
+        [NIVEL4] = "NIVEL1NW" ,
+        [NIVEL5] = "NIVEL1R" ,
+    };
 
     bool chorro_prendido = false;
     bool gira_der = false;
@@ -139,6 +164,8 @@ int main() {
     // END código del alumno
 
     unsigned int ticks = SDL_GetTicks();
+
+    //------------------------------------------------WHILE----------------------------------------------------------
     while (1) {
         if (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
@@ -193,6 +220,8 @@ int main() {
 
         // BEGIN código del alumno
 
+        //---------------------------------------------------COMPUTO------------------------------------------------------------
+
         // Actualizacion de los valores de la nave en este tick
         if (chorro_prendido)
             nave_setear_a_thrust(jugador, NAVE_ACELERACION);
@@ -212,9 +241,56 @@ int main() {
         double ang_nav = nave_get_ang(jugador);
         nivel_enum_t nivel_nav = nave_get_nivel(jugador);
 
+        figura_t* nivel = NULL;
+        bool inf = false;
+        
+        if (nivel_nav == INICIO) {
+            //Nave rebota
+            if (y_nav <= 5 || y_nav >= VENTANA_ALTO)
+                nave_setear_vely(jugador, y_vel_nav * -1);
+            if (x_nav <= 5 || x_nav >= VENTANA_ANCHO)
+                nave_setear_velx(jugador, x_vel_nav * -1);
+
+            //Gravedad con la estrella
+            nave_setear_ang_g(jugador, computar_angulo(x_nav, y_nav, 457, 364));
+            if (computar_distancia(x_nav, y_nav, 457, 364) < 20) {
+                nave_setear_pos(jugador, 388, 218);
+                nave_setear_vel(jugador, 0, 0);
+                nave_setear_ang_nave(jugador, PI / 4);
+                nave_restar_vida(jugador);
+            }
+
+            //Chequea cercanía a cada planeta
+            for (size_t i = 0; i < 5; i++) {
+                if (planeta_distancia_a_punto(planetas[i], x_nav, y_nav) < 20) {
+                    nave_setear_nivel(jugador, planeta_get_nivel(planetas[i]));
+                    nave_setear_pos(jugador, VENTANA_ANCHO / 2, VENTANA_ALTO - 10);
+                    nave_setear_vel(jugador, 0, -20);
+                    nave_setear_ang_nave(jugador, PI * 1.5);
+                    nave_setear_ang_g(jugador, PI * 1.5);
+                    planeta_accedido = planetas[i];
+                    break;
+                }
+            }
+        }
+
+        if(nivel_nav != INICIO) {
+            nivel = figura_buscar_nombre(figuras, niveles_nombres[nivel_nav]);
+            inf = figura_es_inf(nivel);
+            if (!inf) {
+                //Verifica si la nave sale del nivel
+                if (y_nav <= 5 || y_nav >= VENTANA_ALTO || x_nav <= 5 || x_nav >= VENTANA_ANCHO) {
+                    nave_setear_nivel(jugador, INICIO);
+                    nave_setear_pos(jugador, planeta_get_posx(planeta_accedido) - 30, planeta_get_posy(planeta_accedido) - 30);
+                    nave_setear_vel(jugador, 0, 0);
+                    nave_setear_ang_nave(jugador, PI / 2);
+                }
+            }
+        }
+
         // Actualizacion de todas las figuras del nivel (en el que está la nave) en este tick
         switch (nivel_nav) {
-            case INICIO: {
+            /*case INICIO: {
                 escala = 1;
                 if (y_nav <= 5 || y_nav >= VENTANA_ALTO)
                     nave_setear_vely(jugador, y_vel_nav * -1);
@@ -225,7 +301,7 @@ int main() {
 
                 if (computar_distancia(x_nav, y_nav, 663, 473) < 20) {
                     nave_setear_nivel(jugador, NIVEL1);
-                    nave_setear_pos(jugador, 300, 590);
+                    nave_setear_pos(jugador, 0, 590);
                     nave_setear_vel(jugador, 0, -20);
                     nave_setear_ang_nave(jugador, PI * 1.5);
                     nave_setear_ang_g(jugador, PI * 1.5);
@@ -265,7 +341,7 @@ int main() {
                     nave_restar_vida(jugador);
                 }
                 break;
-            }
+            } */
             case NIVEL1: {
                 if (y_nav >= VENTANA_ALTO) {
                     nave_setear_nivel(jugador, INICIO);
@@ -274,8 +350,8 @@ int main() {
                     nave_setear_ang_nave(jugador, PI + PI / 4);
                 }
 
-                if (x_nav > VENTANA_ALTO * MARGEN_ALTURA)
-                    escala = VENTANA_ALTO * MARGEN_ALTURA / x_nav;
+                if (y_nav > VENTANA_ALTO * MARGEN_ALTURA)
+                    escala = VENTANA_ALTO * MARGEN_ALTURA / y_nav;
                 if (escala < ESCALA_MINIMA)
                     escala = ESCALA_MINIMA;
                 if ((x_nav - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
@@ -324,7 +400,7 @@ int main() {
 
                 break;
             }
-            case NIVEL4: {
+            /*case NIVEL4: {
                 if (y_nav >= VENTANA_ALTO) {
                     nave_setear_nivel(jugador, INICIO);
                     nave_setear_pos(jugador, 204, 435);
@@ -365,8 +441,8 @@ int main() {
                     centro = x_nav + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
 
                 break;
-            }
-        }
+            }*/
+        } 
 
         // Switch calculando valores de la nave en cada uso (MAL)
         /*switch (nave_get_nivel(jugador)) {
@@ -540,19 +616,43 @@ int main() {
         }
         lista_iter_destruir(iter);
 
-        // Dibujamos todo (nivel con sus figuras, nave, escudo, chorro)
+        //----------------------------------------------------DIBUJADO------------------------------------------------------
 
         /*if (chorro_prendido) nave_cambiar_nombre_fig(jugador, "NAVE+CHORRO");
         else nave_cambiar_nombre_fig(jugador, "NAVE");
         figura_t* nave_fig_a_dibujar = figura_buscar_nombre(figuras, nave_get_nombre_fig(jugador));*/
-        nivel_dibujar(niveles[nivel_nav], escala, 0, renderer);
-        if (escudo) figura_dibujar(escudo2, x_nav, y_nav, ang_nav + PI / 2, escala, renderer);
-        if(!chorro_prendido) figura_dibujar(nave, x_nav, y_nav, ang_nav, escala, renderer);
-        else figura_dibujar(nave_chorro, x_nav, y_nav, ang_nav, escala, renderer);
+        //nivel_dibujar(niveles[nivel_nav], escala, 0, renderer);
+        if (nivel_nav == INICIO) {
+            figura_dibujar(figura_buscar_nombre(figuras, "ESTRELLA"), 457, 364, 0, 1, renderer);
+            figura_dibujar(figura_buscar_nombre(figuras, "BASE"), 388, 218, 0, 1, renderer);
+            for (size_t i = 0; i < 5; i++) {
+                figura_t* planeta = figura_buscar_nombre(figuras, planeta_get_figura_nom(planetas[i]));
+                figura_dibujar(planeta, planeta_get_posx(planetas[i]), planeta_get_posy(planetas[i]), 0, 1, renderer);
+            }
+        }
+
+        if (nivel_nav != INICIO) {
+            if (!inf) {
+                figura_dibujar(nivel, 0, 0, 0, 0.7, renderer); //Hay que ver bien las proporciones
+            }
+
+            else {
+                figura_dibujar(nivel, centro + VENTANA_ANCHO / 2 / escala, 0, 0, escala, renderer);
+                figura_dibujar(nivel, A_NIVEL1NE + centro + VENTANA_ANCHO / 2 / escala, 0, 0, escala, renderer);
+                figura_dibujar(nivel, -A_NIVEL1NE + centro + VENTANA_ANCHO / 2 / escala, 0, 0, escala, renderer);
+            }
+        }
+        //if (nivel_nav == INICIO) nivel_dibujar(niveles[INICIO], 1, 0, renderer);
+       
+        //Dibujo de la nave
+        
+        if (escudo) figura_dibujar(escudo2_fig, x_nav, y_nav, ang_nav + PI / 2, escala, renderer);
+        if(!chorro_prendido) figura_dibujar(nave_fig, x_nav, y_nav, ang_nav, escala, renderer);
+        else figura_dibujar(nave_chorro_fig, x_nav, y_nav, ang_nav, escala, renderer);
 
         for (lista_iter_t* iter = lista_iter_crear(balas); !lista_iter_al_final(iter); lista_iter_avanzar(iter)) {
             bala_t* bala = lista_iter_ver_actual(iter);
-            figura_dibujar(disparo, bala_get_posx(bala), bala_get_posy(bala), 0, 1, renderer);
+            figura_dibujar(disparo_fig, bala_get_posx(bala), bala_get_posy(bala), 0, 1, renderer);
         }
 
         if (nave_get_vidas(jugador) == 0) break;
@@ -581,6 +681,9 @@ int main() {
     nivel_destruir(nivel3);
     nivel_destruir(nivel4);
     nivel_destruir(nivel5);
+    for (size_t i = 0; i < 5; i++) {
+        planeta_destruir(planetas[i]);
+    }
     // END código del alumno
 
     SDL_DestroyRenderer(renderer);

@@ -177,7 +177,7 @@ void nivel_tickear(nivel_t *nivel, nave_t *nave, double escala, double centro, S
 }
 
 void nivel_dibujar(nivel_t* nivel, double escala, double centro, SDL_Renderer* renderer) {
-    if (lista_esta_vacia(nivel->figuras)) return NULL;
+    if (lista_esta_vacia(nivel->figuras)) return;
 
     lista_iter_t* iter = lista_iter_crear(nivel->figuras);
     do {
@@ -186,12 +186,12 @@ void nivel_dibujar(nivel_t* nivel, double escala, double centro, SDL_Renderer* r
         lista_iter_avanzar(iter);
     } while (!lista_iter_al_final(iter));
     lista_iter_destruir(iter);
-    return NULL;
+    return;
 }
 
 figura_render_t *nivel_insertar_figura(nivel_t* nivel, figura_t* figura, double posx, double posy, double ang, double escala) {
     figura_render_t* figura_render = figura_render_crear(figura, posx, posy, ang, escala);
-    if (figura_render == NULL) return false;
+    if (figura_render == NULL) return NULL;
     lista_insertar_ultimo(nivel->figuras, figura_render);
     return figura_render;
 }
