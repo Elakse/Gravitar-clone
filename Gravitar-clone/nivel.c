@@ -1,24 +1,45 @@
 #include "nivel.h"
 #include "lista.h"
 #include "figuras.h"
+#include "torreta.h"
+#include "combustible.h"
 #include "nave.h"
 #include "config.h"
 #include "fisica.h"
+#include "bala.h"
 
 struct nivel {
-	lista_t *figuras;
+    lista_t* torretas;
+    lista_t* combustibles;
+    lista_t* balas;
+    figura_t* figura;
 	nivel_enum_t nivel_enum;
 };
 
-nivel_t* nivel_crear(nivel_enum_t nivel_enum) {
-	nivel_t* nivel = malloc(sizeof(nivel_t));
-	if (nivel == NULL) return NULL;
-	nivel->nivel_enum = nivel_enum;
-	nivel->figuras = lista_crear();
+nivel_t* nivel_crear(figura_t *figura, nivel_enum_t nivel_enum) {
+    nivel_t* nivel = malloc(sizeof(nivel_t));
+    if (nivel == NULL) return NULL;
+    nivel->torretas = lista_crear();
+    nivel->combustibles = lista_crear();
+    nivel->balas = lista_crear();
+    nivel->figura = figura;
+    nivel->nivel_enum = nivel_enum;
 	return nivel;
 }
 
-void nivel_tickear(nivel_t *nivel, nave_t *nave, double escala, double centro, SDL_Renderer *renderer) {
+bool nivel_agregar_torreta(nivel_t *nivel, double posx, double posy, double ang) {
+    return lista_insertar_ultimo(nivel->torretas, torreta_crear(nivel->nivel_enum, posx, posy, ang));
+}
+
+bool nivel_agregar_combustible(nivel_t *nivel, double posx, double posy, double ang) {
+    return lista_insertar_ultimo(nivel->combustibles, combustible_crear(nivel->nivel_enum, posx, posy, ang));
+}
+
+bool nivel_agregar_bala(nivel_t* nivel, double posx, double posy, double vel, double ang, bool jugador) {
+    return lista_insertar_ultimo(nivel->balas, bala_crear(nivel->nivel_enum, posx, posy, vel, ang, jugador));
+}
+
+/*void nivel_tickear(nivel_t* nivel, nave_t* nave, double escala, double centro, SDL_Renderer* renderer) {
     switch (nivel->nivel_enum) {
         case INICIO:{
             if (nave_get_posy(nave) <= 5 || nave_get_posy(nave) >= VENTANA_ALTO)
@@ -174,9 +195,9 @@ void nivel_tickear(nivel_t *nivel, nave_t *nave, double escala, double centro, S
     }
     //Fijate que aca abajo si pones escala en 1 y centro en 0 (osea todo fijo), se dibuja todo bien alineado en casi todos los niveles menos el que es tipo un asteroide.
     nivel_dibujar(nivel, escala, 0, renderer); //El 0 ese tendria que ser "centro" pero lo pongo asi pq no anda y asi no me mueve nada
-}
+}*/
 
-void nivel_dibujar(nivel_t* nivel, double escala, double centro, SDL_Renderer* renderer) {
+/*void nivel_dibujar(nivel_t* nivel, double escala, double centro, SDL_Renderer* renderer) {
     if (lista_esta_vacia(nivel->figuras)) return;
 
     lista_iter_t* iter = lista_iter_crear(nivel->figuras);
@@ -187,16 +208,33 @@ void nivel_dibujar(nivel_t* nivel, double escala, double centro, SDL_Renderer* r
     } while (!lista_iter_al_final(iter));
     lista_iter_destruir(iter);
     return;
-}
+}*/
 
-figura_render_t *nivel_insertar_figura(nivel_t* nivel, figura_t* figura, double posx, double posy, double ang, double escala) {
-    figura_render_t* figura_render = figura_render_crear(figura, posx, posy, ang, escala);
-    if (figura_render == NULL) return NULL;
-    lista_insertar_ultimo(nivel->figuras, figura_render);
-    return figura_render;
+void nivel_dibujar(nivel_t *nivel, double escala, double centro, SDL_Renderer *renderer) {
+    if (!lista_esta_vacia(nivel->torretas)) {
+        lista_iter_t* iter = lista_iter_crear(nivel->torretas);
+        do {
+            torreta_t* torreta = lista_iter_ver_actual(iter);
+            torreta_dibujar(torreta, escala, centro, renderer);
+            lista_iter_avanzar(iter);
+        } while (!lista_iter_al_final(iter));
+        lista_iter_destruir(iter);
+    }
+
+    if (!lista_esta_vacia(nivel->combustibles)) {
+        lista_iter_t* iter = lista_iter_crear(nivel->torretas);
+        do {
+            torreta_t* torreta = lista_iter_ver_actual(iter);
+            torreta_dibujar(torreta, renderer);
+            lista_iter_avanzar(iter);
+        } while (!lista_iter_al_final(iter));
+        lista_iter_destruir(iter);
+    }
 }
 
 void nivel_destruir(nivel_t* nivel) {
-	lista_destruir(nivel->figuras, figura_render_destruir);
+	lista_destruir(nivel->torretas, torreta_destruir);
+    lista_destruir(nivel->combustibles, combustible_destruir);
+    lista_destruir(nivel->balas, bala_destruir);
 	free(nivel);
 }

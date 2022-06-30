@@ -3,6 +3,9 @@
 struct torreta {
 	double pos[2];
 	double ang;
+	bool disparando;
+	figura_t* torreta_fig;
+	figura_t* disparando_fig;
 	nivel_enum_t nivel;
 };
 
@@ -29,6 +32,10 @@ double torreta_get_ang(torreta_t* torreta) {
 }
 nivel_enum_t torreta_get_nivel(torreta_t* torreta) {
 	return torreta->nivel;
+}
+
+void torreta_dibujar(torreta_t* torreta) {
+	//figura_dibujar(torreta);
 }
 
 void torreta_set_pos(torreta_t* torreta, double posx, double posy) {

@@ -11,7 +11,7 @@
 typedef struct bala bala_t;
 
 //CREACION Y DESTRUCCION
-bala_t* bala_crear(double posx, double posy, double vel, double ang, nivel_enum_t nivel, bool jugador);
+bala_t* bala_crear(nivel_enum_t nivel, double posx, double posy, double vel, double ang, bool jugador);
 void bala_destruir(bala_t *bala);
 
 

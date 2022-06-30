@@ -14,7 +14,7 @@ struct bala {
 	size_t contador;
 };
 
-bala_t* bala_crear(double posx, double posy, double vel, double ang, nivel_enum_t nivel, bool jugador) {
+bala_t* bala_crear(nivel_enum_t nivel, double posx, double posy, double vel, double ang, bool jugador) {
 	bala_t* bala = malloc(sizeof(bala_t));
 	if (bala == NULL) return NULL;
 	bala->pos[0] = posx;

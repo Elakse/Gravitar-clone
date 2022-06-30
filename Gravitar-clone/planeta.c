@@ -6,17 +6,19 @@
 struct planeta {
 	double pos[2];
 	nivel_enum_t nivel;
-	char figura_nom[20];
+	//char figura_nom[20];
+	figura_t* fig;
 };
 
-planeta_t* planeta_crear(double posx, double posy, nivel_enum_t nivel, char * figura_nom) {
+planeta_t* planeta_crear(double posx, double posy, nivel_enum_t nivel, figura_t* planeta_fig) {
 	planeta_t* planeta = malloc(sizeof(planeta_t));
 	if (planeta == NULL) return NULL;
-	if (strlen(figura_nom) > 19) return NULL;
-	strcpy(planeta->figura_nom, figura_nom);
+	//if (strlen(figura_nom) > 19) return NULL;
+	//strcpy(planeta->figura_nom, figura_nom);
 	planeta->pos[0] = posx;
 	planeta->pos[1] = posy;
 	planeta->nivel = nivel;
+	planeta->fig = planeta_fig;
 	return planeta;
 }
 
@@ -28,9 +30,13 @@ nivel_enum_t planeta_get_nivel(planeta_t* planeta) {
 	return planeta->nivel;
 }
 
-char* planeta_get_figura_nom(planeta_t* planeta) {
-	return planeta->figura_nom;
+figura_t* planeta_get_fig(planeta_t* planeta) {
+	return planeta->fig;
 }
+
+/*char* planeta_get_figura_nom(planeta_t* planeta) {
+	return planeta->figura_nom;
+}*/
 
 double planeta_get_posx(planeta_t* planeta) {
 	return planeta->pos[0];
