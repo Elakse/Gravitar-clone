@@ -180,3 +180,9 @@ void figura_dibujar(figura_t* figura, double pos_x, double pos_y, double ang, do
 		polilinea_dibujar(figura->polis[i], pos_x, pos_y, ang, escala, renderer);
 	}
 }
+
+void figura_dibujar_escala_relativa(figura_t* figura, double pos_x, double pos_y, double ang, double centro, double escala, SDL_Renderer* renderer) {
+	for (size_t i = 0; i < figura->cant; i++) {
+		polilinea_dibujar_escala_relativa(figura->polis[i], pos_x, pos_y, ang, centro, escala, renderer);
+	}
+}

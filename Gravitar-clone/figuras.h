@@ -30,6 +30,7 @@ void figura_destruir(figura_t* figura);
 figura_t* figura_leer(FILE* f);
 void figura_render_dibujar(figura_render_t* figura_render, double escala, double centro, SDL_Renderer* renderer);
 void figura_dibujar(figura_t* figura, double pos_x, double pos_y, double ang, double escala, SDL_Renderer* renderer);
+void figura_dibujar_escala_relativa(figura_t* figura, double pos_x, double pos_y, double ang, double centro, double escala, SDL_Renderer* renderer);
 
 //GETTERS
 polilinea_t** figura_obtener_polis(figura_t* figura);

@@ -193,6 +193,30 @@ void polilinea_dibujar(polilinea_t* poli, double posx, double posy, double ang, 
     polilinea_destruir(poli2);
 }
 
+void polilinea_dibujar_escala_relativa(polilinea_t* poli, double posx, double posy, double ang, double centro, double escala, SDL_Renderer* renderer) {
+    polilinea_t* poli2 = polilinea_clonar(poli);
+    polilinea_rotar(poli2, ang);
+    polilinea_trasladar(poli2, -centro, 0);
+    polilinea_escalar(poli2, escala);
+    polilinea_trasladar(poli2, centro + posx, posy);
+    uint8_t r, g, b;
+    color_a_rgb(poli->color, &r, &g, &b);
+    SDL_SetRenderDrawColor(renderer, r, g, b, 0x00);
+    float x1, y1, x2, y2;
+    for (int i = 0; i < polilinea_cantidad_puntos(poli2) - 1; i++) {
+        polilinea_obtener_punto(poli2, i, &x1, &y1);
+        polilinea_obtener_punto(poli2, i + 1, &x2, &y2);
+        SDL_RenderDrawLine(
+            renderer,
+            x1,
+            (VENTANA_ALTO - y1),
+            x2,
+            (VENTANA_ALTO - y2)
+        );
+    }
+    polilinea_destruir(poli2);
+}
+
 //MEMORIA
 
 polilinea_t *polilinea_clonar(const polilinea_t *polilinea) {

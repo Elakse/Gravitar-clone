@@ -16,6 +16,7 @@ torreta_t* torreta_crear(nivel_enum_t nivel, double posx, double posy, double an
 	torreta->pos[1] = posy;
 	torreta->ang = ang;
 	torreta->nivel = nivel;
+	return torreta;
 }
 void torreta_destruir(torreta_t* torreta) {
 	free(torreta);
