@@ -288,7 +288,7 @@ int main() {
             for (size_t i = 0; i < 5; i++) {
                 if (planeta_distancia_a_punto(planetas[i], x_nav, y_nav) < 20) {
                     nave_setear_nivel(jugador, planeta_get_nivel(planetas[i]));
-                    nave_setear_pos(jugador, VENTANA_ANCHO / 2, VENTANA_ALTO - 30);
+                    nave_setear_pos(jugador, VENTANA_ANCHO / 2, VENTANA_ALTO/ESCALA_MINIMA - 200);
                     nave_setear_vel(jugador, 0, -20);
                     nave_setear_ang_nave(jugador, PI * 1.5);
                     nave_setear_ang_g(jugador, PI * 1.5);
@@ -370,7 +370,7 @@ int main() {
                 break;
             } */
             case NIVEL1: {
-                if (y_nav >= VENTANA_ALTO) {
+                if (y_nav > VENTANA_ALTO / ESCALA_MINIMA) {
                     nave_setear_nivel(jugador, INICIO);
                     nave_setear_pos(jugador, 645, 455);
                     nave_setear_vel(jugador, -10, -10);
@@ -391,7 +391,7 @@ int main() {
                     nave_setear_pos(jugador, x_nav - A_NIVEL1NE, y_nav);
                     centro -= A_NIVEL1NE;
                 }
-                if (x_nav < 0) {
+                if (x_nav < -10) {
                     nave_setear_pos(jugador, A_NIVEL1NE, y_nav);
                     centro += A_NIVEL1NE;
                 }
@@ -399,7 +399,7 @@ int main() {
                 break;
             }
             case NIVEL2: {
-                if (y_nav >= VENTANA_ALTO) {
+                if (y_nav > VENTANA_ALTO/ESCALA_MINIMA) {
                     nave_setear_nivel(jugador, INICIO);
                     nave_setear_ang_nave(jugador, PI);
                     nave_setear_vel(jugador, -10, 0);
@@ -410,10 +410,20 @@ int main() {
                     escala = VENTANA_ALTO * MARGEN_ALTURA / y_nav;
                 if (escala < ESCALA_MINIMA)
                     escala = ESCALA_MINIMA;
+
                 if ((x_nav - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
                     centro = x_nav - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
-                else if ((x_nav - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                else if ((centro - x_nav) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
                     centro = x_nav + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+
+                if (x_nav > A_NIVEL1SE) {
+                    nave_setear_pos(jugador, x_nav - A_NIVEL1SE, y_nav);
+                    centro -= A_NIVEL1SE;
+                }
+                if (x_nav < 0) {
+                    nave_setear_pos(jugador, A_NIVEL1SE, y_nav);
+                    centro += A_NIVEL1SE;
+                }
 
                 break;
             }
@@ -432,8 +442,17 @@ int main() {
 
                 if ((x_nav - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
                     centro = x_nav - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
-                else if ((x_nav - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
+                else if ((centro - x_nav) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
                     centro = x_nav + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
+
+                if (x_nav > A_NIVEL1SW) {
+                    nave_setear_pos(jugador, x_nav - A_NIVEL1SW, y_nav);
+                    centro -= A_NIVEL1SW;
+                }
+                if (x_nav < 0) {
+                    nave_setear_pos(jugador, A_NIVEL1SW, y_nav);
+                    centro += A_NIVEL1SW;
+                }
 
                 break;
             }
@@ -683,9 +702,10 @@ int main() {
                 figura_dibujar_escala_relativa(nivel, -centro, 0, 0, centro, escala, renderer);
                 figura_dibujar_escala_relativa(nivel, -A_NIVEL1NE * escala - centro, 0, 0, centro, escala, renderer);
                 figura_dibujar_escala_relativa(nivel, A_NIVEL1NE * escala - centro, 0, 0, centro, escala, renderer);
-                if (escudo) figura_dibujar(escudo2_fig, (x_nav - centro)*escala + VENTANA_ANCHO / 2, y_nav, ang_nav + PI / 2, escala, renderer);
-                if (!chorro_prendido) figura_dibujar(nave_fig, (x_nav - centro)*escala + VENTANA_ANCHO / 2, y_nav, ang_nav, escala, renderer);
-                else figura_dibujar(nave_chorro_fig, (x_nav - centro)*escala + VENTANA_ANCHO/2, y_nav, ang_nav, escala, renderer);
+                figura_dibujar_escala_relativa(torreta_fig, 916*escala - centro, 75*escala, -0.66, centro, escala, renderer);
+                if (escudo) figura_dibujar(escudo2_fig, (x_nav - centro)*escala + VENTANA_ANCHO / 2, y_nav*escala, ang_nav + PI / 2, escala, renderer);
+                if (!chorro_prendido) figura_dibujar(nave_fig, (x_nav - centro)*escala + VENTANA_ANCHO / 2, y_nav*escala, ang_nav, escala, renderer);
+                else figura_dibujar(nave_chorro_fig, (x_nav - centro)*escala + VENTANA_ANCHO / 2, y_nav*escala, ang_nav, escala, renderer);
             }
         }
         //if (nivel_nav == INICIO) nivel_dibujar(niveles[INICIO], 1, 0, renderer);
