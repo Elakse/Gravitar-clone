@@ -14,82 +14,32 @@ struct figura {
 	polilinea_t** polis;
 };
 
-struct figura_render {
-	figura_t* figura;
-	double posx;
-	double posy;
-	double ang;
-	double escala;
-};
-
-figura_render_t* figura_render_crear(figura_t *figura, double posx, double posy, double ang, double escala) {
-	figura_render_t* figura_render = malloc(sizeof(figura_render_t));
-	if (figura_render == NULL) return NULL;
-	figura_render->figura = figura;
-	figura_render->posx = posx;
-	figura_render->posy = posy;
-	figura_render->ang = ang;
-	figura_render->escala = escala;
-	return figura_render;
-}
-
-void figura_render_destruir(figura_render_t* figura_render) {
-	free(figura_render);
-}
-
-figura_t* figura_crear(bool inf, size_t cant, figura_tipo_t tipo, char* nombre) {
+figura_t* figura_crear(bool inf, figura_tipo_t tipo, char* nombre) {
 	figura_t* figura = malloc(sizeof(figura_t));
 	if (figura == NULL) return NULL;
 
-	figura->polis = malloc(sizeof(polilinea_t*) * cant);
-	if (figura->polis == NULL) {
-		free(figura);
-		return NULL;
-	}
+	figura->polis = NULL;
 	figura->inf = inf;
-	figura->cant = cant;
+	figura->cant = 0;
 	figura->tipo = tipo;
 
 	if (strlen(nombre) < 20) {
 		strcpy(figura->nombre, nombre);
 	}
 	else {
-		free(figura->polis);
 		free(figura);
 		return NULL;
 	}
 	return figura;
 }
 
-/*figura_t* figura_clonar(figura_t* figura) {
-	figura_t* clon = malloc(sizeof(figura_t));
-	if (clon == NULL) return NULL;
-
-	clon->polis = malloc(sizeof(polilinea_t*) * figura->cant);
-	if (clon->polis == NULL) {
-		free(clon);
-		return NULL;
-	}
-
-	for(size_t i = 0; i < figura->cant; i++)
-		clon->polis[i] = polilinea_clonar(figura->polis[i]);
-
-	clon->inf = figura->inf;
-	clon->cant = figura->cant;
-	clon->tipo = figura->tipo;
-	strcpy(clon->nombre, figura->nombre);
-	return clon;
-} */
-
-bool figura_insertar_poli(figura_t* figura, polilinea_t* poli, size_t pos) {
-	if (pos >= figura->cant || pos < 0) return false;
-	figura->polis[pos] = poli;
-	return true;
-}
-
-bool figura_remover_poli(figura_t* figura, size_t pos) {
-	if (pos >= figura->cant || pos < 0) return false;
-	figura->polis[pos] = NULL;
+bool figura_agregar_poli(figura_t* figura, polilinea_t* poli) {
+	polilinea_t** aux = realloc(figura->polis, sizeof(polilinea_t*) * (figura->cant + 1));
+	if (aux == NULL) return false;
+	figura->polis = aux;
+	figura->polis[figura->cant] = polilinea_clonar(poli);
+	if (figura->polis[figura->cant] == NULL) return NULL;
+	figura->cant++;
 	return true;
 }
 
@@ -97,6 +47,8 @@ bool figura_set_cant_polis(figura_t* figura, size_t cant) {
 	polilinea_t** aux = realloc(figura->polis, sizeof(polilinea_t*) * cant);
 	if (aux == NULL) return false;
 	figura->polis = aux;
+	for (size_t i = figura->cant;i < cant; i++)
+		figura->polis[i] = NULL;
 	figura->cant = cant;
 	return true;
 }
@@ -139,16 +91,21 @@ figura_t* figura_leer(FILE* f) {
 	figura_tipo_t tipo;
 	char nombre[20];
 	if (!leer_encabezado_figura(f, nombre, &tipo, &inf, &cant)) return NULL;
-	figura_t* figura = figura_crear(inf, cant, tipo, nombre);
-	if(figura == NULL) return NULL;
+	figura_t* figura = figura_crear(inf, tipo, nombre);
 	for (size_t i = 0; i < cant; i++) {
 		polilinea_t* poli = leer_polilinea(f);
 		if (poli == NULL) {
 			figura_destruir(figura);
 			return NULL;
 		}
-		figura_insertar_poli(figura, poli, i);
+		if (!figura_agregar_poli(figura, poli)) {
+			figura_destruir(figura);
+			polilinea_destruir(poli);
+			return NULL;
+		}
+		polilinea_destruir(poli);
 	}
+	
 	return figura;
 }
 
@@ -165,14 +122,53 @@ polilinea_t** figura_obtener_polis(figura_t* figura){
 	return polis;
 }
 
-bool figura_es_inf(figura_t* figura) {
-	return figura->inf;
+double figura_obtener_x_max(figura_t* figura) {
+	double max = polilinea_obtener_x_max(figura->polis[0]);
+	double aux;
+	for (size_t i = 1; i < figura->cant; i++)
+		if(figura->polis[i] != NULL)
+			if ((aux = polilinea_obtener_x_max(figura->polis[i])) > max)
+				max = aux;
+	return max;
 }
 
+double figura_obtener_y_max(figura_t* figura) {
+	double max = polilinea_obtener_y_max(figura->polis[0]);
+	double aux;
+	for (size_t i = 1; i < figura->cant; i++)
+		if ((aux = polilinea_obtener_y_max(figura->polis[i])) > max)
+			max = aux;
+	return max;
+}
 
-//Esta es la funcion que deberia transladar y escalar todo al dibujarlo, No se como se haria pero estan las herramientas.
-void figura_render_dibujar(figura_render_t* figura_render, double escala, double centro, SDL_Renderer* renderer) {
-	figura_dibujar(figura_render->figura, figura_render->posx + centro, figura_render->posy, figura_render->ang, figura_render->escala * escala, renderer);
+double figura_obtener_x_min(figura_t* figura) {
+	double min = polilinea_obtener_x_min(figura->polis[0]);
+	double aux;
+	for (size_t i = 1; i < figura->cant; i++)
+		if ((aux = polilinea_obtener_x_min(figura->polis[i])) > min)
+			min = aux;
+	return min;
+}
+
+double figura_obtener_y_min(figura_t* figura) {
+	double min = polilinea_obtener_y_min(figura->polis[0]);
+	double aux;
+	for (size_t i = 1; i < figura->cant; i++)
+		if ((aux = polilinea_obtener_y_min(figura->polis[i])) > min)
+			min = aux;
+	return min;
+}
+
+double figura_obtener_ancho(figura_t* figura) {
+	return fabs(figura_obtener_x_max(figura) - figura_obtener_x_min(figura));
+}
+
+double figura_obtener_alto(figura_t* figura) {
+	return fabs(figura_obtener_y_max(figura) - figura_obtener_y_min(figura));
+}
+
+bool figura_es_inf(figura_t* figura) {
+	return figura->inf;
 }
 
 void figura_dibujar(figura_t* figura, double pos_x, double pos_y, double ang, double escala, SDL_Renderer* renderer) {

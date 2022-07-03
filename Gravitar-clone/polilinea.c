@@ -88,6 +88,50 @@ color_t polilinea_obtener_color(const polilinea_t *polilinea) {
   return polilinea->color;
 }
 
+double polilinea_obtener_x_max(const polilinea_t* polilinea) {
+    double x, y, x_max;
+    polilinea_obtener_punto(polilinea, 0, &x_max, &y);
+    for (size_t i = 1; i < polilinea->n; i++) {
+        polilinea_obtener_punto(polilinea, i, &x, &y);
+        if (x > x_max)
+            x_max = x;
+    }
+    return x_max;
+}
+
+double polilinea_obtener_y_max(const polilinea_t* polilinea) {
+    double x, y, y_max;
+    polilinea_obtener_punto(polilinea, 0, &x, &y_max);
+    for (size_t i = 1; i < polilinea->n; i++) {
+        polilinea_obtener_punto(polilinea, i, &x, &y);
+        if (y > y_max)
+            y_max = y;
+    }
+    return y_max;
+}
+
+double polilinea_obtener_x_min(const polilinea_t* polilinea) {
+    double x, y, x_min;
+    polilinea_obtener_punto(polilinea, 0, &x_min, &y);
+    for (size_t i = 1; i < polilinea->n; i++) {
+        polilinea_obtener_punto(polilinea, i, &x, &y);
+        if (x < x_min)
+            x_min = x;
+    }
+    return x_min;
+}
+
+double polilinea_obtener_y_min(const polilinea_t* polilinea) {
+    double x, y, y_min;
+    polilinea_obtener_punto(polilinea, 0, &x, &y_min);
+    for (size_t i = 1; i < polilinea->n; i++) {
+        polilinea_obtener_punto(polilinea, i, &x, &y);
+        if (y < y_min)
+            y_min = y;
+    }
+    return y_min;
+}
+
 bool polilinea_setear_punto(polilinea_t *polilinea, size_t pos, float x, float y){
   if(pos>=polilinea->n || pos<0)  //Comprueba que la posición sea valida
     return false;
@@ -169,6 +213,8 @@ double distancia_punto_a_polilinea(const polilinea_t *polilinea, float px, float
   };
   return distancia_a_polilinea;
 }
+
+//DIBUJO
 
 void polilinea_dibujar(polilinea_t* poli, double posx, double posy, double ang, double escala, SDL_Renderer* renderer) {
     polilinea_t* poli2 = polilinea_clonar(poli);

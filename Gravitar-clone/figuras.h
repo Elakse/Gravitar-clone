@@ -7,7 +7,6 @@
 #include <SDL.h>
 
 typedef struct figura figura_t;
-typedef struct figura_render figura_render_t;
 
 typedef enum {
 	ICONO,
@@ -22,13 +21,9 @@ typedef enum {
 
 
 //CREACION Y DESTRUCCION
-figura_render_t* figura_render_crear(figura_t *figura, double posx, double posy, double ang, double escala);
-void figura_render_destruir(figura_render_t* figura_render);
-figura_t* figura_crear(bool inf, size_t cant, figura_tipo_t tipo, char* nombre);
+figura_t* figura_crear(bool inf, figura_tipo_t tipo, char* nombre);
 void figura_destruir(figura_t* figura);
-//figura_t* figura_clonar(figura_t *figura);
 figura_t* figura_leer(FILE* f);
-void figura_render_dibujar(figura_render_t* figura_render, double escala, double centro, SDL_Renderer* renderer);
 void figura_dibujar(figura_t* figura, double pos_x, double pos_y, double ang, double escala, SDL_Renderer* renderer);
 void figura_dibujar_escala_relativa(figura_t* figura, double pos_x, double pos_y, double ang, double centro, double escala, SDL_Renderer* renderer);
 
@@ -38,10 +33,16 @@ bool figura_comparar_nombres(figura_t* figura, char* nombre);
 bool figura_es_inf(figura_t* figura);
 char* figura_obtener_nombre(figura_t* figura);
 figura_tipo_t figura_obtener_tipo(figura_t* figura);
+double figura_obtener_x_max(figura_t* figura);
+double figura_obtener_y_max(figura_t* figura);
+double figura_obtener_x_min(figura_t* figura);
+double figura_obtener_y_min(figura_t* figura);
+double figura_obtener_alto(figura_t* figura);
+double figura_obtener_ancho(figura_t* figura);
 
 //SETTERS
-bool figura_insertar_poli(figura_t* figura, polilinea_t* poli, size_t pos);
-bool figura_remover_poli(figura_t *figura, size_t pos);
+bool figura_agregar_poli(figura_t* figura, polilinea_t* poli);
+polilinea_t * figura_remover_poli(figura_t *figura, size_t pos);
 bool figura_set_cant_polis(figura_t *figura, size_t cant);
 
 #endif

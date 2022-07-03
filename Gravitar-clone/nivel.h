@@ -14,6 +14,5 @@ void nivel_destruir(nivel_t* nivel);
 //void nivel_tickear(nivel_t* nivel, struct nave_t* nave, double escala, double centro, SDL_Renderer* renderer);
 
 //SETTER
-figura_render_t *nivel_insertar_figura(nivel_t *nivel, figura_t *figura, double posx, double posy, double ang, double escala);
 
 #endif
