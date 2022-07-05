@@ -175,6 +175,9 @@ int main() {
         [NIVEL4] = "NIVEL1NW" ,
         [NIVEL5] = "NIVEL1R" ,
     };*/
+    nivel_t* nivel1 = nivel_crear(nivel_fig[1], 3000);
+    nivel_agregar_torreta(nivel1, 916, 75, -0.66, torreta_fig, torreta_disparo_fig);
+    nivel_agregar_torreta(nivel1, 1425, 159, 0.66, torreta_fig, torreta_disparo_fig);
 
     bool chorro_prendido = false;
     bool gira_der = false;
@@ -665,29 +668,28 @@ int main() {
         // Verificamos si se tienen que crear balas
         if (dispara && disparo_delay == 0) {
             // Preguntar velocidad bala + nave
-            lista_insertar_ultimo(balas, bala_crear(nivel_nav, x_nav, y_nav, BALA_VELOCIDAD + vel_nav, ang_nav, true));
+            nivel_nave_dispara(nivel1, jugador, BALA_VELOCIDAD, disparo_fig);
             disparo_delay = DISPARO_DELAY;
         }
         if (disparo_delay != 0) disparo_delay--;
 
-        lista_iter_t* iter = lista_iter_crear(balas);
-
-        while (!lista_iter_al_final(iter)) {
-            bala_t* bala = lista_iter_ver_actual(iter);
-            if (!bala_actualizar(bala, DT)) {
-                bala_destruir(lista_iter_borrar(iter));
+        if (inf) {
+            nivel_balas_actualizar(nivel1, DT);
+            nivel_torretas_disparan_a_nave(nivel1, jugador, PI/8, 1, BALA_VELOCIDAD, disparo_fig);
+            nivel_torretas_disparadas(nivel1);
+            if (nivel_nave_disparada(nivel1, jugador)) {
+                nave_restar_vida(jugador);
+                nave_setear_pos(jugador, 388, 218);
+                nave_setear_estadio(jugador, INICIO);
+                nave_setear_vel(jugador, 0, 0);
             }
-            lista_iter_avanzar(iter);
+            if (nivel != NULL && nave_distancia_a_figura(jugador, nivel) < 5) {
+                nave_restar_vida(jugador);
+                nave_setear_pos(jugador, 388, 218);
+                nave_setear_estadio(jugador, INICIO);
+                nave_setear_vel(jugador, 0, 0);
+            }
         }
-        lista_iter_destruir(iter);
-
-        if (nivel != NULL && nave_distancia_a_figura(jugador, nivel) < 5) {
-            nave_restar_vida(jugador);
-            nave_setear_pos(jugador, 388, 218);
-            nave_setear_estadio(jugador, INICIO);
-            nave_setear_vel(jugador, 0, 0);
-        }
-
 
  
         //----------------------------------------------------DIBUJADO------------------------------------------------------
@@ -714,10 +716,8 @@ int main() {
             }
 
             else {
-                figura_dibujar(nivel, -centro + VENTANA_ANCHO/2, 0, 0, centro, escala, renderer);
-                figura_dibujar(nivel, -A_NIVEL1NE * escala - centro + VENTANA_ANCHO / 2, 0, 0, centro, escala, renderer);
-                figura_dibujar(nivel, A_NIVEL1NE * escala - centro + VENTANA_ANCHO / 2, 0, 0, centro, escala, renderer);
-                torreta_dibujar(t, -centro + VENTANA_ANCHO / 2, 0, centro, escala, renderer);
+                
+                nivel_dibujar(nivel1, centro, escala, VENTANA_ANCHO, renderer);
                 if (escudo) figura_dibujar(escudo2_fig, (x_nav - centro)*escala + (VENTANA_ANCHO / 2) , y_nav*escala, ang_nav + PI / 2, 0, escala, renderer);
                 nave_dibujar(jugador, -centro*escala + VENTANA_ANCHO/2 , 0, 0, escala, renderer);
                 
@@ -728,7 +728,7 @@ int main() {
         //Dibujo de la nave
         for (lista_iter_t* iter = lista_iter_crear(balas); !lista_iter_al_final(iter); lista_iter_avanzar(iter)) {
             bala_t* bala = lista_iter_ver_actual(iter);
-            figura_dibujar(disparo_fig, bala_get_posx(bala), bala_get_posy(bala), 0, 0, 1, renderer);
+            bala_dibujar(bala, -centro + VENTANA_ANCHO / 2, 0, centro, escala, renderer);
         }
 
         if (nave_get_vidas(jugador) == 0) break;
@@ -746,6 +746,7 @@ int main() {
         ticks = SDL_GetTicks();
         
     }
+
 
     // BEGIN código del alumno
     lista_destruir(figuras, figura_destruir);

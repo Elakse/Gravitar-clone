@@ -3,16 +3,14 @@
 
 #include <stdbool.h>
 #include "nivel.h"
-//#include "lista.h"
-//#include "nave.h"
-
-#define BALA_DURACION 700 //7 segundos
+#include "figuras.h"
 
 typedef struct bala bala_t;
 
 //CREACION Y DESTRUCCION
-bala_t* bala_crear(double posx, double posy, double vel, double ang, bool jugador);
-void bala_destruir(bala_t *bala);
+bala_t* bala_crear(double posx, double posy, double vel, double ang, size_t duracion, bool jugador, figura_t* figura);
+void bala_destruir(bala_t* bala, figura_t** figura);
+
 
 
 //GETTERS
@@ -31,5 +29,8 @@ void bala_set_vel(bala_t *bala, double velx, double vely);
 //void bala_setear_ang(bala_t *bala, double ang);
 bool bala_actualizar(bala_t* bala, double dt);
 //void balas_mover(lista_t *balas);
+
+//DIBUJO
+bool bala_dibujar(bala_t* bala, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer);
 
 #endif

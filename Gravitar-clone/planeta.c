@@ -40,8 +40,8 @@ double planeta_get_posy(planeta_t* planeta) {
 	return planeta->pos[1];
 }
 
-double planeta_distancia_a_punto(planeta_t* planeta, double x, double y) {
-	return computar_distancia(planeta->pos[0], planeta->pos[1], x, y);
+double planeta_distancia_a_punto(planeta_t* planeta, double px, double py) {
+	return computar_distancia(planeta->pos[0], planeta->pos[1], px, py);
 }
 
 //------------------------------------------------------------------------------DIBUJADO----------------------------------------------------------------------------------------

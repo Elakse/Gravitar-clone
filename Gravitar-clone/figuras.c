@@ -69,7 +69,7 @@ figura_t* figura_leer(FILE* f) {
 
 //DE USO PROPIO
 
-bool leer_encabezado_figura(FILE* f, char nombre[], figura_tipo_t* tipo, bool* infinito, size_t* cantidad_polilineas) {
+static bool leer_encabezado_figura(FILE* f, char nombre[], figura_tipo_t* tipo, bool* infinito, size_t* cantidad_polilineas) {
 	size_t nom_size, carac_size, cant_size;
 
 	nom_size = fread(nombre, sizeof(char), 20, f);
@@ -131,11 +131,11 @@ polilinea_t** figura_obtener_polis(figura_t* figura){
 
 double figura_obtener_x_max(figura_t* figura) {
 	double max = polilinea_obtener_x_max(figura->polis[0]);
-	double aux;
+	double aux = 0;
 	for (size_t i = 1; i < figura->cant; i++)
-		if(figura->polis[i] != NULL)
-			if ((aux = polilinea_obtener_x_max(figura->polis[i])) > max)
-				max = aux;
+		aux = polilinea_obtener_x_max(figura->polis[i]);
+		if (aux > max)
+			max = aux;
 	return max;
 }
 
@@ -150,9 +150,10 @@ double figura_obtener_y_max(figura_t* figura) {
 
 double figura_obtener_x_min(figura_t* figura) {
 	double min = polilinea_obtener_x_min(figura->polis[0]);
-	double aux;
+	double aux = 0;
 	for (size_t i = 1; i < figura->cant; i++)
-		if ((aux = polilinea_obtener_x_min(figura->polis[i])) > min)
+		aux = polilinea_obtener_x_min(figura->polis[i]);
+		if (aux < min)
 			min = aux;
 	return min;
 }
@@ -161,7 +162,7 @@ double figura_obtener_y_min(figura_t* figura) {
 	double min = polilinea_obtener_y_min(figura->polis[0]);
 	double aux;
 	for (size_t i = 1; i < figura->cant; i++)
-		if ((aux = polilinea_obtener_y_min(figura->polis[i])) > min)
+		if ((aux = polilinea_obtener_y_min(figura->polis[i])) < min)
 			min = aux;
 	return min;
 }

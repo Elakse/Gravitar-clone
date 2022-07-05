@@ -24,7 +24,9 @@ void torreta_set_pos(torreta_t* torreta, double posx, double posy);
 void torreta_set_ang(torreta_t* torreta, double ang);
 
 //ACCIONES
-bala_t* torreta_dispara(torreta_t* torreta, double ang, double rango, size_t chances, double vel);
+bala_t* torreta_dispara(torreta_t* torreta, double ang, double rango, size_t chances, double vel, size_t duracion_disparo, figura_t* bala_fig);
 bool torreta_dibujar(torreta_t* torreta, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer);
+
+double torreta_distancia_a_punto(torreta_t* torreta, double px, double py);
 
 #endif

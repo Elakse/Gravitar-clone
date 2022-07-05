@@ -55,19 +55,19 @@ void torreta_set_ang(torreta_t* torreta, double ang) {
 }
 
 
-bala_t* torreta_dispara(torreta_t* torreta, double ang, double rango, size_t chances, double vel) {
+bala_t* torreta_dispara(torreta_t* torreta, double ang, double rango, size_t chances, double vel, size_t duracion_disparo, figura_t* bala_fig) {
 	int factor;
 	while ((factor = -100 + rand() % 201) == 0);
 	double ang_final = ang + rango / factor;
-	if (rand() % 100 < (chances - 1)) {
-		bala_t* bala = bala_crear(torreta->pos[0], torreta->pos[1], vel, ang_final, false);
+	if (rand() % 1000 < chances) {
+		bala_t* bala = bala_crear(torreta->pos[0], torreta->pos[1], vel, ang_final, duracion_disparo, false, bala_fig);
 		torreta->disparando = true;
 		return bala;
 	}
 	else
 		torreta->disparando = false;
-		return NULL;
-	
+	return NULL;
+
 }
 
 double torreta_distancia_a_punto(torreta_t* torreta, double px, double py) {

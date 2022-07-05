@@ -18,8 +18,10 @@ figura_t* planeta_get_fig(planeta_t* planeta);
 double planeta_get_posx(planeta_t* planeta);
 double planeta_get_posy(planeta_t* planeta);
 
-//FISICA
+//DISTANCIA
 
-double planeta_distancia_a_punto(planeta_t* planeta, double x, double y);
+double planeta_distancia_a_punto(planeta_t* planeta, double px, double py);
+
+//
 
 #endif

@@ -119,47 +119,40 @@ color_t polilinea_obtener_color(const polilinea_t *polilinea) {
 }
 
 double polilinea_obtener_x_max(const polilinea_t* polilinea) {
-    double x, y, x_max;
-    polilinea_obtener_punto(polilinea, 0, &x_max, &y);
+    double max = polilinea->puntos[0][0];
     for (size_t i = 1; i < polilinea->n; i++) {
-        polilinea_obtener_punto(polilinea, i, &x, &y);
-        if (x > x_max)
-            x_max = x;
+        if (polilinea->puntos[i][0] > max)
+           max = polilinea->puntos[i][0];
     }
-    return x_max;
+    return max;
 }
 
 double polilinea_obtener_y_max(const polilinea_t* polilinea) {
-    double x, y, y_max;
-    polilinea_obtener_punto(polilinea, 0, &x, &y_max);
+    double max = polilinea->puntos[0][1];
     for (size_t i = 1; i < polilinea->n; i++) {
-        polilinea_obtener_punto(polilinea, i, &x, &y);
-        if (y > y_max)
-            y_max = y;
+        if (polilinea->puntos[i][1] > max)
+            max = polilinea->puntos[i][1];
     }
-    return y_max;
+    return max;
 }
 
 double polilinea_obtener_x_min(const polilinea_t* polilinea) {
-    double x, y, x_min;
-    polilinea_obtener_punto(polilinea, 0, &x_min, &y);
+    double min = polilinea->puntos[0][0];
     for (size_t i = 1; i < polilinea->n; i++) {
-        polilinea_obtener_punto(polilinea, i, &x, &y);
-        if (x < x_min)
-            x_min = x;
+        if (polilinea->puntos[i][0] < min)
+            min = polilinea->puntos[i][0];
     }
-    return x_min;
+    return min;
 }
 
+
 double polilinea_obtener_y_min(const polilinea_t* polilinea) {
-    double x, y, y_min;
-    polilinea_obtener_punto(polilinea, 0, &x, &y_min);
+    double min = polilinea->puntos[0][1];
     for (size_t i = 1; i < polilinea->n; i++) {
-        polilinea_obtener_punto(polilinea, i, &x, &y);
-        if (y < y_min)
-            y_min = y;
+        if (polilinea->puntos[i][1] < min)
+            min = polilinea->puntos[i][1];
     }
-    return y_min;
+    return min;
 }
 
 bool polilinea_setear_punto(polilinea_t *polilinea, size_t pos, float x, float y){

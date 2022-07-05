@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <SDL.h>
 
+struct figura;
 typedef struct figura figura_t;
 
 typedef enum {

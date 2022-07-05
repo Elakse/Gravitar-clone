@@ -1,29 +1,30 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "bala.h"
-//#include "nave.h"
 #include "fisica.h"
-//#include "config.h"
-//#include "lista.h"
 
 struct bala {
 	double pos[2]; //pos[0] = x,  pos[1] = y
 	double vel[2]; //vel[0] = vel en x,  vel[1] = vel en y
 	bool jugador;
+	figura_t* fig;
 	size_t contador;
 };
 
-bala_t* bala_crear(double posx, double posy, double vel, double ang, bool jugador) {
+bala_t* bala_crear(double posx, double posy, double vel, double ang, size_t duracion, bool jugador, figura_t* figura) {
 	bala_t* bala = malloc(sizeof(bala_t));
 	if (bala == NULL) return NULL;
 	bala->pos[0] = posx;
 	bala->pos[1] = posy;
 	bala->vel[0] = vel*cos(ang);
 	bala->vel[1] = vel*sin(ang);
-	bala->contador = BALA_DURACION;
+	bala->fig = figura;
+	bala->contador = duracion;
+	bala->jugador = jugador;
 	return bala;
 }
-void bala_destruir(bala_t* bala) {
+void bala_destruir(bala_t* bala, figura_t** figura) {
+	if (figura != NULL) *figura = bala->fig;
 	free(bala);
 }
 
@@ -64,14 +65,9 @@ bool bala_actualizar(bala_t *bala, double dt) {
 	return false;
 }
 
-/*void balas_mover(lista_t* balas) {
-	if (lista_esta_vacia(balas)) return;
-	lista_iter_t *iter = lista_iter_crear(balas);
-	bala_t* bala;
-	do {
-		bala = lista_iter_ver_actual(iter);
-		bala_mover(bala, 1.0/JUEGO_FPS);
-		lista_iter_avanzar(iter);
-	} while (!lista_iter_al_final(iter));
-	lista_iter_destruir(iter);
-}*/
+
+bool bala_dibujar(bala_t* bala, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer) {
+	if (!figura_dibujar(bala->fig, bala->pos[0] * escala + tras_x, bala->pos[1] * escala + tras_y, 0, centro_escala, escala, renderer))
+		return false;
+	return true;
+}

@@ -1,5 +1,4 @@
 #include<math.h>
-#include<stdbool.h>
 #include<string.h>
 #include<stdlib.h>
 #include<stdio.h>
@@ -7,7 +6,6 @@
 #include "nave.h"
 #include "config.h"
 #include "fisica.h"
-#include "figuras.h"
 
 struct nave{
   double pos[2]; //pos[0] = x,  pos[1] = y
@@ -148,6 +146,13 @@ void nave_mover(nave_t *nave, double dt) {
     nave->vel[1] = computar_velocidad(nave->vel[1], ay, dt);
     nave->pos[0] = computar_posicion(nave->pos[0], nave->vel[0], dt);
     nave->pos[1] = computar_posicion(nave->pos[1], nave->vel[1], dt);
+}
+
+struct bala* nave_dispara(nave_t* nave, double vel, size_t duracion_disparo, figura_t* bala_fig) {
+    bala_t* bala = bala_crear(nave->pos[0], nave->pos[1], vel, nave->ang_nave, duracion_disparo, true, bala_fig);
+    if (bala == NULL) return NULL;
+    bala_set_vel(bala, nave->vel[0] + bala_get_velx(bala), nave->vel[1] + bala_get_vely(bala));
+    return bala;
 }
 
 //----------------------------------------------------------------------DISTANCIAS-------------------------------------------------------------------------------------------------
