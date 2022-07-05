@@ -47,7 +47,7 @@ polilinea_t *polilinea_clonar(const polilinea_t *polilinea);
 
 //DIBUJADO
 
-void polilinea_dibujar(polilinea_t* poli, double pos_x, double pos_y, double ang, double escala, SDL_Renderer* renderer);
-void polilinea_dibujar_escala_relativa(polilinea_t* poli, double posx, double posy, double ang, double centro, double escala, SDL_Renderer* renderer);
+//void polilinea_dibujar(polilinea_t* poli, double posx, double posy, double ang, double centro, double escala, SDL_Renderer* renderer);
+void polilinea_dibujar(polilinea_t* poli, SDL_Renderer* renderer);
 
 #endif

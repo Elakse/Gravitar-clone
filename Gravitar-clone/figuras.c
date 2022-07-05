@@ -14,6 +14,8 @@ struct figura {
 	polilinea_t** polis;
 };
 
+//CREACIÓN, DESTRUCCIÓN Y LECTURA
+
 figura_t* figura_crear(bool inf, figura_tipo_t tipo, char* nombre) {
 	figura_t* figura = malloc(sizeof(figura_t));
 	if (figura == NULL) return NULL;
@@ -32,6 +34,62 @@ figura_t* figura_crear(bool inf, figura_tipo_t tipo, char* nombre) {
 	}
 	return figura;
 }
+
+void figura_destruir(figura_t* figura) {
+	for (size_t i = 0; i < figura->cant; i++) {
+		polilinea_destruir(figura->polis[i]);
+	}
+	free(figura->polis);
+	free(figura);
+}
+
+figura_t* figura_leer(FILE* f) {
+	bool inf;
+	size_t cant;
+	figura_tipo_t tipo;
+	char nombre[20];
+	if (!leer_encabezado_figura(f, nombre, &tipo, &inf, &cant)) return NULL;
+	figura_t* figura = figura_crear(inf, tipo, nombre);
+	for (size_t i = 0; i < cant; i++) {
+		polilinea_t* poli = leer_polilinea(f);
+		if (poli == NULL) {
+			figura_destruir(figura);
+			return NULL;
+		}
+		if (!figura_agregar_poli(figura, poli)) {
+			figura_destruir(figura);
+			polilinea_destruir(poli);
+			return NULL;
+		}
+		polilinea_destruir(poli);
+	}
+
+	return figura;
+}
+
+//DE USO PROPIO
+
+bool leer_encabezado_figura(FILE* f, char nombre[], figura_tipo_t* tipo, bool* infinito, size_t* cantidad_polilineas) {
+	size_t nom_size, carac_size, cant_size;
+
+	nom_size = fread(nombre, sizeof(char), 20, f);
+	if (nom_size < 20) return false;
+
+	uint8_t carac = 0;
+	carac_size = fread(&carac, sizeof(char), 1, f);
+	if (carac_size < 1) return false;
+
+	uint16_t cant = 0;
+	cant_size = fread(&cant, sizeof(uint16_t), 1, f);
+	if (cant_size < 1) return false;
+
+	*cantidad_polilineas = cant;
+	*infinito = (carac & INFINITO);
+	*tipo = ((carac >> 1) & TIPO);
+	return 1;
+}
+
+//GETTERS Y SETTERS
 
 bool figura_agregar_poli(figura_t* figura, polilinea_t* poli) {
 	polilinea_t** aux = realloc(figura->polis, sizeof(polilinea_t*) * (figura->cant + 1));
@@ -57,57 +115,6 @@ bool figura_comparar_nombres(figura_t* figura, char* nombre) {
 	return strcmp(figura->nombre, nombre) ? false : true;
 }
 
-void figura_destruir(figura_t* figura) {
-	for (size_t i = 0; i < figura->cant; i++) {
-		polilinea_destruir(figura->polis[i]);
-	}
-	free(figura->polis);
-	free(figura);
-}
-
-static bool leer_encabezado_figura(FILE* f, char nombre[], figura_tipo_t* tipo, bool* infinito, size_t* cantidad_polilineas) {
-	size_t nom_size, carac_size, cant_size;
-
-	nom_size = fread(nombre, sizeof(char), 20, f);
-	if (nom_size < 20) return false;
-
-	uint8_t carac = 0;
-	carac_size = fread(&carac, sizeof(char), 1, f);
-	if (carac_size < 1) return false;
-
-	uint16_t cant = 0;
-	cant_size = fread(&cant, sizeof(uint16_t), 1, f);
-	if (cant_size < 1) return false;
-
-	*cantidad_polilineas = cant;
-	*infinito = (carac & INFINITO);
-	*tipo = ((carac >> 1) & TIPO);
-	return 1;
-}
-
-figura_t* figura_leer(FILE* f) {
-	bool inf;
-	size_t cant;
-	figura_tipo_t tipo;
-	char nombre[20];
-	if (!leer_encabezado_figura(f, nombre, &tipo, &inf, &cant)) return NULL;
-	figura_t* figura = figura_crear(inf, tipo, nombre);
-	for (size_t i = 0; i < cant; i++) {
-		polilinea_t* poli = leer_polilinea(f);
-		if (poli == NULL) {
-			figura_destruir(figura);
-			return NULL;
-		}
-		if (!figura_agregar_poli(figura, poli)) {
-			figura_destruir(figura);
-			polilinea_destruir(poli);
-			return NULL;
-		}
-		polilinea_destruir(poli);
-	}
-	
-	return figura;
-}
 
 figura_tipo_t figura_obtener_tipo(figura_t* figura) {
 	return figura->tipo;
@@ -171,14 +178,61 @@ bool figura_es_inf(figura_t* figura) {
 	return figura->inf;
 }
 
-void figura_dibujar(figura_t* figura, double pos_x, double pos_y, double ang, double escala, SDL_Renderer* renderer) {
+//MOVIMIENTO Y DISTANCIA
+
+void figura_trasladar(figura_t* figura, float dx, float dy) {
 	for (size_t i = 0; i < figura->cant; i++) {
-		polilinea_dibujar(figura->polis[i], pos_x, pos_y, ang, escala, renderer);
+		polilinea_trasladar(figura->polis[i], dx, dy);
 	}
 }
 
-void figura_dibujar_escala_relativa(figura_t* figura, double pos_x, double pos_y, double ang, double centro, double escala, SDL_Renderer* renderer) {
+void figura_rotar(figura_t* figura, double rad) {
 	for (size_t i = 0; i < figura->cant; i++) {
-		polilinea_dibujar_escala_relativa(figura->polis[i], pos_x, pos_y, ang, centro, escala, renderer);
+		polilinea_rotar(figura->polis[i], rad);
 	}
+}
+
+void figura_escalar(figura_t* figura, double escala) {
+	for (size_t i = 0; i < figura->cant; i++) {
+		polilinea_escalar(figura->polis[i], escala);
+	}
+}
+
+double figura_distancia_a_punto(figura_t* figura, double px, double py) {
+	double distancia = distancia_punto_a_polilinea(figura->polis[0], px, py);
+	for (size_t i = 1; i < figura->cant; i++) {
+		double aux = distancia_punto_a_polilinea(figura->polis[i], px, py);
+		if (aux < distancia)
+			distancia = aux;
+	}
+	return distancia;
+}
+
+//MEMORIA
+
+figura_t* figura_clonar(figura_t* figura) {
+	figura_t* figura_clon = figura_crear(figura->inf, figura->tipo, figura->nombre);
+	if (figura_clon == NULL) return NULL;
+	for (size_t i = 0; i < figura->cant; i++) {
+		if (!figura_agregar_poli(figura_clon, figura->polis[i])) {
+			figura_destruir(figura_clon);
+			return NULL;
+		}
+	}
+	return figura_clon;
+}
+
+//DIBUJADO
+
+bool figura_dibujar(figura_t* figura, double dx, double dy, double ang, double centro, double escala, SDL_Renderer* renderer) {
+	figura_t* fig = figura_clonar(figura);
+	if (fig == NULL) return false;
+	figura_rotar(fig, ang);
+	figura_trasladar(fig, -centro, 0);
+	figura_escalar(fig, escala);
+	figura_trasladar(fig, centro + dx, dy);
+	for (size_t i = 0; i < fig->cant; i++) {
+		polilinea_dibujar(fig->polis[i], renderer);
+	}
+	return true;
 }

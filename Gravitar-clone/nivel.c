@@ -13,30 +13,28 @@ struct nivel {
     lista_t* combustibles;
     lista_t* balas;
     figura_t* figura;
-	nivel_enum_t nivel_enum;
 };
 
-nivel_t* nivel_crear(figura_t *figura, nivel_enum_t nivel_enum) {
+nivel_t* nivel_crear(figura_t *figura) {
     nivel_t* nivel = malloc(sizeof(nivel_t));
     if (nivel == NULL) return NULL;
     nivel->torretas = lista_crear();
     nivel->combustibles = lista_crear();
     nivel->balas = lista_crear();
     nivel->figura = figura;
-    nivel->nivel_enum = nivel_enum;
 	return nivel;
 }
 
-bool nivel_agregar_torreta(nivel_t *nivel, double posx, double posy, double ang) {
-    return lista_insertar_ultimo(nivel->torretas, torreta_crear(nivel->nivel_enum, posx, posy, ang));
+bool nivel_agregar_torreta(nivel_t *nivel, double posx, double posy, double ang, figura_t * fig_base, figura_t* fig_disparando) {
+    return lista_insertar_ultimo(nivel->torretas, torreta_crear(posx, posy, ang, fig_base, fig_disparando));
 }
 
 bool nivel_agregar_combustible(nivel_t *nivel, double posx, double posy, double ang) {
-    return lista_insertar_ultimo(nivel->combustibles, combustible_crear(nivel->nivel_enum, posx, posy, ang));
+    return lista_insertar_ultimo(nivel->combustibles, combustible_crear(INICIO, posx, posy, ang));
 }
 
 bool nivel_agregar_bala(nivel_t* nivel, double posx, double posy, double vel, double ang, bool jugador) {
-    return lista_insertar_ultimo(nivel->balas, bala_crear(nivel->nivel_enum, posx, posy, vel, ang, jugador));
+    return lista_insertar_ultimo(nivel->balas, bala_crear(INICIO, posx, posy, vel, ang, jugador));
 }
 
 /*void nivel_tickear(nivel_t* nivel, nave_t* nave, double escala, double centro, SDL_Renderer* renderer) {
@@ -210,7 +208,7 @@ bool nivel_agregar_bala(nivel_t* nivel, double posx, double posy, double vel, do
     return;
 }*/
 
-void nivel_dibujar(nivel_t *nivel, double escala, double centro, SDL_Renderer *renderer) {
+/*void nivel_dibujar(nivel_t* nivel, double escala, double centro, SDL_Renderer* renderer) {
     if (!lista_esta_vacia(nivel->torretas)) {
         lista_iter_t* iter = lista_iter_crear(nivel->torretas);
         do {
@@ -230,7 +228,7 @@ void nivel_dibujar(nivel_t *nivel, double escala, double centro, SDL_Renderer *r
         } while (!lista_iter_al_final(iter));
         lista_iter_destruir(iter);
     }
-}
+}*/
 
 void nivel_destruir(nivel_t* nivel) {
 	lista_destruir(nivel->torretas, torreta_destruir);

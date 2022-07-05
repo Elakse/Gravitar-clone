@@ -44,6 +44,36 @@ void polilinea_destruir(polilinea_t *polilinea) {
   free(polilinea);
 }
 
+//DE USO PROPIO
+
+static double producto_interno(const double vector1[], const double vector2[], size_t n) {
+    double p_interno = 0;
+    for (size_t i = 0; i < n; i++) {
+        p_interno += vector1[i] * vector2[i];
+    };
+    return p_interno;
+}
+
+static double norma(const double vector[], size_t n) {
+    return sqrt(producto_interno(vector, vector, n));
+}
+
+static double distancia_punto_a_segmento(const float a[2], const float b[2], float px, float py) {
+    double seg_AP[] = { px - a[0], py - a[1] };
+    double seg_BA[] = { b[0] - a[0], b[1] - a[1] }; //declara y define los segmentos y calcula alpha
+    double seg_BP[] = { px - b[0], py - b[1] };
+    double alpha = producto_interno(seg_AP, seg_BA, 2) / producto_interno(seg_BA, seg_BA, 2);
+    if (alpha <= 0)
+        return norma(seg_AP, 2);
+    if (alpha >= 1)
+        return norma(seg_BP, 2); //dependiendo de alpha, hace la norma con el punto más cercano, segun las ecuaciones de la consigna
+    double punto_cercano[2];
+    punto_cercano[0] = a[0] + alpha * seg_BA[0];  //aquí primero calcula el punto cercano, el segmento con P y luego la norma
+    punto_cercano[1] = a[1] + alpha * seg_BA[1];
+    double seg_P_puntocercano[2] = { px - punto_cercano[0], py - punto_cercano[1] };
+    return norma(seg_P_puntocercano, 2);
+}
+
 //GETTERS Y SETTERS
 
 polilinea_t* leer_polilinea(FILE* f) {
@@ -144,36 +174,6 @@ void polilinea_setear_color(polilinea_t *polilinea, color_t color) {
   polilinea->color=color;
 }
 
-//DE USO PROPIO
-
-static double producto_interno(const double vector1[], const double vector2[], size_t n) {
-  double p_interno = 0;
-  for(size_t i=0; i<n; i++) {
-    p_interno += vector1[i]*vector2[i];
-  };
-  return p_interno;
-}
-
-static double norma(const double vector[], size_t n) {
-  return sqrt(producto_interno(vector, vector, n));
-}
-
-static double distancia_punto_a_segmento(const float a[2], const float b[2], float px, float py) {
-  double seg_AP[] = {px-a[0], py-a[1]};
-  double seg_BA[] = {b[0]-a[0], b[1]-a[1]}; //declara y define los segmentos y calcula alpha
-  double seg_BP[] = {px-b[0], py-b[1]};
-  double alpha = producto_interno(seg_AP,seg_BA,2)/producto_interno(seg_BA,seg_BA,2);
-  if(alpha<=0)
-    return norma(seg_AP,2);
-  if(alpha>=1)
-    return norma(seg_BP,2); //dependiendo de alpha, hace la norma con el punto más cercano, segun las ecuaciones de la consigna
-  double punto_cercano[2];
-  punto_cercano[0] = a[0]+alpha*seg_BA[0];  //aquí primero calcula el punto cercano, el segmento con P y luego la norma
-  punto_cercano[1] = a[1]+alpha*seg_BA[1];
-  double seg_P_puntocercano[2] = {px-punto_cercano[0], py-punto_cercano[1]};
-  return norma(seg_P_puntocercano,2);
-}
-
 //MOVIMIENTO Y DISTANCIAS
 
 void polilinea_trasladar(polilinea_t *polilinea, float dx, float dy) {
@@ -216,35 +216,14 @@ double distancia_punto_a_polilinea(const polilinea_t *polilinea, float px, float
 
 //DIBUJO
 
-void polilinea_dibujar(polilinea_t* poli, double posx, double posy, double ang, double escala, SDL_Renderer* renderer) {
-    polilinea_t* poli2 = polilinea_clonar(poli);
-    if (escala != 1) polilinea_escalar(poli2, escala);
-    polilinea_rotar(poli2, ang);
-    polilinea_trasladar(poli2, posx, posy);
-    uint8_t r, g, b;
-    color_a_rgb(poli->color, &r, &g, &b);
-    SDL_SetRenderDrawColor(renderer, r, g, b, 0x00);
-    float x1, y1, x2, y2;
-    for (int i = 0; i < polilinea_cantidad_puntos(poli2) - 1; i++) {
-        polilinea_obtener_punto(poli2, i, &x1, &y1);
-        polilinea_obtener_punto(poli2, i + 1, &x2, &y2);
-        SDL_RenderDrawLine(
-            renderer,
-            x1,
-            (VENTANA_ALTO - y1),
-            x2,
-            (VENTANA_ALTO - y2)
-        );
-    }
-    polilinea_destruir(poli2);
-}
 
-void polilinea_dibujar_escala_relativa(polilinea_t* poli, double posx, double posy, double ang, double centro, double escala, SDL_Renderer* renderer) {
+/*bool polilinea_dibujar(polilinea_t* poli, double traslado_x, double traslado_y, double ang, double centro, double escala, SDL_Renderer* renderer) {
     polilinea_t* poli2 = polilinea_clonar(poli);
+    if (poli2 == NULL) return false;
     polilinea_rotar(poli2, ang);
     polilinea_trasladar(poli2, -centro, 0);
     polilinea_escalar(poli2, escala);
-    polilinea_trasladar(poli2, centro + posx, posy);
+    polilinea_trasladar(poli2, centro + traslado_x, traslado_y);
     uint8_t r, g, b;
     color_a_rgb(poli->color, &r, &g, &b);
     SDL_SetRenderDrawColor(renderer, r, g, b, 0x00);
@@ -261,6 +240,25 @@ void polilinea_dibujar_escala_relativa(polilinea_t* poli, double posx, double po
         );
     }
     polilinea_destruir(poli2);
+    return true;
+}*/
+
+void polilinea_dibujar(polilinea_t* poli, SDL_Renderer* renderer) {
+    uint8_t r, g, b;
+    color_a_rgb(poli->color, &r, &g, &b);
+    SDL_SetRenderDrawColor(renderer, r, g, b, 0x00);
+    float x1, y1, x2, y2;
+    for (int i = 0; i < poli->n - 1; i++) {
+        polilinea_obtener_punto(poli, i, &x1, &y1);
+        polilinea_obtener_punto(poli, i + 1, &x2, &y2);
+        SDL_RenderDrawLine(
+            renderer,
+            x1,
+            (VENTANA_ALTO - y1),
+            x2,
+            (VENTANA_ALTO - y2)
+        );
+    }
 }
 
 //MEMORIA

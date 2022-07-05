@@ -7,12 +7,12 @@ typedef struct planeta planeta_t;
 
 //CREACIÓN y DESTRUCCIÓN
 
-planeta_t* planeta_crear(double posx, double posy, nivel_enum_t nivel, figura_t *planeta_fig);
+planeta_t* planeta_crear(double posx, double posy, double posx_tp, double posy_tp, estadio_t nivel, figura_t* planeta_fig);
 void planeta_destruir(planeta_t* planeta);
 
 //GETTERS
 
-nivel_enum_t planeta_get_nivel(planeta_t* planeta);
+estadio_t planeta_get_estadio(planeta_t* planeta);
 figura_t* planeta_get_fig(planeta_t* planeta);
 //char* planeta_get_figura_nom(planeta_t* planeta);
 double planeta_get_posx(planeta_t* planeta);
