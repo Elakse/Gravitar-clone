@@ -14,12 +14,13 @@ struct nave{
   float a_thrust;
   size_t vidas;
   size_t fuel;
+  size_t puntos;
   estadio_t estad;
   figura_t* nave_fig;
   figura_t* thrust_on_fig;
 };
 
-nave_t *nave_crear(size_t vidas, size_t fuel, estadio_t estadio, figura_t* fig_base, figura_t* fig_thruster_on) {
+nave_t *nave_crear(size_t vidas, size_t fuel, size_t puntos, estadio_t estadio, figura_t* fig_base, figura_t* fig_thruster_on) {
   nave_t *nave = malloc(sizeof(nave_t));
   if(nave == NULL) return NULL;
   nave->pos[0]=0 ; nave->pos[1]=0;
@@ -29,6 +30,7 @@ nave_t *nave_crear(size_t vidas, size_t fuel, estadio_t estadio, figura_t* fig_b
   nave->a_thrust = 0;
   nave->vidas = vidas;
   nave->fuel = fuel;
+  nave->puntos = puntos;
   nave->estad = estadio;
   nave->nave_fig = fig_base;
   nave->thrust_on_fig = fig_thruster_on;
@@ -88,6 +90,20 @@ void nave_setear_ang_g(nave_t *nave, double ang) {
     nave->ang_g = ang;
 }
 
+void nave_sumar_puntos(nave_t* nave, size_t puntos) {
+    nave->puntos += puntos;
+}
+void nave_restar_puntos(nave_t* nave, size_t puntos) {
+    nave->puntos -= puntos;
+}
+
+void nave_sumar_combustible(nave_t* nave, size_t fuel) {
+    nave->fuel += fuel;
+}
+void nave_restar_combustible(nave_t* nave, size_t fuel) {
+    nave->fuel -= fuel;
+}
+
 double nave_get_posx(nave_t *nave) {
     return nave->pos[0];
 }
@@ -118,6 +134,14 @@ double nave_get_vely(nave_t *nave) {
 
 double nave_get_vel(nave_t* nave) {
     return com_modulo(nave_get_velx(nave), nave_get_vely(nave));
+}
+
+size_t nave_get_fuel(nave_t* nave) {
+    return nave->fuel;
+}
+
+size_t nave_get_puntos(nave_t* nave) {
+    return nave->puntos;
 }
 
 //-----------------------------------------------------------------------ACCIONES--------------------------------------------------------------------------------------------

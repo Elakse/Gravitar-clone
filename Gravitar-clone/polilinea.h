@@ -33,6 +33,8 @@ double polilinea_obtener_x_max(const polilinea_t* polilinea);
 double polilinea_obtener_y_max(const polilinea_t* polilinea);
 double polilinea_obtener_x_min(const polilinea_t* polilinea);
 double polilinea_obtener_y_min(const polilinea_t* polilinea);
+float polilinea_obtener_x(const polilinea_t* poli, size_t pos);
+float polilinea_obtener_y(const polilinea_t* poli, size_t pos);
 
 //MOVIMIENTO Y DISTANCIA
 

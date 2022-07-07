@@ -64,6 +64,10 @@ bool nivel_agregar_reactor(nivel_t* nivel, double posx, double posy, double ang,
     return lista_insertar_ultimo(nivel->reactores, reactor_crear(posx, posy, ang, tiempo, fig_react));
 }
 
+void nivel_randomizar_disparos(void) {
+    torreta_randomizar_disparos();
+}
+
 //GETTERS
 
 bool nivel_es_inf(nivel_t* nivel) {
@@ -90,18 +94,61 @@ void nivel_get_max_min(nivel_t* nivel, double* x_max, double* y_max, double* x_m
     }
 }
 
+bool nivel_tiene_torretas(nivel_t* nivel) {
+    return !lista_esta_vacia(nivel->torretas);
+}
+
+bool nivel_tiene_planetas(nivel_t* nivel) {
+    return !lista_esta_vacia(nivel->planetas);
+}
+
+bool nivel_tiene_reactores(nivel_t* nivel) {
+    return !lista_esta_vacia(nivel->reactores);
+}
+
+bool nivel_tiene_combustibles(nivel_t* nivel) {
+    return !lista_esta_vacia(nivel->combustibles);
+}
+
+bool nivel_tiene_balas(nivel_t* nivel) {
+    return !lista_esta_vacia(nivel->balas);
+}
+
+figura_t* nivel_get_figura(nivel_t* nivel) {
+    return nivel->figura;
+}
+
 //INTERACCIONES Y ACTUALIZACIONES
 
 bool nivel_nave_dispara(nivel_t* nivel, nave_t* nave, double vel, figura_t* fig_bala) {
     return lista_insertar_ultimo(nivel->balas, nave_dispara(nave, vel, nivel->duracion_balas, fig_bala));
 }
 
-bool nivel_torretas_disparan_a_nave(nivel_t* nivel, nave_t* nave, double rango, size_t chances, double vel, figura_t* fig_bala) {
+bool nivel_nave_disparada(nivel_t* nivel, nave_t* nave) {
+    lista_iter_t* iter = lista_iter_crear(nivel->balas);
+    while (!lista_iter_al_final(iter)) {
+        bala_t* b = lista_iter_ver_actual(iter);
+        if (!bala_es_de_jugador(b) && nave_distancia_a_punto(nave, bala_get_posx(b), bala_get_posy(b)) < DISTANCIA_COLISION) {
+            bala_destruir_no_ref(lista_iter_borrar(iter));
+            lista_iter_destruir(iter);
+            return true;
+        }
+        lista_iter_avanzar(iter);
+    }
+    lista_iter_destruir(iter);
+    return false;
+}
+
+bool nivel_torretas_disparan_a_nave(nivel_t* nivel, nave_t* nave, double abanico, size_t chances, double rango, double vel, figura_t* fig_bala) {
     lista_iter_t* iter = lista_iter_crear(nivel->torretas);
+    double x_nav = nave_get_posx(nave);
+    double y_nav = nave_get_posy(nave);
     while (!lista_iter_al_final(iter)) {
         torreta_t* t = lista_iter_ver_actual(iter);
-        double ang = computar_angulo(torreta_get_posx(t), torreta_get_posy(t), nave_get_posx(nave), nave_get_posy(nave));
-        bala_t* bala = torreta_dispara(t, ang, rango, chances, vel, nivel->duracion_balas, fig_bala);
+        double ang = computar_angulo(torreta_get_posx(t), torreta_get_posy(t), x_nav, y_nav);
+        bala_t* bala = NULL;
+        if(torreta_distancia_a_punto(t, x_nav, y_nav) < rango) 
+            bala = torreta_dispara(t, ang, abanico, chances, vel, nivel->duracion_balas, fig_bala);
         if (bala != NULL)
             if (!lista_insertar_ultimo(nivel->balas, bala)) {
                 lista_iter_destruir(iter);
@@ -111,21 +158,6 @@ bool nivel_torretas_disparan_a_nave(nivel_t* nivel, nave_t* nave, double rango, 
     }
     lista_iter_destruir(iter);
     return true;
-}
-
-bool nivel_nave_disparada(nivel_t* nivel, nave_t* nave) {
-    lista_iter_t* iter = lista_iter_crear(nivel->balas);
-    while (!lista_iter_al_final(iter)) {
-        bala_t* b = lista_iter_ver_actual(iter);
-        if (!bala_es_de_jugador(b) && nave_distancia_a_punto(nave, bala_get_posx(b), bala_get_posy(b)) < DISTANCIA_COLISION) {
-            bala_destruir(lista_iter_borrar(iter), NULL);
-            lista_iter_destruir(iter);
-            return true;
-        }
-        lista_iter_avanzar(iter);
-    }
-    lista_iter_destruir(iter);
-    return false;
 }
 
 size_t nivel_torretas_disparadas(nivel_t* nivel) {
@@ -139,8 +171,8 @@ size_t nivel_torretas_disparadas(nivel_t* nivel) {
             bala_t* b = lista_iter_ver_actual(iter_b);
             if (bala_es_de_jugador(b) && torreta_distancia_a_punto(t, bala_get_posx(b), bala_get_posy(b)) < DISTANCIA_COLISION) {
                 torreta_destruida = true;
-                torreta_destruir(lista_iter_borrar(iter_t), NULL, NULL);
-                bala_destruir(lista_iter_borrar(iter_b), NULL);
+                torreta_destruir_no_ref(lista_iter_borrar(iter_t));
+                bala_destruir_no_ref(lista_iter_borrar(iter_b));
                 disparadas++;
                 break;
             }
@@ -153,18 +185,49 @@ size_t nivel_torretas_disparadas(nivel_t* nivel) {
     return disparadas;
 }
 
-void nivel_balas_actualizar(nivel_t* nivel, double dt) {
-    lista_iter_t* iter = lista_iter_crear(nivel->balas);
+size_t nivel_nave_recoge_combustible(nivel_t* nivel, nave_t* nave) {
+    size_t recogidos = 0;
+    lista_iter_t* iter = lista_iter_crear(nivel->combustibles);
     while (!lista_iter_al_final(iter)) {
-        bala_t* b = lista_iter_ver_actual(iter);
-        if (!bala_actualizar(b, dt)) {
-            bala_destruir(lista_iter_borrar(iter), NULL);
+        bala_t* c = lista_iter_ver_actual(iter);
+        if (nave_distancia_a_punto(nave, combustible_get_posx(c), combustible_get_posy(c)) < DISTANCIA_RECOLECCION) {
+            combustible_destruir_no_ref(lista_iter_borrar(iter));
+            recogidos++;
             continue;
         }
         lista_iter_avanzar(iter);
     }
     lista_iter_destruir(iter);
 }
+
+void nivel_balas_actualizar(nivel_t* nivel, double dt) {
+    lista_iter_t* iter = lista_iter_crear(nivel->balas);
+    while (!lista_iter_al_final(iter)) {
+        bala_t* b = lista_iter_ver_actual(iter);
+        if (!bala_actualizar(b, dt) || figura_distancia_a_punto(nivel->figura, bala_get_posx(b), bala_get_posy(b)) < DISTANCIA_COLISION) {
+            bala_destruir_no_ref(lista_iter_borrar(iter));
+            continue;
+        }
+        lista_iter_avanzar(iter);
+    }
+    lista_iter_destruir(iter);
+}
+
+void nivel_balas_trasladar(nivel_t* nivel, double dx, double dy) {
+    lista_iter_t* iter = lista_iter_crear(nivel->balas);
+    while (!lista_iter_al_final(iter)) {
+        bala_t* b = lista_iter_ver_actual(iter);
+        bala_set_pos(b, bala_get_posx(b) + dx, bala_get_posy(b) + dy);
+        lista_iter_avanzar(iter);
+    }
+    lista_iter_destruir(iter);
+}
+
+void nivel_balas_vaciar(nivel_t* nivel) {
+    lista_destruir(nivel->balas, bala_destruir_no_ref);
+    nivel->balas = lista_crear();
+}
+
 
 bool nivel_nave_accede_planetas(nivel_t* nivel, nave_t* nave) {
     lista_iter_t* iter = lista_iter_crear(nivel->planetas);
@@ -215,11 +278,23 @@ void nivel_dibujar(nivel_t* nivel, double centro, double escala, double ventana_
         planeta_dibujar(lista_iter_ver_actual(iter_p), traslado, 0, centro, escala, renderer);
         lista_iter_avanzar(iter_p);
     }
+    lista_iter_t* iter_c = lista_iter_crear(nivel->combustibles);
+    while (!lista_iter_al_final(iter_c)) {
+        combustible_dibujar(lista_iter_ver_actual(iter_c), traslado, 0, centro, escala, renderer);
+        lista_iter_avanzar(iter_c);
+    }
+    lista_iter_t* iter_r = lista_iter_crear(nivel->reactores);
+    while (!lista_iter_al_final(iter_r)) {
+        reactor_dibujar(lista_iter_ver_actual(iter_r), traslado, 0, centro, escala, renderer);
+        lista_iter_avanzar(iter_r);
+    }
     
     
     lista_iter_destruir(iter_b);
     lista_iter_destruir(iter_t);
     lista_iter_destruir(iter_p);
+    lista_iter_destruir(iter_r);
+    lista_iter_destruir(iter_c);
 }
 
 

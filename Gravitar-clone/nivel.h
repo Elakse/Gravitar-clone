@@ -7,6 +7,7 @@
 #include "figuras.h"
 
 #define DISTANCIA_COLISION 4
+#define DISTANCIA_RECOLECCION 50
 
 typedef struct nivel nivel_t;
 
@@ -34,15 +35,33 @@ bool nivel_es_inf(nivel_t * nivel);
 double nivel_get_ancho(nivel_t* nivel);
 double nivel_get_alto(nivel_t* nivel);
 void nivel_get_max_min(nivel_t* nivel, double* x_max, double* y_max, double* x_min, double* y_min);
+figura_t* nivel_get_figura(nivel_t* nivel);
+
+bool nivel_tiene_torretas(nivel_t* nivel);
+bool nivel_tiene_planetas(nivel_t* nivel);
+bool nivel_tiene_reactores(nivel_t* nivel);
+bool nivel_tiene_combustibles(nivel_t* nivel);
+bool nivel_tiene_balas(nivel_t* nivel);
 
 //ACTUALIZACIONES e ITERACCIONES
 
 bool nivel_nave_dispara(nivel_t* nivel, nave_t* nave, double vel, figura_t* fig_bala);
-bool nivel_torretas_disparan_a_nave(nivel_t* nivel, nave_t* nave, double rango, size_t chances, double vel, figura_t* fig_bala);
 bool nivel_nave_disparada(nivel_t* nivel, nave_t* nave); 
+
+void nivel_randomizar_disparos(void);
+bool nivel_torretas_disparan_a_nave(nivel_t* nivel, nave_t* nave, double abanico, size_t chances, double rango, double vel, figura_t* fig_bala);
 size_t nivel_torretas_disparadas(nivel_t* nivel);
+
+size_t nivel_nave_recoge_combustible(nivel_t* nivel, nave_t* nave);
+
 void nivel_balas_actualizar(nivel_t* nivel, double dt);
+void nivel_balas_trasladar(nivel_t* nivel, double dx, double dy);
+void nivel_balas_vaciar(nivel_t* nivel);
+
 bool nivel_nave_accede_planetas(nivel_t* nivel, nave_t* nave);
+
+
+
 
 //DIBUJO
 

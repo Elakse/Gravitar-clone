@@ -27,13 +27,12 @@ polilinea_t *polilinea_crear_vacia(size_t n) {
   return poli;
 }
 
-polilinea_t *polilinea_crear(const float puntos[][2], size_t n, color_t color) {
+polilinea_t *polilinea_crear(const float (*puntos)[2], size_t n, color_t color) {
   polilinea_t *poli=polilinea_crear_vacia(n);
   if(poli==NULL)                 //Crea una polilinea vacía y verifica su creación
     return NULL;
-  for(size_t i=0; i<poli->n; i++) {
-    poli->puntos[i][0]=puntos[i][0];
-    poli->puntos[i][1]=puntos[i][1];
+  for(size_t i=0; i<n; i++) {
+      polilinea_setear_punto(poli, i, puntos[i][0], puntos[i][1]);
   }
   poli->color=color;
   return poli;
@@ -112,6 +111,14 @@ bool polilinea_obtener_punto(const polilinea_t *polilinea, size_t pos, float *x,
   *x=polilinea->puntos[pos][0];  //Asigna los valores del punto en donde apuntan los punteros dados
   *y=polilinea->puntos[pos][1];
   return true;
+}
+
+float polilinea_obtener_x(const polilinea_t* poli, size_t pos) {
+    return poli->puntos[pos][0];
+}
+
+float polilinea_obtener_y(const polilinea_t* poli, size_t pos) {
+    return poli->puntos[pos][1];
 }
 
 color_t polilinea_obtener_color(const polilinea_t *polilinea) {

@@ -138,6 +138,7 @@
     <ClCompile Include="caracteres.c" />
     <ClCompile Include="color.c" />
     <ClCompile Include="combustible.c" />
+    <ClCompile Include="escritura.c" />
     <ClCompile Include="figuras.c" />
     <ClCompile Include="fisica.c" />
     <ClCompile Include="lista.c" />
@@ -155,6 +156,7 @@
     <ClInclude Include="color.h" />
     <ClInclude Include="combustible.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="escritura.h" />
     <ClInclude Include="figuras.h" />
     <ClInclude Include="fisica.h" />
     <ClInclude Include="lista.h" />
