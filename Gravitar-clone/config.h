@@ -26,9 +26,6 @@
 
 #define NAVE_ANGULO_INICIAL (PI/2)
 
-#define A_NIVEL1NE 2000
-#define A_NIVEL1SE 2087
-#define A_NIVEL1SW 1790
 
 #endif // _CONFIG_H_
 

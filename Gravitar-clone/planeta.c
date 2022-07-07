@@ -1,4 +1,3 @@
-#include "nivel.h"
 #include "fisica.h"
 #include <string.h>
 #include "planeta.h"
@@ -20,8 +19,13 @@ planeta_t* planeta_crear(double posx, double posy, double posx_tp, double posy_t
 	return planeta;
 }
 
-void planeta_destruir(planeta_t* planeta) {
+void planeta_destruir(planeta_t* planeta, figura_t** figura) {
+	if (figura != NULL) *figura = planeta->fig;
 	free(planeta);
+}
+
+void planeta_destruir_no_ref(planeta_t* planeta) {
+	planeta_destruir(planeta, NULL);
 }
 
 estadio_t planeta_get_estadio(planeta_t* planeta) {
@@ -40,11 +44,26 @@ double planeta_get_posy(planeta_t* planeta) {
 	return planeta->pos[1];
 }
 
-double planeta_distancia_a_punto(planeta_t* planeta, double px, double py) {
-	return computar_distancia(planeta->pos[0], planeta->pos[1], px, py);
+double planeta_get_posx_tp(planeta_t* planeta) {
+	return planeta->pos_tp[0];
 }
 
-//------------------------------------------------------------------------------DIBUJADO----------------------------------------------------------------------------------------
+double planeta_get_posy_tp(planeta_t* planeta) {
+	return planeta->pos_tp[1];
+}
+
+double planeta_distancia_a_punto(planeta_t* planeta, double px, double py) {
+	figura_t* figura = figura_clonar(planeta->fig);
+	if (figura == NULL) return -1;
+	figura_trasladar(figura, planeta->pos[0], planeta->pos[1]);
+	double distancia = figura_distancia_a_punto(figura, px, py);
+	figura_destruir(figura);
+	return distancia;
+}
+
+
+
+//DIBUJO
 
 bool planeta_dibujar(planeta_t* planeta, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer) {
 	if (!figura_dibujar(planeta->fig, planeta->pos[0] * escala + tras_x, planeta->pos[1] * escala + tras_y, 0, centro_escala, escala, renderer))

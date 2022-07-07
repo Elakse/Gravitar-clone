@@ -25,6 +25,10 @@ void reactor_destruir(reactor_t* reactor, figura_t ** figura) {
 	free(reactor);
 }
 
+void reactor_destruir_no_ref(reactor_t* reactor) {
+	reactor_destruir(reactor, NULL);
+}
+
 double reactor_get_posx(reactor_t* reactor) {
 	return reactor->pos[0];
 }

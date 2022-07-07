@@ -10,7 +10,6 @@
 enum estadio { INICIO, NIVEL1, NIVEL2, NIVEL3, NIVEL4, NIVEL5 };
 typedef enum estadio estadio_t;
 
-struct nave;
 typedef struct nave nave_t;
 
 //CREACION Y DESTRUCCION
@@ -50,7 +49,7 @@ void nave_girar_izq(nave_t* nave, double ang);
 void nave_mover(nave_t* nave, double dt);
 double nave_distancia_a_punto(nave_t* nave, double x, double y);
 double nave_distancia_a_figura(nave_t* nave, figura_t* figura);
-struct bala* nave_dispara(nave_t* nave, double vel, size_t duracion_disparo, figura_t* bala_fig);
+bala_t* nave_dispara(nave_t* nave, double vel, size_t duracion_disparo, figura_t* bala_fig);
 
 
 //DIBUJADO

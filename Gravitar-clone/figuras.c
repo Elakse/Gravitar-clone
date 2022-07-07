@@ -132,38 +132,42 @@ polilinea_t** figura_obtener_polis(figura_t* figura){
 double figura_obtener_x_max(figura_t* figura) {
 	double max = polilinea_obtener_x_max(figura->polis[0]);
 	double aux = 0;
-	for (size_t i = 1; i < figura->cant; i++)
+	for (size_t i = 1; i < figura->cant; i++) {
 		aux = polilinea_obtener_x_max(figura->polis[i]);
 		if (aux > max)
 			max = aux;
+	}
 	return max;
 }
 
 double figura_obtener_y_max(figura_t* figura) {
 	double max = polilinea_obtener_y_max(figura->polis[0]);
 	double aux;
-	for (size_t i = 1; i < figura->cant; i++)
+	for (size_t i = 1; i < figura->cant; i++) {
 		if ((aux = polilinea_obtener_y_max(figura->polis[i])) > max)
 			max = aux;
+	}
 	return max;
 }
 
 double figura_obtener_x_min(figura_t* figura) {
 	double min = polilinea_obtener_x_min(figura->polis[0]);
 	double aux = 0;
-	for (size_t i = 1; i < figura->cant; i++)
+	for (size_t i = 1; i < figura->cant; i++) {
 		aux = polilinea_obtener_x_min(figura->polis[i]);
 		if (aux < min)
 			min = aux;
+	}
 	return min;
 }
 
 double figura_obtener_y_min(figura_t* figura) {
 	double min = polilinea_obtener_y_min(figura->polis[0]);
 	double aux;
-	for (size_t i = 1; i < figura->cant; i++)
+	for (size_t i = 1; i < figura->cant; i++) {
 		if ((aux = polilinea_obtener_y_min(figura->polis[i])) < min)
 			min = aux;
+	}
 	return min;
 }
 

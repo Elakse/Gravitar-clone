@@ -2,7 +2,6 @@
 #include<string.h>
 #include<stdlib.h>
 #include<stdio.h>
-#include<SDL.h>
 #include "nave.h"
 #include "config.h"
 #include "fisica.h"

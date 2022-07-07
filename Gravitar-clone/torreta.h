@@ -1,8 +1,10 @@
 #ifndef TORRETA_H
 #define TORRETA_H
-#include "nave.h"
-#include "nivel.h"
+
+#include <SDL.h>
+#include "figuras.h"
 #include "bala.h"
+
 
 typedef struct torreta torreta_t;
 
@@ -13,6 +15,7 @@ typedef struct torreta torreta_t;
 
 torreta_t* torreta_crear(double posx, double posy, double ang, figura_t* fig_base, figura_t* fig_disparando);
 void torreta_destruir(torreta_t* torreta, figura_t** fig_base, figura_t** fig_disparando);
+void torreta_destruir_no_ref(torreta_t* torreta);
 
 //GETTERS
 double torreta_get_posx(torreta_t* torreta);

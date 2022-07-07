@@ -20,6 +20,9 @@ reactor_t* reactor_crear(double posx, double posy, double ang, size_t tiempo, fi
 //Destruye el reactor y devuelve en figura un puntero a la figura anexada al reactor. Si no se desea obtener ese puntero, pues ya cuenta con una referencia a esta figura, colocar NULL.
 void reactor_destruir(reactor_t* reactor, figura_t ** figura);
 
+//Destruye el reactor sin devolver una referencia a la figura anexada
+void reactor_destruir_no_ref(reactor_t* reactor);
+
 
 
 //GETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que está explicitado en sus nombres)

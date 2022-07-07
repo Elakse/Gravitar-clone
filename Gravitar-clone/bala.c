@@ -28,6 +28,10 @@ void bala_destruir(bala_t* bala, figura_t** figura) {
 	free(bala);
 }
 
+void bala_destruir_no_ref(bala_t* bala) {
+	bala_destruir(bala, NULL);
+}
+
 
 double bala_get_posx(bala_t *bala) {
 	return bala->pos[0];

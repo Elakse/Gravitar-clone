@@ -1,13 +1,12 @@
 #include "nivel.h"
 #include "lista.h"
-#include "figuras.h"
 #include "torreta.h"
 #include "combustible.h"
-#include "nave.h"
 #include "config.h"
 #include "fisica.h"
 #include "bala.h"
 #include "reactor.h"
+#include "planeta.h"
 #include <stdbool.h>
 
 struct nivel {
@@ -33,6 +32,18 @@ nivel_t* nivel_crear(figura_t *figura, size_t duracion_de_balas) {
 	return nivel;
 }
 
+void nivel_destruir(nivel_t* nivel, figura_t** figura) {
+    if (figura != NULL) *figura = nivel->figura;
+    lista_destruir(nivel->torretas, torreta_destruir_no_ref);
+    lista_destruir(nivel->combustibles, combustible_destruir_no_ref);
+    lista_destruir(nivel->balas, bala_destruir_no_ref);
+    lista_destruir(nivel->planetas, planeta_destruir_no_ref);
+    lista_destruir(nivel->reactores, reactor_destruir_no_ref);
+    free(nivel);
+}
+
+//SETTERS
+
 bool nivel_agregar_torreta(nivel_t *nivel, double posx, double posy, double ang, figura_t * fig_base, figura_t* fig_disparando) {
     return lista_insertar_ultimo(nivel->torretas, torreta_crear(posx, posy, ang, fig_base, fig_disparando));
 }
@@ -45,19 +56,47 @@ bool nivel_agregar_bala(nivel_t* nivel, double posx, double posy, double vel, do
     return lista_insertar_ultimo(nivel->balas, bala_crear(posx, posy, vel, ang, nivel->duracion_balas, jugador, fig_bala));
 }
 
-bool nivel_agregar_planeta(nivel_t* nivel, double posx, double posy, double posx_tp, double posy_tp, enum estadio estad, figura_t* fig_planeta) {
-    return lista_insertar_ultimo(nivel->balas, planeta_crear(posx, posy, posx_tp, posy_tp, estad, fig_planeta));
+bool nivel_agregar_planeta(nivel_t* nivel, double posx, double posy, double posx_tp, double posy_tp, estadio_t estad, figura_t* fig_planeta) {
+    return lista_insertar_ultimo(nivel->planetas, planeta_crear(posx, posy, posx_tp, posy_tp, estad, fig_planeta));
 }
 
 bool nivel_agregar_reactor(nivel_t* nivel, double posx, double posy, double ang, size_t tiempo, figura_t* fig_react) {
     return lista_insertar_ultimo(nivel->reactores, reactor_crear(posx, posy, ang, tiempo, fig_react));
 }
 
-bool nivel_nave_dispara(nivel_t* nivel, struct nave* nave, double vel, figura_t* fig_bala) {
+//GETTERS
+
+bool nivel_es_inf(nivel_t* nivel) {
+    if (nivel->figura == NULL) return false;
+    return figura_es_inf(nivel->figura);
+}
+
+double nivel_get_ancho(nivel_t* nivel) {
+    if (nivel->figura == NULL) return -1;
+    return figura_obtener_ancho(nivel->figura);
+}
+
+double nivel_get_alto(nivel_t* nivel) {
+    if (nivel->figura == NULL) return -1;
+    return figura_obtener_alto(nivel->figura);
+}
+
+void nivel_get_max_min(nivel_t* nivel, double* x_max, double* y_max, double* x_min, double* y_min) {
+    if (nivel->figura != NULL) {
+        if (x_max != NULL) *x_max = figura_obtener_x_max(nivel->figura);
+        if (y_max != NULL) *y_max = figura_obtener_y_max(nivel->figura);
+        if (x_min != NULL) *x_min = figura_obtener_x_min(nivel->figura);
+        if (y_min != NULL) *y_min = figura_obtener_y_min(nivel->figura);
+    }
+}
+
+//INTERACCIONES Y ACTUALIZACIONES
+
+bool nivel_nave_dispara(nivel_t* nivel, nave_t* nave, double vel, figura_t* fig_bala) {
     return lista_insertar_ultimo(nivel->balas, nave_dispara(nave, vel, nivel->duracion_balas, fig_bala));
 }
 
-bool nivel_torretas_disparan_a_nave(nivel_t* nivel, struct nave* nave, double rango, size_t chances, double vel, figura_t* fig_bala) {
+bool nivel_torretas_disparan_a_nave(nivel_t* nivel, nave_t* nave, double rango, size_t chances, double vel, figura_t* fig_bala) {
     lista_iter_t* iter = lista_iter_crear(nivel->torretas);
     while (!lista_iter_al_final(iter)) {
         torreta_t* t = lista_iter_ver_actual(iter);
@@ -74,7 +113,7 @@ bool nivel_torretas_disparan_a_nave(nivel_t* nivel, struct nave* nave, double ra
     return true;
 }
 
-bool nivel_nave_disparada(nivel_t* nivel, struct nave* nave) {
+bool nivel_nave_disparada(nivel_t* nivel, nave_t* nave) {
     lista_iter_t* iter = lista_iter_crear(nivel->balas);
     while (!lista_iter_al_final(iter)) {
         bala_t* b = lista_iter_ver_actual(iter);
@@ -127,227 +166,61 @@ void nivel_balas_actualizar(nivel_t* nivel, double dt) {
     lista_iter_destruir(iter);
 }
 
+bool nivel_nave_accede_planetas(nivel_t* nivel, nave_t* nave) {
+    lista_iter_t* iter = lista_iter_crear(nivel->planetas);
+    while (!lista_iter_al_final(iter)) {
+        planeta_t* p = lista_iter_ver_actual(iter);
+        if (planeta_distancia_a_punto(p, nave_get_posx(nave), nave_get_posy(nave)) < DISTANCIA_COLISION) {
+            nave_setear_estadio(nave, planeta_get_estadio(p));
+            nave_setear_pos(nave, planeta_get_posx_tp(p), planeta_get_posy_tp(p));
+            return true;
+            break;
+        }
+        lista_iter_avanzar(iter);
+    }
+    lista_iter_destruir(iter);
+    return false;
+}
+
+//DIBUJO
+
 void nivel_dibujar(nivel_t* nivel, double centro, double escala, double ventana_ancho, SDL_Renderer* renderer) {
+    double traslado = -centro;
+    double ancho = 0;
+    if (nivel->figura != NULL) {
+        ancho = figura_obtener_ancho(nivel->figura);
+        if (nivel_es_inf(nivel)) {
+            traslado = -centro + ventana_ancho / 2;
+            figura_dibujar(nivel->figura, traslado, 0, 0, centro, escala, renderer);
+            figura_dibujar(nivel->figura, -ancho * escala + traslado, 0, 0, centro, escala, renderer);
+            figura_dibujar(nivel->figura, ancho * escala + traslado, 0, 0, centro, escala, renderer);
+        }
+        else {
+            
+            figura_dibujar(nivel->figura, traslado, 0, 0, centro, escala, renderer);
+        }
+    }
     lista_iter_t* iter_b = lista_iter_crear(nivel->balas);
     while (!lista_iter_al_final(iter_b)) {
-        bala_dibujar(lista_iter_ver_actual(iter_b), -centro + ventana_ancho / 2, 0, centro, escala, renderer);
+        bala_dibujar(lista_iter_ver_actual(iter_b), traslado, 0, centro, escala, renderer);
         lista_iter_avanzar(iter_b);
     }
     lista_iter_t* iter_t = lista_iter_crear(nivel->torretas);
     while (!lista_iter_al_final(iter_t)) {
-        torreta_dibujar(lista_iter_ver_actual(iter_t), -centro + ventana_ancho / 2, 0, centro, escala, renderer);
+        torreta_dibujar(lista_iter_ver_actual(iter_t), traslado, 0, centro, escala, renderer);
         lista_iter_avanzar(iter_t);
     }
-    double ancho = figura_obtener_ancho(nivel->figura);
-    figura_dibujar(nivel->figura, -centro + ventana_ancho / 2, 0, 0, centro, escala, renderer);
-    figura_dibujar(nivel->figura, -ancho * escala - centro + ventana_ancho / 2, 0, 0, centro, escala, renderer);
-    figura_dibujar(nivel->figura, ancho * escala - centro + ventana_ancho / 2, 0, 0, centro, escala, renderer);
+    lista_iter_t* iter_p = lista_iter_crear(nivel->planetas);
+    while (!lista_iter_al_final(iter_p)) {
+        planeta_dibujar(lista_iter_ver_actual(iter_p), traslado, 0, centro, escala, renderer);
+        lista_iter_avanzar(iter_p);
+    }
+    
+    
     lista_iter_destruir(iter_b);
     lista_iter_destruir(iter_t);
+    lista_iter_destruir(iter_p);
 }
 
 
 
-
-
-
-
-/*void nivel_tickear(nivel_t* nivel, nave_t* nave, double escala, double centro, SDL_Renderer* renderer) {
-    switch (nivel->nivel_enum) {
-        case INICIO:{
-            if (nave_get_posy(nave) <= 5 || nave_get_posy(nave) >= VENTANA_ALTO)
-                nave_setear_vely(nave, nave_get_vely(nave) * -1);
-            if (nave_get_posx(nave) <= 5 || nave_get_posx(nave) >= VENTANA_ANCHO)
-                nave_setear_velx(nave, nave_get_velx(nave) * -1);
-
-            nave_setear_ang_g(nave, computar_angulo(nave_get_posx(nave), nave_get_posy(nave), 457, 364));
-
-            if (computar_distancia(nave_get_posx(nave), nave_get_posy(nave), 663, 473) < 20) {
-                nave_setear_nivel(nave, NIVEL1);
-                nave_setear_pos(nave, 300, 590);
-                nave_setear_vel(nave, 0, -20);
-                nave_setear_ang_nave(nave, PI * 1.5);
-                nave_setear_ang_g(nave, PI * 1.5);
-            }
-            if (computar_distancia(nave_get_posx(nave), nave_get_posy(nave), 671, 145) < 20) {
-                nave_setear_nivel(nave, NIVEL2);
-                nave_setear_pos(nave, 400, 590);
-                nave_setear_vel(nave, 0, -20);
-                nave_setear_ang_nave(nave, PI * 1.5);
-                nave_setear_ang_g(nave, PI * 1.5);
-            }
-            if (computar_distancia(nave_get_posx(nave), nave_get_posy(nave), 110, 79) < 20) {
-                nave_setear_nivel(nave, NIVEL3);
-                nave_setear_pos(nave, 400, 590);
-                nave_setear_vel(nave, 0, -20);;
-                nave_setear_ang_nave(nave, PI * 1.5);
-                nave_setear_ang_g(nave, PI * 1.5);
-            }
-            if (computar_distancia(nave_get_posx(nave), nave_get_posy(nave), 204, 455) < 20) {
-                nave_setear_nivel(nave, NIVEL4);
-                nave_setear_pos(nave, 400, 590);
-                nave_setear_vel(nave, 0, -20);
-                nave_setear_ang_nave(nave, PI * 1.5);
-                nave_setear_ang_g(nave, PI * 1.5);
-            }
-            if (computar_distancia(nave_get_posx(nave), nave_get_posy(nave), 111, 307) < 20) {
-                nave_setear_nivel(nave, NIVEL5);
-                nave_setear_pos(nave, 300, 590);
-                nave_setear_vel(nave, 0, -20);
-                nave_setear_ang_nave(nave, PI * 1.5);
-                nave_setear_ang_g(nave, PI * 1.5);
-            }
-            if (computar_distancia(nave_get_posx(nave), nave_get_posy(nave), 457, 364) < 20) {
-                nave_setear_pos(nave, 388, 218);
-                nave_setear_vel(nave, 0, 0);
-                nave_setear_ang_nave(nave, PI / 4);
-                nave_restar_vida(nave);
-            }
-            break;
-        }
-        case NIVEL1:{
-                if (nave_get_posy(nave) >= VENTANA_ALTO) {
-                    nave_setear_nivel(nave, INICIO);
-                    nave_setear_pos(nave, 645, 455);
-                    nave_setear_vel(nave, -10, -10);
-                    nave_setear_ang_nave(nave, PI + PI / 4);
-                }
-
-                if (nave_get_posy(nave) > VENTANA_ALTO * MARGEN_ALTURA)
-                    escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(nave);
-                if (escala < ESCALA_MINIMA)
-                    escala = ESCALA_MINIMA;
-                if ((nave_get_posx(nave) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
-                    centro = nave_get_posx(nave) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
-                else if ((nave_get_posx(nave) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
-                    centro = nave_get_posx(nave) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
-
-                break;
-            }
-        case NIVEL2:{
-                if (nave_get_posy(nave) >= VENTANA_ALTO) {
-                    nave_setear_nivel(nave, INICIO);
-                    nave_setear_ang_nave(nave, PI);
-                    nave_setear_vel(nave, -10, 0);
-                    nave_setear_pos(nave, 645, 145);
-                }
-                
-                if (nave_get_posy(nave) > VENTANA_ALTO * MARGEN_ALTURA)
-                    escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(nave);
-                if (escala < ESCALA_MINIMA)
-                    escala = ESCALA_MINIMA;
-                if ((nave_get_posx(nave) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
-                    centro = nave_get_posx(nave) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
-                else if ((nave_get_posx(nave) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
-                    centro = nave_get_posx(nave) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
-
-                break;
-            }
-        case NIVEL3:{
-                if (nave_get_posy(nave) >= VENTANA_ALTO) {
-                    nave_setear_nivel(nave, INICIO);
-                    nave_setear_pos(nave, 130, 95);
-                    nave_setear_vel(nave, 10, 10);
-                    nave_setear_ang_nave(nave, PI / 4);
-                }
-
-                if (nave_get_posy(nave) > VENTANA_ALTO * MARGEN_ALTURA)
-                    escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(nave);
-                if (escala < ESCALA_MINIMA)
-                    escala = ESCALA_MINIMA;
-
-                if ((nave_get_posx(nave) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
-                    centro = nave_get_posx(nave) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
-                else if ((nave_get_posx(nave) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
-                    centro = nave_get_posx(nave) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
-
-                break;
-            }
-        case NIVEL4:{
-                if (nave_get_posy(nave) >= VENTANA_ALTO) {
-                    nave_setear_nivel(nave, INICIO);
-                    nave_setear_pos(nave, 204, 435);
-                    nave_setear_vel(nave, 0, -10);
-                    nave_setear_ang_nave(nave, PI * 1.5);
-                }
-
-                if (nave_get_posy(nave) > VENTANA_ALTO * MARGEN_ALTURA)
-                    escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(nave);
-                if (escala < ESCALA_MINIMA)
-                    escala = ESCALA_MINIMA;
-                if ((nave_get_posx(nave) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
-                    centro = nave_get_posx(nave) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
-                else if ((nave_get_posx(nave) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
-                    centro = nave_get_posx(nave) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
-
-                break;
-            }
-        case NIVEL5:{
-                if (nave_get_posy(nave) >= VENTANA_ALTO) {
-                    nave_setear_nivel(nave, INICIO);
-                    nave_setear_ang_nave(nave, PI * 2);
-                    nave_setear_vel(nave, 10, 0);
-                    nave_setear_pos(nave, 150, 307);
-                }
-                if (nave_get_posy(nave) <= 0)
-                    nave_setear_vely(nave, nave_get_vely(nave) * -1);
-                if (nave_get_posx(nave) <= 0 || nave_get_posx(nave) >= VENTANA_ANCHO * 0.99)
-                    nave_setear_velx(nave, nave_get_velx(nave) * -1);
-
-                if (nave_get_posy(nave) > VENTANA_ALTO * MARGEN_ALTURA)
-                    escala = VENTANA_ALTO * MARGEN_ALTURA / nave_get_posy(nave);
-                if (escala < ESCALA_MINIMA)
-                    escala = ESCALA_MINIMA;
-                if ((nave_get_posx(nave) - centro) * escala > VENTANA_ANCHO / 2 * MARGEN_ANCHO)
-                    centro = nave_get_posx(nave) - VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
-                else if ((nave_get_posx(nave) - centro) * escala < VENTANA_ANCHO / 2 * MARGEN_ANCHO)
-                    centro = nave_get_posx(nave) + VENTANA_ANCHO / 2 * MARGEN_ANCHO / escala;
-
-                break;
-            }
-    }
-    //Fijate que aca abajo si pones escala en 1 y centro en 0 (osea todo fijo), se dibuja todo bien alineado en casi todos los niveles menos el que es tipo un asteroide.
-    nivel_dibujar(nivel, escala, 0, renderer); //El 0 ese tendria que ser "centro" pero lo pongo asi pq no anda y asi no me mueve nada
-}*/
-
-/*void nivel_dibujar(nivel_t* nivel, double escala, double centro, SDL_Renderer* renderer) {
-    if (lista_esta_vacia(nivel->figuras)) return;
-
-    lista_iter_t* iter = lista_iter_crear(nivel->figuras);
-    do {
-        figura_render_t* figura_render = lista_iter_ver_actual(iter);
-        figura_render_dibujar(figura_render, escala, centro, renderer);
-        lista_iter_avanzar(iter);
-    } while (!lista_iter_al_final(iter));
-    lista_iter_destruir(iter);
-    return;
-}*/
-
-/*void nivel_dibujar(nivel_t* nivel, double escala, double centro, SDL_Renderer* renderer) {
-    if (!lista_esta_vacia(nivel->torretas)) {
-        lista_iter_t* iter = lista_iter_crear(nivel->torretas);
-        do {
-            torreta_t* torreta = lista_iter_ver_actual(iter);
-            torreta_dibujar(torreta, escala, centro, renderer);
-            lista_iter_avanzar(iter);
-        } while (!lista_iter_al_final(iter));
-        lista_iter_destruir(iter);
-    }
-
-    if (!lista_esta_vacia(nivel->combustibles)) {
-        lista_iter_t* iter = lista_iter_crear(nivel->torretas);
-        do {
-            torreta_t* torreta = lista_iter_ver_actual(iter);
-            torreta_dibujar(torreta, renderer);
-            lista_iter_avanzar(iter);
-        } while (!lista_iter_al_final(iter));
-        lista_iter_destruir(iter);
-    }
-}*/
-
-void nivel_destruir(nivel_t* nivel) {
-	lista_destruir(nivel->torretas, torreta_destruir);
-    lista_destruir(nivel->combustibles, combustible_destruir);
-    lista_destruir(nivel->balas, bala_destruir);
-	free(nivel);
-}

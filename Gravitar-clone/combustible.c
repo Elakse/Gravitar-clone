@@ -16,8 +16,13 @@ combustible_t* combustible_crear(double posx, double posy, double ang, figura_t*
 	return combustible;
 }
 
-void combustible_destruir(combustible_t* combustible) {
+void combustible_destruir(combustible_t* combustible, figura_t** figura) {
+	if (figura != NULL) *figura = combustible->fig;
 	free(combustible);
+}
+
+void combustible_destruir_no_ref(combustible_t* combustible) {
+	combustible_destruir(combustible, NULL);
 }
 
 double combustible_get_posx(combustible_t* combustible) {

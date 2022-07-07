@@ -6,7 +6,8 @@ typedef struct combustible combustible_t;
 
 //CREACION Y DESTRUCCION
 combustible_t* combustible_crear(double posx, double posy, double ang, figura_t* figura);
-void combustible_destruir(combustible_t* combustible);
+void combustible_destruir(combustible_t* combustible, figura_t** figura);
+void combustible_destruir_no_ref(combustible_t* combustible);
 
 //GETTERS
 double combustible_get_posx(combustible_t* combustible);
