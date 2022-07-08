@@ -6,8 +6,8 @@
 #include "fisica.h"
 #include "bala.h"
 #include "reactor.h"
-#include "planeta.h"
 #include <stdbool.h>
+#include "planeta.h"
 
 struct nivel {
     lista_t* torretas;
@@ -16,6 +16,8 @@ struct nivel {
     lista_t* planetas;
     lista_t* reactores;
     figura_t* figura;
+    bool es_de_torretas;
+    bool es_asteroide;
     size_t duracion_balas;
 };
 
@@ -29,7 +31,43 @@ nivel_t* nivel_crear(figura_t *figura, size_t duracion_de_balas) {
     nivel->reactores = lista_crear();
     nivel->figura = figura;
     nivel->duracion_balas = duracion_de_balas;
+    nivel->es_de_torretas = 0;
+    nivel->es_asteroide = 0;
 	return nivel;
+}
+
+void nivel_set_asteroide(nivel_t *nivel, bool es_asteroide) {
+    nivel->es_asteroide = es_asteroide;
+}
+
+bool nivel_es_asteroide(nivel_t *nivel) {
+    return nivel->es_asteroide;
+}
+
+void nivel_planeta_destruir(nivel_t* nivel, estadio_t estadio) {
+    lista_iter_t* iter_p = lista_iter_crear(nivel->planetas);
+    while (!lista_iter_al_final(iter_p)) {
+        planeta_t* planeta = lista_iter_ver_actual(iter_p);
+        if (planeta_get_estadio(planeta) == estadio) {
+            planeta_destruir_no_ref(lista_iter_borrar(iter_p));
+            break;
+        }
+        lista_iter_avanzar(iter_p);
+    }
+    lista_iter_destruir(iter_p);
+}
+
+planeta_t* nivel_planeta_por_estadio(nivel_t* nivel, estadio_t estadio) {
+    lista_iter_t* iter_p = lista_iter_crear(nivel->planetas);
+    while (!lista_iter_al_final(iter_p)) {
+        planeta_t* planeta = lista_iter_ver_actual(iter_p);
+        if (planeta_get_estadio(planeta) == estadio) {
+            lista_iter_destruir(iter_p);
+            return planeta;
+        }
+        lista_iter_avanzar(iter_p);
+    }
+    lista_iter_destruir(iter_p);
 }
 
 void nivel_destruir(nivel_t* nivel, figura_t** figura) {
@@ -45,6 +83,7 @@ void nivel_destruir(nivel_t* nivel, figura_t** figura) {
 //SETTERS
 
 bool nivel_agregar_torreta(nivel_t *nivel, double posx, double posy, double ang, figura_t * fig_base, figura_t* fig_disparando) {
+    nivel->es_de_torretas = 1;
     return lista_insertar_ultimo(nivel->torretas, torreta_crear(posx, posy, ang, fig_base, fig_disparando));
 }
 
@@ -56,8 +95,8 @@ bool nivel_agregar_bala(nivel_t* nivel, double posx, double posy, double vel, do
     return lista_insertar_ultimo(nivel->balas, bala_crear(posx, posy, vel, ang, nivel->duracion_balas, jugador, fig_bala));
 }
 
-bool nivel_agregar_planeta(nivel_t* nivel, double posx, double posy, double posx_tp, double posy_tp, estadio_t estad, figura_t* fig_planeta) {
-    return lista_insertar_ultimo(nivel->planetas, planeta_crear(posx, posy, posx_tp, posy_tp, estad, fig_planeta));
+bool nivel_agregar_planeta(nivel_t* nivel, double posx, double posy, double posx_tp, double posy_tp, size_t puntaje, estadio_t estad, figura_t* fig_planeta) {
+    return lista_insertar_ultimo(nivel->planetas, planeta_crear(posx, posy, posx_tp, posy_tp, puntaje, estad, fig_planeta));
 }
 
 bool nivel_agregar_reactor(nivel_t* nivel, double posx, double posy, double ang, size_t tiempo, figura_t* fig_react) {
@@ -69,6 +108,10 @@ void nivel_randomizar_disparos(void) {
 }
 
 //GETTERS
+
+bool nivel_es_de_torretas(nivel_t *nivel) {
+    return nivel->es_de_torretas;
+}
 
 bool nivel_es_inf(nivel_t* nivel) {
     if (nivel->figura == NULL) return false;
@@ -119,6 +162,15 @@ figura_t* nivel_get_figura(nivel_t* nivel) {
 }
 
 //INTERACCIONES Y ACTUALIZACIONES
+
+void nivel_nave_salir_planeta(nave_t* nave, double posx, double posy, nivel_t* nivel, estadio_t estadio_entrada) {
+    double angulo = computar_angulo(planeta_get_posx(nave), planeta_get_posy(nave), posx, posy);
+    planeta_t* planeta = nivel_planeta_por_estadio(nivel, nave_get_estadio(nave));
+    nave_setear_pos(nave, planeta_get_posx(planeta) + com_x(DISTANCIA_SALIR_PLANETA, angulo), planeta_get_posy(planeta) + com_y(DISTANCIA_SALIR_PLANETA, angulo));
+    nave_setear_estadio(nave, estadio_entrada);
+    nave_setear_vel(nave, com_x(VELOCIDAD_SALIR_PLANETA, angulo), com_y(VELOCIDAD_SALIR_PLANETA, angulo));
+    nave_setear_ang_nave(nave, angulo);
+}
 
 bool nivel_nave_dispara(nivel_t* nivel, nave_t* nave, double vel, figura_t* fig_bala) {
     return lista_insertar_ultimo(nivel->balas, nave_dispara(nave, vel, nivel->duracion_balas, fig_bala));
@@ -204,7 +256,11 @@ void nivel_balas_actualizar(nivel_t* nivel, double dt) {
     lista_iter_t* iter = lista_iter_crear(nivel->balas);
     while (!lista_iter_al_final(iter)) {
         bala_t* b = lista_iter_ver_actual(iter);
-        if (!bala_actualizar(b, dt) || figura_distancia_a_punto(nivel->figura, bala_get_posx(b), bala_get_posy(b)) < DISTANCIA_COLISION) {
+        if (!bala_actualizar(b, dt)) {
+            bala_destruir_no_ref(lista_iter_borrar(iter));
+            continue;
+        }
+        if (nivel->figura != NULL && figura_distancia_a_punto(nivel->figura, bala_get_posx(b), bala_get_posy(b)) < DISTANCIA_COLISION) {
             bala_destruir_no_ref(lista_iter_borrar(iter));
             continue;
         }
@@ -227,7 +283,6 @@ void nivel_balas_vaciar(nivel_t* nivel) {
     lista_destruir(nivel->balas, bala_destruir_no_ref);
     nivel->balas = lista_crear();
 }
-
 
 bool nivel_nave_accede_planetas(nivel_t* nivel, nave_t* nave) {
     lista_iter_t* iter = lista_iter_crear(nivel->planetas);
@@ -259,7 +314,6 @@ void nivel_dibujar(nivel_t* nivel, double centro, double escala, double ventana_
             figura_dibujar(nivel->figura, ancho * escala + traslado, 0, 0, centro, escala, renderer);
         }
         else {
-            
             figura_dibujar(nivel->figura, traslado, 0, 0, centro, escala, renderer);
         }
     }

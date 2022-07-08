@@ -239,5 +239,6 @@ bool figura_dibujar(figura_t* figura, double dx, double dy, double ang, double c
 	for (size_t i = 0; i < fig->cant; i++) {
 		polilinea_dibujar(fig->polis[i], renderer);
 	}
+	figura_destruir(fig);
 	return true;
 }

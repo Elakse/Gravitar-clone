@@ -5,9 +5,12 @@
 #include <SDL.h>
 #include "nave.h"
 #include "figuras.h"
+#include "planeta.h"
 
+#define DISTANCIA_SALIR_PLANETA 40
 #define DISTANCIA_COLISION 4
 #define DISTANCIA_RECOLECCION 50
+#define VELOCIDAD_SALIR_PLANETA 10
 
 typedef struct nivel nivel_t;
 
@@ -17,20 +20,25 @@ typedef struct nivel nivel_t;
 
 //CREACION Y DESTRUCCION
 
+void nivel_planeta_destruir(nivel_t* nivel, estadio_t estadio);
 nivel_t* nivel_crear(figura_t* figura, size_t duracion_de_balas);
 void nivel_destruir(nivel_t* nivel, figura_t** figura);
 
 
 //SETTERS
 
+void nivel_set_asteroide(nivel_t* nivel, bool es_asteroide);
 bool nivel_agregar_torreta(nivel_t* nivel, double posx, double posy, double ang, figura_t* fig_base, figura_t* fig_disparando);
 bool nivel_agregar_combustible(nivel_t* nivel, double posx, double posy, double ang, figura_t* figura);
 bool nivel_agregar_bala(nivel_t* nivel, double posx, double posy, double vel, double ang, bool jugador, figura_t* fig_bala);
-bool nivel_agregar_planeta(nivel_t* nivel, double posx, double posy, double posx_tp, double posy_tp, estadio_t estad, figura_t* fig_planeta);
+bool nivel_agregar_planeta(nivel_t* nivel, double posx, double posy, double posx_tp, double posy_tp, size_t puntaje, estadio_t estad, figura_t* fig_planeta);
 bool nivel_agregar_reactor(nivel_t* nivel, double posx, double posy, double ang, size_t tiempo, figura_t* fig_react);
 
 //GETTERS
 
+planeta_t* nivel_planeta_por_estadio(nivel_t* nivel, estadio_t estadio);
+bool nivel_es_asteroide(nivel_t* nivel);
+bool nivel_es_de_torretas(nivel_t* nivel);
 bool nivel_es_inf(nivel_t * nivel);
 double nivel_get_ancho(nivel_t* nivel);
 double nivel_get_alto(nivel_t* nivel);
@@ -45,6 +53,7 @@ bool nivel_tiene_balas(nivel_t* nivel);
 
 //ACTUALIZACIONES e ITERACCIONES
 
+void nivel_nave_salir_planeta(nave_t* nave, double posx, double posy, nivel_t* nivel, estadio_t estadio_entrada);
 bool nivel_nave_dispara(nivel_t* nivel, nave_t* nave, double vel, figura_t* fig_bala);
 bool nivel_nave_disparada(nivel_t* nivel, nave_t* nave); 
 

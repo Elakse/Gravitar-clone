@@ -23,7 +23,8 @@ void reactor_destruir(reactor_t* reactor, figura_t ** figura);
 //Destruye el reactor sin devolver una referencia a la figura anexada
 void reactor_destruir_no_ref(reactor_t* reactor);
 
-
+//Dibuja un reactor en las coordenadas dadas y con la escala especificada
+bool reactor_dibujar(reactor_t* reactor, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer);
 
 //GETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que está explicitado en sus nombres)
 

@@ -19,6 +19,7 @@ void nave_destruir(nave_t* nave, figura_t** fig_base, figura_t** fig_thruster_on
 
 //SETTERS
 
+void nave_matar(nave_t* nave);
 void nave_setear_pos(nave_t *nave, double px, double py);
 void nave_setear_vel(nave_t *nave, double vx, double vy);
 void nave_setear_vely(nave_t *nave, double vy);

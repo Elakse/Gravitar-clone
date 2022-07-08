@@ -5,6 +5,8 @@
 #include "nave.h"
 #include "config.h"
 #include "fisica.h"
+#include "bala.h"
+#include "planeta.h"
 
 struct nave{
   double pos[2]; //pos[0] = x,  pos[1] = y
@@ -42,6 +44,14 @@ void nave_destruir(nave_t *nave, figura_t ** fig_base, figura_t ** fig_thruster_
     if (fig_base != NULL) *fig_base = nave->nave_fig;
     if (fig_thruster_on != NULL) *fig_thruster_on = nave->thrust_on_fig;
     free(nave);
+}
+
+void nave_matar(nave_t* nave) {
+    nave_restar_vida(nave);
+    nave_setear_pos(nave, 388, 218);
+    nave_setear_estadio(nave, INICIO);
+    nave_setear_vel(nave, 0, 0);
+    nave_setear_ang_nave(nave, PI / 2);
 }
 
 void nave_setear_vidas(nave_t *nave, size_t vidas) {

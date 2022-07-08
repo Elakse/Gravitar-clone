@@ -85,6 +85,7 @@ bala_t* torreta_dispara(torreta_t* torreta, double ang, double rango, size_t cha
 double torreta_distancia_a_punto(torreta_t* torreta, double px, double py) {
 	figura_t* figura = figura_clonar(torreta->torreta_fig);
 	if (figura == NULL) return -1;
+	figura_rotar(figura, torreta->ang);
 	figura_trasladar(figura, torreta->pos[0], torreta->pos[1]);
 	double distancia = figura_distancia_a_punto(figura, px, py);
 	figura_destruir(figura);
