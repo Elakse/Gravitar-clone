@@ -46,9 +46,9 @@ void nave_destruir(nave_t *nave, figura_t ** fig_base, figura_t ** fig_thruster_
     free(nave);
 }
 
-void nave_matar(nave_t* nave) {
+void nave_matar(nave_t* nave, double posx, double posy) {
     nave_restar_vida(nave);
-    nave_setear_pos(nave, 388, 218);
+    nave_setear_pos(nave, posx, posy);
     nave_setear_estadio(nave, INICIO);
     nave_setear_vel(nave, 0, 0);
     nave_setear_ang_nave(nave, PI / 2);

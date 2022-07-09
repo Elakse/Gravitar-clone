@@ -51,7 +51,7 @@ double nave_get_vel(nave_t* nave);
 double nave_get_velx(nave_t* nave);
 double nave_get_vely(nave_t* nave);
 
-//MOVIMIENTO
+//MOVIMIENTO Y INTERACCIONES
 
 void nave_girar_der(nave_t* nave, double ang);
 void nave_girar_izq(nave_t* nave, double ang);
@@ -59,6 +59,7 @@ void nave_mover(nave_t* nave, double dt);
 double nave_distancia_a_punto(nave_t* nave, double x, double y);
 double nave_distancia_a_figura(nave_t* nave, figura_t* figura);
 bala_t* nave_dispara(nave_t* nave, double vel, size_t duracion_disparo, figura_t* bala_fig);
+void nave_matar(nave_t* nave, double posx, double posy);
 
 
 //DIBUJADO

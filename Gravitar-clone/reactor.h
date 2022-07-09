@@ -23,23 +23,19 @@ void reactor_destruir(reactor_t* reactor, figura_t ** figura);
 //Destruye el reactor sin devolver una referencia a la figura anexada
 void reactor_destruir_no_ref(reactor_t* reactor);
 
-//Dibuja un reactor en las coordenadas dadas y con la escala especificada
-bool reactor_dibujar(reactor_t* reactor, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer);
 
 //GETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que está explicitado en sus nombres)
 
 double reactor_get_posx(reactor_t* reactor);
 double reactor_get_posy(reactor_t* reactor);
 double reactor_get_ang(reactor_t* reactor);
-
-
+size_t reactor_get_contador(reactor_t* reactor);
 
 
 //SETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que está explicitado en sus nombres)
 
 void reactor_set_pos(reactor_t* reactor, double posx, double posy);
 void reactor_set_ang(reactor_t* reactor, double ang);
-
 
 
 //ACTUALIZACION
@@ -52,11 +48,15 @@ bool reactor_actualizar(reactor_t* reactor);
 void reactor_reiniciar(reactor_t* reactor);
 
 
-
 //DISTANCIAS
 
 //Devuelve la distancia del punto dado al reactor
 double reactor_distancia_a_punto(reactor_t* reactor, double px, double py);
+
+//DIBUJO
+
+//Dibuja un reactor en las coordenadas dadas y con la escala especificada
+bool reactor_dibujar(reactor_t* reactor, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer);
 
 #endif
 

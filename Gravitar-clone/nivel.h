@@ -20,9 +20,11 @@ typedef struct nivel nivel_t;
 
 //CREACION Y DESTRUCCION
 
-void nivel_planeta_destruir(nivel_t* nivel, estadio_t estadio);
-nivel_t* nivel_crear(figura_t* figura, size_t duracion_de_balas);
+
+nivel_t* nivel_crear(figura_t* figura, size_t duracion_de_balas, size_t puntaje);
 void nivel_destruir(nivel_t* nivel, figura_t** figura);
+
+void nivel_planeta_destruir(nivel_t* nivel, estadio_t estadio);
 
 
 //SETTERS
@@ -38,12 +40,12 @@ bool nivel_agregar_reactor(nivel_t* nivel, double posx, double posy, double ang,
 
 planeta_t* nivel_planeta_por_estadio(nivel_t* nivel, estadio_t estadio);
 bool nivel_es_asteroide(nivel_t* nivel);
-bool nivel_es_de_torretas(nivel_t* nivel);
 bool nivel_es_inf(nivel_t * nivel);
 double nivel_get_ancho(nivel_t* nivel);
 double nivel_get_alto(nivel_t* nivel);
 void nivel_get_max_min(nivel_t* nivel, double* x_max, double* y_max, double* x_min, double* y_min);
 figura_t* nivel_get_figura(nivel_t* nivel);
+size_t nivel_get_conteo_reactor(nivel_t* nivel);
 
 bool nivel_tiene_torretas(nivel_t* nivel);
 bool nivel_tiene_planetas(nivel_t* nivel);
@@ -51,7 +53,9 @@ bool nivel_tiene_reactores(nivel_t* nivel);
 bool nivel_tiene_combustibles(nivel_t* nivel);
 bool nivel_tiene_balas(nivel_t* nivel);
 
-//ACTUALIZACIONES e ITERACCIONES
+bool nivel_vencido(nivel_t* nivel, nave_t* nave);
+
+//ACTUALIZACIONES e INTERACCIONES
 
 void nivel_nave_salir_planeta(nave_t* nave, double posx, double posy, nivel_t* nivel, estadio_t estadio_entrada);
 bool nivel_nave_dispara(nivel_t* nivel, nave_t* nave, double vel, figura_t* fig_bala);
@@ -69,8 +73,8 @@ void nivel_balas_vaciar(nivel_t* nivel);
 
 bool nivel_nave_accede_planetas(nivel_t* nivel, nave_t* nave);
 
-
-
+size_t nivel_reactores_actualizar(nivel_t* nivel);
+size_t nivel_reactores_disparados(nivel_t* nivel);
 
 //DIBUJO
 

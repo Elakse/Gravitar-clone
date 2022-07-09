@@ -2,7 +2,7 @@
 
 struct reactor {
 	double pos[2];   // x = pos[0], y = pos[1]
-	double ang;		 // 0 <= ang <= 2PI
+	double ang;		 
 	figura_t* fig;   //!= NULL
 	size_t tiempo;
 	size_t contador; // <= tiempo
@@ -39,6 +39,10 @@ double reactor_get_ang(reactor_t* reactor) {
 	return reactor->ang;
 }
 
+size_t reactor_get_contador(reactor_t* reactor) {
+	return reactor->contador;
+}
+
 void reactor_set_pos(reactor_t* reactor, double posx, double posy) {
 	reactor->pos[0] = posx;
 	reactor->pos[1] = posy;
@@ -69,7 +73,7 @@ double reactor_distancia_a_punto(reactor_t* reactor, double px, double py) {
 }
 
 bool reactor_dibujar(reactor_t* reactor, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer) {
-	if (!figura_dibujar(reactor->fig, reactor->pos[0] * escala + tras_x, reactor->pos[1] * escala + tras_y, 0, centro_escala, escala, renderer))
+	if (!figura_dibujar(reactor->fig, reactor->pos[0] * escala + tras_x, reactor->pos[1] * escala + tras_y, reactor->ang, centro_escala, escala, renderer))
 		return false;
 	return true;
 }

@@ -4,12 +4,12 @@
 #include "escritura.h"
 #include "config.h"
 
-struct planeta {
-	double pos[2];
-	double pos_tp[2];
-	estadio_t estadio;
-	figura_t* fig;
-	size_t puntaje;
+struct planeta { 
+	double pos[2];     //Posicion del planeta
+	double pos_tp[2];  //Posiciones de tp (es una posicion de referencia a la que el usuario podrá tpear los objetos si estos entran al planeta)
+	estadio_t estadio; //Caracteriza al planeta y permite que interactue con las naves
+	figura_t* fig;     //Figura con la que se dibujará el planeta
+	size_t puntaje;    //Puntaje a mostrar al ser dibujado
 };
 
 planeta_t* planeta_crear(double posx, double posy, double posx_tp, double posy_tp, size_t puntaje, estadio_t nivel, figura_t* planeta_fig) {
