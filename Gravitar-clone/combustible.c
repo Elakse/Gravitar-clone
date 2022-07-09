@@ -46,14 +46,15 @@ void combustible_set_ang(combustible_t* combustible, double ang) {
 double combustible_distancia_a_punto(combustible_t* combustible, double px, double py) {
 	figura_t* figura = figura_clonar(combustible->fig);
 	if (figura == NULL) return -1;
+	figura_rotar(figura, combustible->ang);
 	figura_trasladar(figura, combustible->pos[0], combustible->pos[1]);
 	double distancia = figura_distancia_a_punto(figura, px, py);
 	figura_destruir(figura);
 	return distancia;
 }
 
-bool combustible_dibujar(combustible_t* combustible, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer) {
-	if (!figura_dibujar(combustible->fig, combustible->pos[0] * escala + tras_x, combustible->pos[1] * escala + tras_y, 0, centro_escala, escala, renderer))
+bool combustible_dibujar(combustible_t* combustible, double tras_x, double tras_y, double centro_escala, double escala, double ventana_alto, SDL_Renderer* renderer) {
+	if (!figura_dibujar(combustible->fig, combustible->pos[0] * escala + tras_x, combustible->pos[1] * escala + tras_y, 0, centro_escala, escala, ventana_alto, renderer))
 		return false;
 	return true;
 }

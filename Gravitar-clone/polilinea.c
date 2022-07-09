@@ -27,7 +27,7 @@ polilinea_t *polilinea_crear_vacia(size_t n) {
   return poli;
 }
 
-polilinea_t *polilinea_crear(const float (*puntos)[2], size_t n, color_t color) {
+polilinea_t *polilinea_crear(const float puntos[][2], size_t n, color_t color) {
   polilinea_t *poli=polilinea_crear_vacia(n);
   if(poli==NULL)                 //Crea una polilinea vacía y verifica su creación
     return NULL;
@@ -73,7 +73,7 @@ static double distancia_punto_a_segmento(const float a[2], const float b[2], flo
     return norma(seg_P_puntocercano, 2);
 }
 
-//GETTERS Y SETTERS
+//LECTURA
 
 polilinea_t* leer_polilinea(FILE* f) {
 	uint16_t encabezado = 0;
@@ -101,6 +101,8 @@ polilinea_t* leer_polilinea(FILE* f) {
 	return poli;
 }
 
+//GETTERS
+
 size_t polilinea_cantidad_puntos(const polilinea_t *polilinea) {
   return polilinea->n;
 }
@@ -111,14 +113,6 @@ bool polilinea_obtener_punto(const polilinea_t *polilinea, size_t pos, float *x,
   *x=polilinea->puntos[pos][0];  //Asigna los valores del punto en donde apuntan los punteros dados
   *y=polilinea->puntos[pos][1];
   return true;
-}
-
-float polilinea_obtener_x(const polilinea_t* poli, size_t pos) {
-    return poli->puntos[pos][0];
-}
-
-float polilinea_obtener_y(const polilinea_t* poli, size_t pos) {
-    return poli->puntos[pos][1];
 }
 
 color_t polilinea_obtener_color(const polilinea_t *polilinea) {
@@ -161,6 +155,8 @@ double polilinea_obtener_y_min(const polilinea_t* polilinea) {
     }
     return min;
 }
+
+//SETTERS
 
 bool polilinea_setear_punto(polilinea_t *polilinea, size_t pos, float x, float y){
   if(pos>=polilinea->n || pos<0)  //Comprueba que la posición sea valida
@@ -216,47 +212,20 @@ double distancia_punto_a_polilinea(const polilinea_t *polilinea, float px, float
 
 //DIBUJO
 
-
-/*bool polilinea_dibujar(polilinea_t* poli, double traslado_x, double traslado_y, double ang, double centro, double escala, SDL_Renderer* renderer) {
-    polilinea_t* poli2 = polilinea_clonar(poli);
-    if (poli2 == NULL) return false;
-    polilinea_rotar(poli2, ang);
-    polilinea_trasladar(poli2, -centro, 0);
-    polilinea_escalar(poli2, escala);
-    polilinea_trasladar(poli2, centro + traslado_x, traslado_y);
-    uint8_t r, g, b;
-    color_a_rgb(poli->color, &r, &g, &b);
-    SDL_SetRenderDrawColor(renderer, r, g, b, 0x00);
-    float x1, y1, x2, y2;
-    for (int i = 0; i < polilinea_cantidad_puntos(poli2) - 1; i++) {
-        polilinea_obtener_punto(poli2, i, &x1, &y1);
-        polilinea_obtener_punto(poli2, i + 1, &x2, &y2);
-        SDL_RenderDrawLine(
-            renderer,
-            x1,
-            (VENTANA_ALTO - y1),
-            x2,
-            (VENTANA_ALTO - y2)
-        );
-    }
-    polilinea_destruir(poli2);
-    return true;
-}*/
-
-void polilinea_dibujar(polilinea_t* poli, SDL_Renderer* renderer) {
+void polilinea_dibujar(polilinea_t* poli, double ventana_alto, SDL_Renderer* renderer) {
     uint8_t r, g, b;
     color_a_rgb(poli->color, &r, &g, &b);
     SDL_SetRenderDrawColor(renderer, r, g, b, 0x00);
     float x1, y1, x2, y2;
     for (int i = 0; i < poli->n - 1; i++) {
         polilinea_obtener_punto(poli, i, &x1, &y1);
-        polilinea_obtener_punto(poli, i + 1, &x2, &y2);
+        polilinea_obtener_punto(poli, i + 1, &x2, &y2); //Dibuja la polilinea exactamente donde se encuentra
         SDL_RenderDrawLine(
             renderer,
             x1,
-            (VENTANA_ALTO - y1),
+            (ventana_alto - y1),
             x2,
-            (VENTANA_ALTO - y2)
+            (ventana_alto - y2)
         );
     }
 }

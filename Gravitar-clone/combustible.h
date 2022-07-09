@@ -24,6 +24,6 @@ void combustible_set_ang(combustible_t* combustible, double ang);
 double combustible_distancia_a_punto(combustible_t* combustible, double px, double py);
 
 //DIBUJAR
-bool combustible_dibujar(combustible_t* combustible, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer);
+bool combustible_dibujar(combustible_t* combustible, double tras_x, double tras_y, double centro_escala, double escala, double ventana_alto, SDL_Renderer* renderer);
 
 #endif

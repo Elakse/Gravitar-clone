@@ -26,8 +26,8 @@ double computar_distancia(double x1, double y1, double x2, double y2) {
 	double dist;
 	bool orden = true;
 	if (p2x < p1x) orden = false;
-	if(orden) dist = fabs(sqrt((p2x - p1x) * (p2x - p1x) + (p2y - p1y) * (p2y - p1y)));
-	else dist = fabs(sqrt((p1x - p2x) * (p1x - p2x) + (p1y - p2y) * (p1y - p2y)));
+	if(orden) dist = sqrt((p2x - p1x) * (p2x - p1x) + (p2y - p1y) * (p2y - p1y));
+	else dist = sqrt((p1x - p2x) * (p1x - p2x) + (p1y - p2y) * (p1y - p2y));
 	return dist;
 }
 

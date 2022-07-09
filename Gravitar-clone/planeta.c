@@ -63,7 +63,7 @@ size_t planeta_get_puntaje(planeta_t* planeta) {
 double planeta_distancia_a_punto(planeta_t* planeta, double px, double py) {
 	figura_t* figura = figura_clonar(planeta->fig);
 	if (figura == NULL) return -1;
-	figura_trasladar(figura, planeta->pos[0], planeta->pos[1]);
+	figura_trasladar(figura, planeta->pos[0], planeta->pos[1]);     //copia la figura, la traslada a su posicion y chequea distancia
 	double distancia = figura_distancia_a_punto(figura, px, py);
 	figura_destruir(figura);
 	return distancia;
@@ -73,9 +73,9 @@ double planeta_distancia_a_punto(planeta_t* planeta, double px, double py) {
 
 //DIBUJO
 
-bool planeta_dibujar(planeta_t* planeta, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer) {
-	if (!figura_dibujar(planeta->fig, planeta->pos[0] * escala + tras_x, planeta->pos[1] * escala + tras_y, 0, centro_escala, escala, renderer))
-		return false;
+bool planeta_dibujar(planeta_t* planeta, double tras_x, double tras_y, double centro_escala, double escala, double ventana_alto, SDL_Renderer* renderer) {
+	if (!figura_dibujar(planeta->fig, planeta->pos[0] * escala + tras_x, planeta->pos[1] * escala + tras_y, 0, centro_escala, escala, ventana_alto, renderer))
+		return false;                //Dibuja el planeta junto al texto con su puntaje
 	char buffer[20];
 	dibujar_texto(_itoa(planeta_get_puntaje(planeta), buffer, 10), planeta->pos[0] * escala + tras_x - 60, planeta->pos[1] * escala + tras_y + 10, 1.5, 0, 1, 1, VENTANA_ALTO, renderer);
 	return true;

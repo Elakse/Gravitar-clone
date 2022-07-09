@@ -14,7 +14,7 @@ typedef struct reactor reactor_t;
 //CREACION Y DESTRUCCION
 
 //Devuelve un reactor con las características indicadas y un contador seteado en tiempo. Devuelve NULL al fallar.
-//Pre: el puntero a figura debe apuntar a una figura creada. 0<=ang<=2PI
+//Pre: el puntero a figura debe apuntar a una figura creada. <ang> debe estar en radianes
 reactor_t* reactor_crear(double posx, double posy, double ang, size_t tiempo, figura_t* figura);
 
 //Destruye el reactor y devuelve en figura un puntero a la figura anexada al reactor. Si no se desea obtener ese puntero, pues ya cuenta con una referencia a esta figura, colocar NULL.
@@ -55,8 +55,9 @@ double reactor_distancia_a_punto(reactor_t* reactor, double px, double py);
 
 //DIBUJO
 
-//Dibuja un reactor en las coordenadas dadas y con la escala especificada
-bool reactor_dibujar(reactor_t* reactor, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer);
+//Dibuja un reactor en su respectiva posicion y angulo, trasladad <tras_x> y <tras_y> y escalada un factor <escala> con respecto a <centro_escala>. Devuelve false en caso de falla.
+//Pre: el renderer pasado debe haber sido creado con la librería SDL2
+bool reactor_dibujar(reactor_t* reactor, double tras_x, double tras_y, double centro_escala, double escala, double ventana_alto, SDL_Renderer* renderer);
 
 #endif
 

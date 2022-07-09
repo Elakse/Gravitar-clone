@@ -5,20 +5,20 @@
 #include "nave.h"
 #include "config.h"
 #include "fisica.h"
-#include "bala.h"
-#include "planeta.h"
+
+
 
 struct nave{
-  double pos[2]; //pos[0] = x,  pos[1] = y
-  double vel[2]; //vel[0] = vel en x,  vel[1] = vel en y
-  double ang_nave;
-  double ang_g;
-  float a_thrust;
+  double pos[2];     //pos[0] = x,  pos[1] = y
+  double vel[2];     //vel[0] = vel en x,  vel[1] = vel en y
+  double ang_nave;   //ang donde apunta la nave, en radianes
+  double ang_g;      //ang de la gravedad en radianes
+  float a_thrust;    //aceleracion de la nave
   size_t vidas;
   size_t fuel;
   size_t puntos;
-  estadio_t estad;
-  figura_t* nave_fig;
+  estadio_t estad;   //estadio de la nave
+  figura_t* nave_fig;       //figuras para su dibujado
   figura_t* thrust_on_fig;
 };
 
@@ -28,7 +28,7 @@ nave_t *nave_crear(size_t vidas, size_t fuel, size_t puntos, estadio_t estadio, 
   nave->pos[0]=0 ; nave->pos[1]=0;
   nave->vel[0]=0; nave->vel[1]=0;
   nave->ang_nave = 0;
-  nave->ang_g = 0;
+  nave->ang_g = 0;                            //Crea espacio para la nave e inicializa sus parametros en 0 o por lo pasado por el usuario
   nave->a_thrust = 0;
   nave->vidas = vidas;
   nave->fuel = fuel;
@@ -46,24 +46,10 @@ void nave_destruir(nave_t *nave, figura_t ** fig_base, figura_t ** fig_thruster_
     free(nave);
 }
 
-void nave_matar(nave_t* nave, double posx, double posy) {
-    nave_restar_vida(nave);
-    nave_setear_pos(nave, posx, posy);
-    nave_setear_estadio(nave, INICIO);
-    nave_setear_vel(nave, 0, 0);
-    nave_setear_ang_nave(nave, PI / 2);
-}
+//SETTERS
 
 void nave_setear_vidas(nave_t *nave, size_t vidas) {
     nave->vidas = vidas;
-}
-
-void nave_restar_vida(nave_t* nave) {
-    nave->vidas--;
-}
-
-void nave_sumar_vida(nave_t* nave) {
-    nave->vidas++;
 }
 
 void nave_setear_pos(nave_t *nave, double px, double py) {
@@ -100,6 +86,8 @@ void nave_setear_ang_g(nave_t *nave, double ang) {
     nave->ang_g = ang;
 }
 
+//SUMAS Y RESTAS DE PARAMETROS
+
 void nave_sumar_puntos(nave_t* nave, size_t puntos) {
     nave->puntos += puntos;
 }
@@ -113,6 +101,16 @@ void nave_sumar_combustible(nave_t* nave, size_t fuel) {
 void nave_restar_combustible(nave_t* nave, size_t fuel) {
     nave->fuel -= fuel;
 }
+
+void nave_restar_vida(nave_t* nave) {
+    nave->vidas--;
+}
+
+void nave_sumar_vida(nave_t* nave) {
+    nave->vidas++;
+}
+
+//GETTERS
 
 double nave_get_posx(nave_t *nave) {
     return nave->pos[0];
@@ -154,7 +152,7 @@ size_t nave_get_puntos(nave_t* nave) {
     return nave->puntos;
 }
 
-//-----------------------------------------------------------------------ACCIONES--------------------------------------------------------------------------------------------
+//ACCIONES
 
 void nave_girar_der(nave_t *nave, double ang) {
     if(nave->ang_nave == 0) {
@@ -162,7 +160,7 @@ void nave_girar_der(nave_t *nave, double ang) {
         return;
     }
     nave->ang_nave-=ang;
-}
+}                                                 //Nos aseguramos que quede un valor entre 0 y 2PI para que no se sature la variable
 
 void nave_girar_izq(nave_t *nave, double ang) {
     if(nave->ang_nave == 2*PI) {
@@ -173,26 +171,35 @@ void nave_girar_izq(nave_t *nave, double ang) {
 }
 
 void nave_mover(nave_t *nave, double dt) {
-    double ax = com_x(nave->a_thrust, nave->ang_nave) + com_x(G, nave->ang_g);
+    double ax = com_x(nave->a_thrust, nave->ang_nave) + com_x(G, nave->ang_g);       //extrae las componentes de aceleracion
     double ay = com_y(nave->a_thrust, nave->ang_nave) + com_y(G, nave->ang_g);
     nave->vel[0] = computar_velocidad(nave->vel[0], ax, dt);
-    nave->vel[1] = computar_velocidad(nave->vel[1], ay, dt);
+    nave->vel[1] = computar_velocidad(nave->vel[1], ay, dt);                         //modifica velocidades y posiciones con respecto a eso
     nave->pos[0] = computar_posicion(nave->pos[0], nave->vel[0], dt);
     nave->pos[1] = computar_posicion(nave->pos[1], nave->vel[1], dt);
 }
 
-struct bala* nave_dispara(nave_t* nave, double vel, size_t duracion_disparo, figura_t* bala_fig) {
+bala_t* nave_dispara(nave_t* nave, double vel, size_t duracion_disparo, figura_t* bala_fig) {
     bala_t* bala = bala_crear(nave->pos[0], nave->pos[1], vel, nave->ang_nave, duracion_disparo, true, bala_fig);
     if (bala == NULL) return NULL;
-    bala_set_vel(bala, nave->vel[0] + bala_get_velx(bala), nave->vel[1] + bala_get_vely(bala));
+    bala_set_vel(bala, nave->vel[0] + bala_get_velx(bala), nave->vel[1] + bala_get_vely(bala));           //Crea una bala en la direccion de la nave siguiendo su momento
     return bala;
 }
 
-//----------------------------------------------------------------------DISTANCIAS-------------------------------------------------------------------------------------------------
+void nave_matar(nave_t* nave, double posx, double posy) {
+    nave_restar_vida(nave);
+    nave_setear_estadio(nave, INICIO);
+    nave_setear_pos(nave, posx, posy);
+    nave_setear_vel(nave, 0, 0);
+    nave_setear_ang_nave(nave, PI / 2);
+}
+
+//DISTANCIAS
 
 double nave_distancia_a_punto(nave_t* nave, double px, double py) {
     figura_t* figura = figura_clonar(nave->nave_fig);
     if (figura == NULL) return -1;
+    figura_rotar(figura, nave->ang_nave);
     figura_trasladar(figura, nave->pos[0], nave->pos[1]);
     double distancia = figura_distancia_a_punto(figura, px, py);
     figura_destruir(figura);
@@ -205,15 +212,15 @@ double nave_distancia_a_figura(nave_t* nave, figura_t* figura) {
 }
 
 
-//----------------------------------------------------------------------DIBUJADO--------------------------------------------------------------------------
+//DIBUJADO
 
-bool nave_dibujar(nave_t* nave, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer) {
+bool nave_dibujar(nave_t* nave, double tras_x, double tras_y, double centro_escala, double escala, double ventana_alto, SDL_Renderer* renderer) {
     figura_t* fig_a_dibujar;
     if (nave->a_thrust != 0)
-        fig_a_dibujar = nave->thrust_on_fig;
+        fig_a_dibujar = nave->thrust_on_fig;            //Elige la figura segun las condiciones y dibuja
     else
         fig_a_dibujar = nave->nave_fig;
-    if (!figura_dibujar(fig_a_dibujar, nave->pos[0] * escala + tras_x, nave->pos[1] * escala + tras_y, nave->ang_nave, centro_escala, escala, renderer))
+    if (!figura_dibujar(fig_a_dibujar, nave->pos[0] * escala + tras_x, nave->pos[1] * escala + tras_y, nave->ang_nave, centro_escala, escala, ventana_alto, renderer))
         return false;
     return true;
 }

@@ -4,31 +4,32 @@
 
 #include "config.h"
 #include "nave.h"
-#include "bala.h"
 #include "figuras.h"
 #include "fisica.h"
 #include "lista.h"
 #include "nivel.h"
 #include "escritura.h"
-#include "planeta.h"
 
+//FUNCIONES PROPIAS DE "BARBARA", NO SABIAMOS EN QUE TDA COLOCARLAS
 
+//Busca una figura en una lista enlazada por el nombre
 figura_t* figura_buscar_nombre(lista_t *figuras, char* nombre) {
     if (lista_esta_vacia(figuras)) return NULL;
 
     lista_iter_t *iter = lista_iter_crear(figuras);
-    do {
+    while (!lista_iter_al_final(iter)) {
         figura_t* figura = lista_iter_ver_actual(iter);
         if (!strcmp(figura_obtener_nombre(figura), nombre)) {
             lista_iter_destruir(iter);
             return figura;
         }
         lista_iter_avanzar(iter);
-    } while (!lista_iter_al_final(iter));
+    } 
     lista_iter_destruir(iter);
     return NULL;
 }
 
+//Convierte size_t a cadena
 char* itoa_(size_t num, char* cadena) {
     if (num == 0) {
         cadena[1] = '\0';
@@ -67,7 +68,14 @@ int main() {
 
     // Leemos todas las figuras y las metemos en una lista enlazada
     FILE* f = fopen("figuras.bin", "rb");
+    if (f == NULL) {
+        fprintf(stderr, "Error de lectura de archivos");
+        return 1;
+    }
+
     lista_t* figuras = lista_crear();
+    if (figuras == NULL) return 1;
+
     figura_t* figura = figura_leer(f);
     while (figura != NULL) {
         lista_insertar_ultimo(figuras, figura);
@@ -96,9 +104,7 @@ int main() {
     figura_t* torreta_disparo_fig = figura_buscar_nombre(figuras, "TORRETA+DISPARO");
     figura_t* reactor_fig = figura_buscar_nombre(figuras, "REACTOR");
     figura_t* combustible_fig = figura_buscar_nombre(figuras, "COMBUSTIBLE");
-    //figura_t* enemigo1_fig = figura_buscar_nombre(figuras, "ENEMIGO1");
-    //figura_t* enemigo2_fig = figura_buscar_nombre(figuras, "ENEMIGO2");
-    //figura_t* enemigo3_fig = figura_buscar_nombre(figuras, "ENEMIGO3");
+
 
     // Crea e inicializa los niveles anexandolos a la tabla de busqueda para poder relacionarlos con el estadio de la nave
     nivel_t* niveles[] = {
@@ -110,9 +116,13 @@ int main() {
         [NIVEL5] = nivel_crear(nivel_fig[5], 2000, 9000),
     };
 
+    //Chequeamos que se hayan creado los niveles
+    if (niveles[INICIO] == NULL || niveles[NIVEL1] == NULL || niveles[NIVEL2] == NULL || niveles[NIVEL3] == NULL || niveles[NIVEL4] == NULL || niveles[NIVEL5] == NULL) return 1;
+
     nivel_randomizar_disparos();
 
-    // Armamos los niveles agregandole los objetos que corresponden
+    // Armamos los niveles agregandole los objetos que corresponden (Nos ahorramos los chequeos en esta parte, pues el complicaría la lectura del codigo, además, 
+    //si algo se crea mal directamente no lo veremos en pantalla o el juego crasheará)
 
     // INICIO
     nivel_agregar_planeta(niveles[INICIO], 663, 473, 1000, VENTANA_ALTO / ESCALA_MINIMA - 200, 2000, NIVEL1, figura_buscar_nombre(figuras, "PLANETA1"));
@@ -182,8 +192,8 @@ int main() {
     bool game_over = false;
     size_t disparo_delay = 0;
     size_t disparo_delay_t = 0;
-    size_t contador_esc = 100;
-    size_t contador_thrust = 100;
+    size_t contador_esc = 2;
+    size_t contador_thrust = 2;
 
     // Queremos que todo se dibuje escalado por "escala" y centrado por "centro"
     float escala = 1;
@@ -270,8 +280,8 @@ int main() {
             if (contador_thrust != 0)
                 contador_thrust--;
             else {
-                contador_thrust = 100;
-                nave_restar_combustible(jugador, JUEGO_COMBUSTIBLE_POT_X_SEG);
+                contador_thrust = 2;
+                nave_restar_combustible(jugador, JUEGO_COMBUSTIBLE_POT_X_SEG/50);
             }
         }
         else
@@ -284,8 +294,11 @@ int main() {
             if (contador_esc != 0)
                 contador_esc--;
             else {
-                contador_esc = 100;
-                nave_restar_combustible(jugador, JUEGO_COMBUSTIBLE_ESC_X_SEG);
+                contador_esc = 2;
+                if (fuel_nav < JUEGO_COMBUSTIBLE_ESC_X_SEG/50) 
+                    nave_restar_combustible(jugador, JUEGO_COMBUSTIBLE_POT_X_SEG/50);
+                else 
+                    nave_restar_combustible(jugador, JUEGO_COMBUSTIBLE_ESC_X_SEG/50);
             }
         }
         nave_mover(jugador, DT);
@@ -349,8 +362,11 @@ int main() {
                 // Verifica si la nave sale del nivel
                 if (y_nav <= 5 || y_nav >= y_max || x_nav <= 5 || x_nav >= x_max) {
                     nivel_balas_vaciar(nivel_act);
-                    nivel_nave_salir_planeta(jugador, x_base, y_base, niveles[INICIO], INICIO);
+                    nave_matar(jugador, x_base, y_base); //Mata para devolverla al inicio y recupera la vida
+                    nave_sumar_vida(jugador);
+                    nivel_reactores_reiniciar(nivel_act);
                     if (nivel_vencido(nivel_act, jugador)) nivel_planeta_destruir(niveles[INICIO], nivel_nav);
+                    continue;
                 }
 
                 // Calcula de centro y escala
@@ -368,8 +384,11 @@ int main() {
                 // Verifica si la nave escapó del nivel
                 if (y_nav > VENTANA_ALTO / ESCALA_MINIMA) {
                     nivel_balas_vaciar(nivel_act);
-                    nivel_nave_salir_planeta(jugador, x_base, y_base, niveles[INICIO], INICIO);
+                    nave_matar(jugador, x_base, y_base); //Mata para devolverla al inicio y recupera la vida
+                    nave_sumar_vida(jugador);
+                    nivel_reactores_reiniciar(nivel_act);
                     if (nivel_vencido(nivel_act, jugador)) nivel_planeta_destruir(niveles[INICIO], nivel_nav);
+                    continue;
                 }
 
                 // Calcula escala y centro
@@ -412,7 +431,7 @@ int main() {
 
         // Actualiza las torretas
         if (disparo_delay_t == 0) {
-            nivel_torretas_disparan_a_nave(nivel_act, jugador, PI / 8, 60, DISPARO_RANGO, BALA_VELOCIDAD, disparo_fig);
+            nivel_torretas_disparan_a_nave(nivel_act, jugador, PI / 8, 70, DISPARO_RANGO, BALA_VELOCIDAD, disparo_fig);
             disparo_delay_t = DISPARO_DELAY;
         }
         if (disparo_delay_t != 0) disparo_delay_t--;
@@ -433,14 +452,18 @@ int main() {
             if (!escudo) {
                 nivel_balas_vaciar(nivel_act);
                 nave_matar(jugador, x_base, y_base);
+                nivel_reactores_reiniciar(nivel_act);
                 if (nivel_vencido(nivel_act, jugador)) nivel_planeta_destruir(niveles[INICIO], nivel_nav);
             }
         }
         if (layout != NULL && nave_distancia_a_figura(jugador, layout) < 5) {
             nivel_balas_vaciar(nivel_act);
             nave_matar(jugador, x_base, y_base);
+            nivel_reactores_reiniciar(nivel_act);
             if (nivel_vencido(nivel_act, jugador)) nivel_planeta_destruir(niveles[INICIO], nivel_nav);
         }
+
+        //Chequea recoleccion de combustible
         if (escudo) {
             nave_sumar_combustible(jugador, fuel_recoleccion * nivel_nave_recoge_combustible(nivel_act, jugador));
         }
@@ -451,7 +474,8 @@ int main() {
             nave_sumar_vida(jugador);
             puntos_para_nave += 10000;
         }
-      
+        
+        //Muestra GAME OVER si la nave se queda sin vidas
         if (nave_get_vidas(jugador) == 0) {
             if (!chorro_prendido) {
                 dibujar_texto("GAME OVER", VENTANA_ANCHO / 2 - 250, VENTANA_ALTO / 2 - 30, 10, 1, 0, 0, VENTANA_ALTO, renderer);
@@ -468,34 +492,38 @@ int main() {
 
         // Ejecutamos diferentes rutinas de dibujado con diferentes parámetros según el estadio
         if (nivel_nav == INICIO && !game_over) {
-            figura_dibujar(estrella_fig, 457, 364, 0, 0, 1, renderer);
-            figura_dibujar(base_fig, x_base, 218, 0, 0, 1, renderer);
-            if (escudo) figura_dibujar(escudo_fig, x_nav, y_nav, ang_nav + PI / 2, 0, 1, renderer);
-            nave_dibujar(jugador, 0, 0, 0, 1, renderer);
+            figura_dibujar(estrella_fig, x_est, y_est, 0, 0, 1, VENTANA_ALTO, renderer);  //Dibujamos base y estrella
+            figura_dibujar(base_fig, x_base, y_base, 0, 0, 1, VENTANA_ALTO, renderer);
+            if (escudo) figura_dibujar(escudo_fig, x_nav, y_nav, ang_nav + PI / 2, 0, 1, VENTANA_ALTO, renderer); //Dibujamos nave y escudo
+            nave_dibujar(jugador, 0, 0, 0, 1, VENTANA_ALTO, renderer);
             
         }
+
+        //Dibujamos la nave y el escudo (angulado hacia el centro o no) dependiendo del estadio 
         if (nivel_nav != INICIO && !game_over) {
             if (!inf) {
                 if (nivel_es_asteroide(niveles[nivel_nav])) {
                     double x_min, y_min, x_max, y_max;
                     nivel_get_max_min(niveles[nivel_nav], &x_max, &y_max, &x_min, &y_min);
-                    if (escudo) figura_dibujar(escudo2_fig, x_nav * escala - centro * escala, y_nav * escala, PI * 1.5 + computar_angulo(VENTANA_ANCHO / 2 + x_min, VENTANA_ALTO / 2 + y_min, x_nav, y_nav), 0, escala, renderer);
+                    double ang_escudo = PI * 1.5 + computar_angulo(VENTANA_ANCHO / 2 + x_min, VENTANA_ALTO / 2 + y_min, x_nav, y_nav);
+                    if (escudo) figura_dibujar(escudo2_fig, x_nav * escala - centro * escala, y_nav * escala, ang_escudo, 0, escala, VENTANA_ALTO, renderer);
                 }
                 else
-                    if (escudo) figura_dibujar(escudo2_fig, x_nav * escala - centro * escala, y_nav * escala, ang_nav + PI / 2, 0, escala, renderer);
-                nave_dibujar(jugador, -centro, 0, centro, escala, renderer);
+                    if (escudo) figura_dibujar(escudo2_fig, x_nav * escala - centro * escala, y_nav * escala, ang_nav + PI / 2, 0, escala, VENTANA_ALTO, renderer);
+                nave_dibujar(jugador, -centro, 0, centro, escala, VENTANA_ALTO, renderer);
             }
             else {
-                if (escudo) figura_dibujar(escudo2_fig, (x_nav - centro)*escala + (VENTANA_ANCHO / 2) , y_nav*escala, 0, 0, escala, renderer);
-                nave_dibujar(jugador, -centro*escala + VENTANA_ANCHO/2 , 0, 0, escala, renderer);
+                if (escudo) figura_dibujar(escudo2_fig, (x_nav - centro)*escala + (VENTANA_ANCHO / 2) , y_nav*escala, 0, 0, escala, VENTANA_ALTO, renderer);
+                nave_dibujar(jugador, -centro*escala + VENTANA_ANCHO/2 , 0, 0, escala, VENTANA_ALTO, renderer);
             }
         }
+
         char fuel[10];
         char puntos[10];
         char siguiente_nave[10];
         // Dibujamos del HUD
         for (size_t i = 0; i < nave_get_vidas(jugador); i++)
-            figura_dibujar(nave_fig, VENTANA_ANCHO / 2 - 350 + (i*15), VENTANA_ALTO - 55 + (i * 2), PI / 2, 0, 1, renderer);
+            figura_dibujar(nave_fig, VENTANA_ANCHO / 2 - 350 + (i*15), VENTANA_ALTO - 55 + (i * 2), PI / 2, 0, 1, VENTANA_ALTO, renderer);
         dibujar_texto("SCORE", VENTANA_ANCHO / 2 - 40, VENTANA_ALTO - 30, 2, 0, 1, 1, VENTANA_ALTO, renderer);
         dibujar_texto("FUEL", VENTANA_ANCHO / 2 - 30, VENTANA_ALTO - 50, 2, 0, 1, 1, VENTANA_ALTO, renderer);
         dibujar_texto("NEXT SHIP", VENTANA_ANCHO / 2 - 100, VENTANA_ALTO - 70, 2, 0, 1, 1, VENTANA_ALTO, renderer);
@@ -512,7 +540,7 @@ int main() {
 
         // Dibujamos el nivel con todos sus objetos
         if(!game_over)
-            nivel_dibujar(nivel_act, centro, escala, VENTANA_ANCHO, renderer);
+            nivel_dibujar(nivel_act, centro, escala, VENTANA_ANCHO, VENTANA_ALTO, renderer);
 
         // END código del alumno
 

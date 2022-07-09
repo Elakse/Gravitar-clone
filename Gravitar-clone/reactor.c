@@ -66,14 +66,15 @@ void reactor_reiniciar(reactor_t* reactor) {
 double reactor_distancia_a_punto(reactor_t* reactor, double px, double py) {
 	figura_t* figura = figura_clonar(reactor->fig);
 	if (figura == NULL) return -1;
-	figura_trasladar(figura, reactor->pos[0], reactor->pos[1]);
+	figura_rotar(figura, reactor->ang);
+	figura_trasladar(figura, reactor->pos[0], reactor->pos[1]);         //copia la figura, la traslada a su posicion y chequea distancia
 	double distancia = figura_distancia_a_punto(figura, px, py);
 	figura_destruir(figura);
 	return distancia;
 }
 
-bool reactor_dibujar(reactor_t* reactor, double tras_x, double tras_y, double centro_escala, double escala, SDL_Renderer* renderer) {
-	if (!figura_dibujar(reactor->fig, reactor->pos[0] * escala + tras_x, reactor->pos[1] * escala + tras_y, reactor->ang, centro_escala, escala, renderer))
+bool reactor_dibujar(reactor_t* reactor, double tras_x, double tras_y, double centro_escala, double escala, double ventana_alto, SDL_Renderer* renderer) {
+	if (!figura_dibujar(reactor->fig, reactor->pos[0] * escala + tras_x, reactor->pos[1] * escala + tras_y, reactor->ang, centro_escala, escala, ventana_alto, renderer))
 		return false;
 	return true;
 }

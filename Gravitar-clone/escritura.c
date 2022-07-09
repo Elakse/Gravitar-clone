@@ -73,19 +73,19 @@ size_t caracter_get_puntos(struct caracter c) {
     return c.n;
 }
 
-void dibujar_caracter(char letra, double posx, double posy, double escala, bool r, bool g, bool b, double ventana_ancho, SDL_Renderer* renderer) {
+void dibujar_caracter(char letra, double posx, double posy, double escala, bool r, bool g, bool b, double ventana_alto, SDL_Renderer* renderer) {
     struct caracter c = letra_a_caracter(letra);
     color_t color = color_crear(r, g, b);
     polilinea_t* poli = polilinea_crear(c.puntos, c.n, color);
     polilinea_escalar(poli, escala);
     polilinea_trasladar(poli, posx, posy);
-    polilinea_dibujar(poli, renderer);
+    polilinea_dibujar(poli, ventana_alto, renderer);
     polilinea_destruir(poli);
 }
 
-void dibujar_texto(char* texto, double posx, double posy, double escala, bool r, bool g, bool b, double ventana_ancho, SDL_Renderer* renderer) {
+void dibujar_texto(char* texto, double posx, double posy, double escala, bool r, bool g, bool b, double ventana_alto, SDL_Renderer* renderer) {
     size_t largo = strlen(texto);
     for (size_t i = 0; i < largo; i++) {
-        dibujar_caracter(texto[i], posx + i * CARACTER_ANCHO * escala, posy, escala, r, g, b, ventana_ancho, renderer);
+        dibujar_caracter(texto[i], posx + i * CARACTER_ANCHO * escala, posy, escala, r, g, b, ventana_alto, renderer);
     }
 }

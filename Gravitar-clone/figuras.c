@@ -21,7 +21,7 @@ figura_t* figura_crear(bool inf, figura_tipo_t tipo, char* nombre) {
 	if (figura == NULL) return NULL;
 
 	figura->polis = NULL;
-	figura->inf = inf;
+	figura->inf = inf;                    //Crea una figura sin polilineas
 	figura->cant = 0;
 	figura->tipo = tipo;
 
@@ -37,7 +37,7 @@ figura_t* figura_crear(bool inf, figura_tipo_t tipo, char* nombre) {
 
 void figura_destruir(figura_t* figura) {
 	for (size_t i = 0; i < figura->cant; i++) {
-		polilinea_destruir(figura->polis[i]);
+		polilinea_destruir(figura->polis[i]);   //Destruye primero todas las polilineas
 	}
 	free(figura->polis);
 	free(figura);
@@ -48,7 +48,7 @@ figura_t* figura_leer(FILE* f) {
 	size_t cant;
 	figura_tipo_t tipo;
 	char nombre[20];
-	if (!leer_encabezado_figura(f, nombre, &tipo, &inf, &cant)) return NULL;
+	if (!leer_encabezado_figura(f, nombre, &tipo, &inf, &cant)) return NULL;  //Lee el encabezado de la figura y la inicializa con esos parametros
 	figura_t* figura = figura_crear(inf, tipo, nombre);
 	for (size_t i = 0; i < cant; i++) {
 		polilinea_t* poli = leer_polilinea(f);
@@ -56,7 +56,7 @@ figura_t* figura_leer(FILE* f) {
 			figura_destruir(figura);
 			return NULL;
 		}
-		if (!figura_agregar_poli(figura, poli)) {
+		if (!figura_agregar_poli(figura, poli)) {       //Lee cada polilinea y la agrega a la figura
 			figura_destruir(figura);
 			polilinea_destruir(poli);
 			return NULL;
@@ -69,7 +69,7 @@ figura_t* figura_leer(FILE* f) {
 
 //DE USO PROPIO
 
-static bool leer_encabezado_figura(FILE* f, char nombre[], figura_tipo_t* tipo, bool* infinito, size_t* cantidad_polilineas) {
+bool leer_encabezado_figura(FILE* f, char nombre[], figura_tipo_t* tipo, bool* infinito, size_t* cantidad_polilineas) {
 	size_t nom_size, carac_size, cant_size;
 
 	nom_size = fread(nombre, sizeof(char), 20, f);
@@ -95,19 +95,9 @@ bool figura_agregar_poli(figura_t* figura, polilinea_t* poli) {
 	polilinea_t** aux = realloc(figura->polis, sizeof(polilinea_t*) * (figura->cant + 1));
 	if (aux == NULL) return false;
 	figura->polis = aux;
-	figura->polis[figura->cant] = polilinea_clonar(poli);
+	figura->polis[figura->cant] = polilinea_clonar(poli);    //Agrega una copia de la polilinea pasada a la figura, actualiza cant yhace realloc
 	if (figura->polis[figura->cant] == NULL) return NULL;
 	figura->cant++;
-	return true;
-}
-
-bool figura_set_cant_polis(figura_t* figura, size_t cant) {
-	polilinea_t** aux = realloc(figura->polis, sizeof(polilinea_t*) * cant);
-	if (aux == NULL) return false;
-	figura->polis = aux;
-	for (size_t i = figura->cant;i < cant; i++)
-		figura->polis[i] = NULL;
-	figura->cant = cant;
 	return true;
 }
 
@@ -229,7 +219,7 @@ figura_t* figura_clonar(figura_t* figura) {
 
 //DIBUJADO
 
-bool figura_dibujar(figura_t* figura, double dx, double dy, double ang, double centro, double escala, SDL_Renderer* renderer) {
+bool figura_dibujar(figura_t* figura, double dx, double dy, double ang, double centro, double escala, double ventana_alto, SDL_Renderer* renderer) {
 	figura_t* fig = figura_clonar(figura);
 	if (fig == NULL) return false;
 	figura_rotar(fig, ang);
@@ -237,7 +227,7 @@ bool figura_dibujar(figura_t* figura, double dx, double dy, double ang, double c
 	figura_escalar(fig, escala);
 	figura_trasladar(fig, centro + dx, dy);
 	for (size_t i = 0; i < fig->cant; i++) {
-		polilinea_dibujar(fig->polis[i], renderer);
+		polilinea_dibujar(fig->polis[i], ventana_alto, renderer);
 	}
 	figura_destruir(fig);
 	return true;
