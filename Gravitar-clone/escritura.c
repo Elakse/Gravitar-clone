@@ -57,26 +57,22 @@ const struct caracter caracteres[] = {
 
 };
 
-struct caracter letra_a_caracter(char letra) {
+const struct caracter* letra_a_caracter(char letra) {
     size_t cant = sizeof(caracteres) / sizeof(caracteres[0]);
     for (size_t i = 0; i < cant; i++) {
         if (caracteres[i].letra == letra) {
-            struct caracter c = caracteres[i];
+            const struct caracter* c = &caracteres[i];
             return c;
         }
     }
-    struct caracter c = { "\0", NULL, 0 };
-    return c;
+    return NULL;
 }
 
-size_t caracter_get_puntos(struct caracter c) {
-    return c.n;
-}
 
 void dibujar_caracter(char letra, double posx, double posy, double escala, bool r, bool g, bool b, double ventana_alto, SDL_Renderer* renderer) {
-    struct caracter c = letra_a_caracter(letra);
+    const struct caracter* c = letra_a_caracter(letra);
     color_t color = color_crear(r, g, b);
-    polilinea_t* poli = polilinea_crear(c.puntos, c.n, color);
+    polilinea_t* poli = polilinea_crear(c->puntos, c->n, color);
     polilinea_escalar(poli, escala);
     polilinea_trasladar(poli, posx, posy);
     polilinea_dibujar(poli, ventana_alto, renderer);

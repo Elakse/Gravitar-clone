@@ -47,18 +47,18 @@ nivel_t* nivel_crear(figura_t *figura, size_t duracion_de_balas, size_t puntaje)
 
 void nivel_destruir(nivel_t* nivel, figura_t** figura) {
     if (figura != NULL) *figura = nivel->figura;  //devuelve un puntero a la figura
-    lista_destruir(nivel->torretas, torreta_destruir_no_ref);
-    lista_destruir(nivel->combustibles, combustible_destruir_no_ref); //Destruye todas las listas y por ultimo el nive
-    lista_destruir(nivel->balas, bala_destruir_no_ref);
-    lista_destruir(nivel->planetas, planeta_destruir_no_ref);
-    lista_destruir(nivel->reactores, reactor_destruir_no_ref);
+    lista_destruir(nivel->torretas, (void(*)(void*))torreta_destruir_no_ref);
+    lista_destruir(nivel->combustibles, (void(*)(void*))combustible_destruir_no_ref); //Destruye todas las listas y por ultimo el nive
+    lista_destruir(nivel->balas, (void(*)(void*))bala_destruir_no_ref);
+    lista_destruir(nivel->planetas, (void(*)(void*))planeta_destruir_no_ref);
+    lista_destruir(nivel->reactores, (void(*)(void*))reactor_destruir_no_ref);
     free(nivel);
 }
 
 void nivel_planeta_destruir(nivel_t* nivel, estadio_t estadio) {
-    lista_iter_t* iter_p = lista_iter_crear(nivel->planetas);  
+    lista_iter_t* iter_p = lista_iter_crear(nivel->planetas);
     while (!lista_iter_al_final(iter_p)) {
-        planeta_t* planeta = lista_iter_ver_actual(iter_p);  
+        planeta_t* planeta = lista_iter_ver_actual(iter_p);
         if (planeta_get_estadio(planeta) == estadio) {
             planeta_destruir_no_ref(lista_iter_borrar(iter_p));  //Busca en la lista hasta dar con un estadio coincidente, elimina ese planeta  y termina
             break;
@@ -68,9 +68,9 @@ void nivel_planeta_destruir(nivel_t* nivel, estadio_t estadio) {
     lista_iter_destruir(iter_p);
 }
 
-//DE USO PROPIO
+//DE USO PROPI
 
-static planeta_t* nivel_planeta_por_estadio(nivel_t* nivel, estadio_t estadio) {
+planeta_t* nivel_planeta_por_estadio(nivel_t* nivel, estadio_t estadio) {
     lista_iter_t* iter_p = lista_iter_crear(nivel->planetas);
     while (!lista_iter_al_final(iter_p)) {
         planeta_t* planeta = lista_iter_ver_actual(iter_p);
@@ -81,6 +81,7 @@ static planeta_t* nivel_planeta_por_estadio(nivel_t* nivel, estadio_t estadio) {
         lista_iter_avanzar(iter_p);
     }
     lista_iter_destruir(iter_p);
+    return NULL;
 }
 
 //SETTERS
@@ -151,6 +152,7 @@ void nivel_get_max_min(nivel_t* nivel, double* x_max, double* y_max, double* x_m
         if (x_min != NULL) *x_min = figura_obtener_x_min(nivel->figura);
         if (y_min != NULL) *y_min = figura_obtener_y_min(nivel->figura);
     }
+
 }
 
 bool nivel_tiene_torretas(nivel_t* nivel) {
@@ -238,7 +240,7 @@ bool nivel_nave_disparada(nivel_t* nivel, nave_t* nave) {
     lista_iter_t* iter = lista_iter_crear(nivel->balas);
     while (!lista_iter_al_final(iter)) {
         bala_t* b = lista_iter_ver_actual(iter);
-        if (!bala_es_de_jugador(b) && nave_distancia_a_punto(nave, bala_get_posx(b), bala_get_posy(b)) < DISTANCIA_COLISION) { 
+        if (!bala_es_de_jugador(b) && nave_distancia_a_punto(nave, bala_get_posx(b), bala_get_posy(b)) < DISTANCIA_COLISION) {
             bala_destruir_no_ref(lista_iter_borrar(iter));       //Chequea colision, elimina la bala y la borra de la lista en caso positivo
             lista_iter_destruir(iter);
             return true;
@@ -253,9 +255,9 @@ size_t nivel_nave_recoge_combustible(nivel_t* nivel, nave_t* nave) {
     size_t recogidos = 0; //contador
     lista_iter_t* iter = lista_iter_crear(nivel->combustibles);
     while (!lista_iter_al_final(iter)) {
-        bala_t* c = lista_iter_ver_actual(iter);
+        combustible_t* c = lista_iter_ver_actual(iter);
         if (nave_distancia_a_punto(nave, combustible_get_posx(c), combustible_get_posy(c)) < DISTANCIA_RECOLECCION) {
-            combustible_destruir_no_ref(lista_iter_borrar(iter));  //Chequea cercanía de la nave, destruye el combustible en caso positivo y aumenta el contador
+            combustible_destruir_no_ref(lista_iter_borrar(iter));  //Chequea cercanï¿½a de la nave, destruye el combustible en caso positivo y aumenta el contador
             recogidos++;
             continue;
         }
@@ -277,7 +279,7 @@ bool nivel_torretas_disparan_a_nave(nivel_t* nivel, nave_t* nave, double abanico
             bala = torreta_dispara(t, ang, abanico, chances, vel, nivel->duracion_balas, fig_bala);
         if (bala != NULL)
             if (!lista_insertar_ultimo(nivel->balas, bala)) {
-                lista_iter_destruir(iter);   //si el disparo es exitoso añade la bala al nivel
+                lista_iter_destruir(iter);   //si el disparo es exitoso aï¿½ade la bala al nivel
                 return false;
             }
         lista_iter_avanzar(iter);
@@ -290,7 +292,7 @@ size_t nivel_torretas_disparadas(nivel_t* nivel) {
     size_t disparadas = 0; //contador
     lista_iter_t* iter_t = lista_iter_crear(nivel->torretas);
     while (!lista_iter_al_final(iter_t)) { //iteracion de torretas
-        bool torreta_destruida = false;  //indicador para que el iterador sepa si avanzar o no (depende se se borró una torreta de la lista)
+        bool torreta_destruida = false;  //indicador para que el iterador sepa si avanzar o no (depende se se borrï¿½ una torreta de la lista)
         torreta_t* t = lista_iter_ver_actual(iter_t);
         lista_iter_t* iter_b = lista_iter_crear(nivel->balas);
         while (!lista_iter_al_final(iter_b)) {  //iteracion de balas
@@ -306,7 +308,7 @@ size_t nivel_torretas_disparadas(nivel_t* nivel) {
         }
         lista_iter_destruir(iter_b);
         if (!torreta_destruida) lista_iter_avanzar(iter_t);
-    } 
+    }
     lista_iter_destruir(iter_t);
     return disparadas;
 }
@@ -339,7 +341,7 @@ void nivel_balas_trasladar(nivel_t* nivel, double dx, double dy) {
 }
 
 void nivel_balas_vaciar(nivel_t* nivel) {
-    lista_destruir(nivel->balas, bala_destruir_no_ref);  //Elmina la lista y vuelve a crearla
+    lista_destruir(nivel->balas, (void(*)(void*))bala_destruir_no_ref);  //Elmina la lista y vuelve a crearla
     nivel->balas = lista_crear();
 }
 
@@ -354,6 +356,7 @@ size_t nivel_reactores_actualizar(nivel_t* nivel) {
         }
         lista_iter_avanzar(iter);
     }
+    lista_iter_destruir(iter);
     return reactores_cero;
 }
 
@@ -407,7 +410,7 @@ void nivel_dibujar(nivel_t* nivel, double centro, double escala, double ventana_
             figura_dibujar(nivel->figura, ancho * escala + traslado, 0, 0, centro, escala, ventana_alto, renderer);
         }
         else {
-            figura_dibujar(nivel->figura, traslado, 0, 0, centro, escala, ventana_alto, renderer); //solo dinuja una ez si no es infinito
+            figura_dibujar(nivel->figura, traslado, 0, 0, centro, escala, ventana_alto, renderer); //solo dibuja una vez si no es infinito
         }
     }
     //recorre todas las listas y dibuja 1x1
@@ -436,14 +439,11 @@ void nivel_dibujar(nivel_t* nivel, double centro, double escala, double ventana_
         reactor_dibujar(lista_iter_ver_actual(iter_r), traslado, 0, centro, escala, ventana_alto, renderer);
         lista_iter_avanzar(iter_r);
     }
-    
-    
+
+
     lista_iter_destruir(iter_b);
     lista_iter_destruir(iter_t);
     lista_iter_destruir(iter_p);  //elimina los iteradores
     lista_iter_destruir(iter_r);
     lista_iter_destruir(iter_c);
 }
-
-
-

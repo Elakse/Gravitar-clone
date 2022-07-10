@@ -4,13 +4,15 @@
 #include "escritura.h"
 #include "config.h"
 
-struct planeta { 
+struct planeta {
 	double pos[2];     //Posicion del planeta
-	double pos_tp[2];  //Posiciones de tp (es una posicion de referencia a la que el usuario podrá tpear los objetos si estos entran al planeta)
+	double pos_tp[2];  //Posiciones de tp (es una posicion de referencia a la que el usuario podrï¿½ tpear los objetos si estos entran al planeta)
 	estadio_t estadio; //Caracteriza al planeta y permite que interactue con las naves
-	figura_t* fig;     //Figura con la que se dibujará el planeta
+	figura_t* fig;     //Figura con la que se dibujarï¿½ el planeta
 	size_t puntaje;    //Puntaje a mostrar al ser dibujado
 };
+
+//CREACION Y DESTRUCCION
 
 planeta_t* planeta_crear(double posx, double posy, double posx_tp, double posy_tp, size_t puntaje, estadio_t nivel, figura_t* planeta_fig) {
 	planeta_t* planeta = malloc(sizeof(planeta_t));
@@ -31,6 +33,32 @@ void planeta_destruir(planeta_t* planeta, figura_t** figura) {
 void planeta_destruir_no_ref(planeta_t* planeta) {
 	planeta_destruir(planeta, NULL);
 }
+
+//DE USO PROPIO
+
+static char* itoa_(size_t num, char* cadena) {
+    if (num == 0) {
+        cadena[1] = '\0';
+        cadena[0] = '0';
+        return cadena;
+    }
+    size_t a = num;
+    size_t digitos_cant = 0;                  //Copiamos la misma funcion desde el main
+    while (a != 0) {
+        digitos_cant++;
+        a /= 10;
+    }
+    cadena[digitos_cant--] = '\0';
+    while (num != 0) {
+        size_t digito = num % 10;
+        num /= 10;
+        cadena[digitos_cant] = 48 + digito;
+        if (digitos_cant != 0) digitos_cant--;
+    }
+    return cadena;
+}
+
+//GETTERS
 
 estadio_t planeta_get_estadio(planeta_t* planeta) {
 	return planeta->estadio;
@@ -60,6 +88,8 @@ size_t planeta_get_puntaje(planeta_t* planeta) {
 	return planeta->puntaje;
 }
 
+//DISTANCIAS
+
 double planeta_distancia_a_punto(planeta_t* planeta, double px, double py) {
 	figura_t* figura = figura_clonar(planeta->fig);
 	if (figura == NULL) return -1;
@@ -77,6 +107,6 @@ bool planeta_dibujar(planeta_t* planeta, double tras_x, double tras_y, double ce
 	if (!figura_dibujar(planeta->fig, planeta->pos[0] * escala + tras_x, planeta->pos[1] * escala + tras_y, 0, centro_escala, escala, ventana_alto, renderer))
 		return false;                //Dibuja el planeta junto al texto con su puntaje
 	char buffer[20];
-	dibujar_texto(_itoa(planeta_get_puntaje(planeta), buffer, 10), planeta->pos[0] * escala + tras_x - 60, planeta->pos[1] * escala + tras_y + 10, 1.5, 0, 1, 1, VENTANA_ALTO, renderer);
+	dibujar_texto(itoa_(planeta_get_puntaje(planeta), buffer), planeta->pos[0] * escala + tras_x - 60, planeta->pos[1] * escala + tras_y + 10, 1.5, 0, 1, 1, VENTANA_ALTO, renderer);
 	return true;
 }

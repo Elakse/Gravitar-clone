@@ -16,15 +16,15 @@
 
 typedef struct polilinea polilinea_t;
 
-//Pre a todas las funciones: la polilinea pasada como parámetro debió haber sido creada.
+//Pre a todas las funciones: la polilinea pasada como parï¿½metro debiï¿½ haber sido creada.
 
 
-//CREACIÓN Y DESTRUCCION
+//CREACIï¿½N Y DESTRUCCION
 
-//Crea una polilinea vacía de tamaño <n>
+//Crea una polilinea vacï¿½a de tamaï¿½o <n>
 polilinea_t *polilinea_crear_vacia(size_t n);
 
-//Crea una polilinea inicializada con <puntos> de tamaño <n> y color <color>
+//Crea una polilinea inicializada con <puntos> de tamaï¿½o <n> y color <color>
 polilinea_t *polilinea_crear(const float puntos[][2], size_t n, color_t color);
 
 //Destruye la polilinea.
@@ -38,7 +38,7 @@ void polilinea_destruir(polilinea_t *polilinea);
 polilinea_t* leer_polilinea(FILE* f);
 
 
-//GETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que está explicitado en sus nombres)
+//GETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que estï¿½ explicitado en sus nombres)
 
 size_t polilinea_cantidad_puntos(const polilinea_t *polilinea);
 
@@ -51,14 +51,14 @@ double polilinea_obtener_x_min(const polilinea_t* polilinea);
 double polilinea_obtener_y_min(const polilinea_t* polilinea);
 
 
-//SETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que está explicitado en sus nombres)
+//SETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que estï¿½ explicitado en sus nombres)
 
 //Devuelve false en caso de falla.
 bool polilinea_setear_punto(polilinea_t* polilinea, size_t pos, float x, float y);
 void polilinea_setear_color(polilinea_t* polilinea, color_t color);
 
 
-//MOVIMIENTO Y DISTANCIA (Se ahorran explicaciones a lo que hacen las funciones, ya que está explicitado en sus nombres)
+//MOVIMIENTO Y DISTANCIA (Se ahorran explicaciones a lo que hacen las funciones, ya que estï¿½ explicitado en sus nombres)
 
 void polilinea_trasladar(polilinea_t *polilinea, float dx, float dy);
 

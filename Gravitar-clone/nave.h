@@ -3,7 +3,6 @@
 
 #include "bala.h"
 #include "figuras.h"
-#include<SDL.h>
 #include<stdbool.h>
 
 
@@ -12,7 +11,7 @@ typedef enum estadio estadio_t;
 
 typedef struct nave nave_t;
 
-//Pre a todas las funciones: la nave pasada como parámetro debió haber sido creada.
+//Pre a todas las funciones: la nave pasada como parï¿½metro debiï¿½ haber sido creada.
 //Para el funcionamiento de funciones de dibujado y dstancia, la figura anexada al reactor a la hora de crearlo, no debe ser destruida.
 //Las figuras anexadas se consideran con un centro en 0,0
 
@@ -20,7 +19,7 @@ typedef struct nave nave_t;
 
 //CREACION Y DESTRUCCION
 
-//Devuelve una nave con las características indicadas. Devuelve NULL al fallar.
+//Devuelve una nave con las caracterï¿½sticas indicadas. Devuelve NULL al fallar.
 //Pre: el puntero a figura debe apuntar a una figura creada. <ang> debe estar en radianes
 nave_t* nave_crear(size_t vidas, size_t fuel, size_t puntos, estadio_t estadio, figura_t* fig_base, figura_t* fig_thruster_on);
 
@@ -28,7 +27,7 @@ nave_t* nave_crear(size_t vidas, size_t fuel, size_t puntos, estadio_t estadio, 
 void nave_destruir(nave_t* nave, figura_t** fig_base, figura_t** fig_thruster_on);
 
 
-//SETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que está explicitado en sus nombres)
+//SETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que estï¿½ explicitado en sus nombres)
 
 void nave_setear_pos(nave_t *nave, double px, double py);
 void nave_setear_vel(nave_t *nave, double vx, double vy);
@@ -44,12 +43,12 @@ void nave_setear_ang_nave(nave_t* nave, double ang);
 //Setea la aceleracion propia de la nave
 void nave_setear_a_thrust(nave_t* nave, float a);
 
-//Setea el angulo al que apuntará la gravedad de la nave
+//Setea el angulo al que apuntarï¿½ la gravedad de la nave
 //Pre <ang> debe estar en radianes.
 void nave_setear_ang_g(nave_t *nave, double ang);
 
 
-//SUMA Y RESTA DE PARAMETROS (Se ahorran explicaciones a lo que hacen las funciones, ya que está explicitado en sus nombres)
+//SUMA Y RESTA DE PARAMETROS (Se ahorran explicaciones a lo que hacen las funciones, ya que estï¿½ explicitado en sus nombres)
 
 void nave_restar_vida(nave_t* nave);
 void nave_sumar_vida(nave_t* nave);
@@ -59,7 +58,7 @@ void nave_sumar_combustible(nave_t* nave, size_t fuel);
 void nave_restar_combustible(nave_t* nave, size_t fuel);
 
 
-//GETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que está explicitado en sus nombres)
+//GETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que estï¿½ explicitado en sus nombres)
 
 double nave_get_posx(nave_t *nave);
 double nave_get_posy(nave_t *nave);
@@ -83,7 +82,7 @@ void nave_girar_der(nave_t* nave, double ang);
 //Pre <ang> debe estar en radianes.
 void nave_girar_izq(nave_t* nave, double ang);
 
-//Modifica la posición de la nave según su velocidad, y su velocidad segun la aceleracion. Todo esto para un instante próximo <dt>
+//Modifica la posiciï¿½n de la nave segï¿½n su velocidad, y su velocidad segun la aceleracion. Todo esto para un instante prï¿½ximo <dt>
 void nave_mover(nave_t* nave, double dt);
 
 //Devuelve la distancia del borde de la nave a cierto punto. Devuelve -1 en caso de fallo.
@@ -92,7 +91,7 @@ double nave_distancia_a_punto(nave_t* nave, double x, double y);
 //Devuelve la distancia de la posicion de la nave a cierta figura.
 double nave_distancia_a_figura(nave_t* nave, figura_t* figura);
 
-//Crea una bala disparada en direccion a donde apunta la nave. Con una velocidad base <vel> añadida al momento de la nave. Se le debe pasar también la duracion de la bala y su figura.
+//Crea una bala disparada en direccion a donde apunta la nave. Con una velocidad base <vel> aï¿½adida al momento de la nave. Se le debe pasar tambiï¿½n la duracion de la bala y su figura.
 //Devuelve NULL en caso de fallo.
 //Pre: el puntero a figura debe apuntar a una figura creada.
 bala_t* nave_dispara(nave_t* nave, double vel, size_t duracion_disparo, figura_t* bala_fig);
@@ -104,7 +103,7 @@ void nave_matar(nave_t* nave, double posx, double posy);
 //DIBUJO
 
 //Dibuja una nave en su respectiva posicion y angulo, trasladada <tras_x> y <tras_y> y escalada un factor <escala> con respecto a <centro_escala>. Devuelve false en caso de falla.
-//Pre: el renderer pasado debe haber sido creado con la librería SDL2
+//Pre: el renderer pasado debe haber sido creado con la librerï¿½a SDL2
 bool nave_dibujar(nave_t* nave, double tras_x, double tras_y, double centro_escala, double escala, double ventana_alto, SDL_Renderer* renderer);
 
 #endif

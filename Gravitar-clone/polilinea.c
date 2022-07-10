@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <math.h>
-#include <SDL.h>
 #include "color.h"
 #include "polilinea.h"
 #include "config.h"

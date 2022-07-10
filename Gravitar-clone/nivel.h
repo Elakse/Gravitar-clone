@@ -2,7 +2,6 @@
 #define NIVEL_H
 
 #include <stdbool.h>
-#include <SDL.h>
 #include "nave.h"
 #include "figuras.h"
 #include "planeta.h"
@@ -12,8 +11,8 @@
 
 typedef struct nivel nivel_t;
 
-//Pre a todas las funciones: la torreta pasada como parámetro debió haber sido creada.
-//El TDA nivel no devolverá referencias a las figuras de los objetos agregados al destuirlo, solo podrá devolver referencia a la figura del layout
+//Pre a todas las funciones: la torreta pasada como parï¿½metro debiï¿½ haber sido creada.
+//El TDA nivel no devolverï¿½ referencias a las figuras de los objetos agregados al destuirlo, solo podrï¿½ devolver referencia a la figura del layout
 //Todas las figuras anexadas al nivel o a los objetos agregados al nivel no deben ser destruidas para el funcionamiento de funciones de dibujado y colisiones
 //Se asume a las figuras centradas en 0,0 excepto por los layouts.
 
@@ -35,7 +34,7 @@ void nivel_planeta_destruir(nivel_t* nivel, estadio_t estadio);
 
 
 
-//SETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que está explicitado en sus nombres)
+//SETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que estï¿½ explicitado en sus nombres)
 
 //Setea la condicion asteroide al nivel (se puede volar alrededor)
 void nivel_set_asteroide(nivel_t* nivel, bool es_asteroide);
@@ -50,7 +49,7 @@ bool nivel_agregar_reactor(nivel_t* nivel, double posx, double posy, double ang,
 
 
 
-//GETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que está explicitado en sus nombres)
+//GETTERS (Se ahorran explicaciones a lo que hacen las funciones, ya que estï¿½ explicitado en sus nombres)
 
 bool nivel_es_asteroide(nivel_t* nivel);
 bool nivel_es_inf(nivel_t * nivel);
@@ -61,7 +60,7 @@ double nivel_get_alto(nivel_t* nivel);
 void nivel_get_max_min(nivel_t* nivel, double* x_max, double* y_max, double* x_min, double* y_min);
 figura_t* nivel_get_figura(nivel_t* nivel);
 
-//Devuelve el contador del reactor más proximo a llegar a 0
+//Devuelve el contador del reactor mï¿½s proximo a llegar a 0
 size_t nivel_get_conteo_reactor(nivel_t* nivel);
 
 //Devuelven si el nivel posee al menos uno de esos objetos o no
@@ -73,7 +72,7 @@ bool nivel_tiene_combustibles(nivel_t* nivel);
 bool nivel_tiene_balas(nivel_t* nivel);
 
 //Devuelve true si el nivel no tiene torretas ni reactores. Suma a la nave dada el puntaje del nivel.
-//Pre: la nave debió haber sido creada.
+//Pre: la nave debiï¿½ haber sido creada.
 bool nivel_vencido(nivel_t* nivel, nave_t* nave);
 
 
@@ -85,23 +84,23 @@ bool nivel_vencido(nivel_t* nivel, nave_t* nave);
 //Pre: la nave y la figura debieron haber sido creadas.
 bool nivel_nave_dispara(nivel_t* nivel, nave_t* nave, double vel, figura_t* fig_bala);
 
-//Devuelve true si la nave colisiona con una bala según DISTANCIA_COLISION. La bala es eliminada del nivel
-//Pre: la nave debió haber sido creada.
-bool nivel_nave_disparada(nivel_t* nivel, nave_t* nave); 
+//Devuelve true si la nave colisiona con una bala segï¿½n DISTANCIA_COLISION. La bala es eliminada del nivel
+//Pre: la nave debiï¿½ haber sido creada.
+bool nivel_nave_disparada(nivel_t* nivel, nave_t* nave);
 
 //Randomiza los disparos efectuados por las torretas de todos los niveles para toda la ejecucion del programa.
 void nivel_randomizar_disparos(void);
 
 //Hace que todas las torretas del nivel intenten disparar a la nave con cierta posibilidad <chances>/1000, un <abanico> de disparo dado en radianes y una velocidad <vel>, siempre y cuando
-//la nave esté dentro del rango. Se pide tambén una figura para anexar a las balas dispraradas. Devuelve NULL en caso de fallo.
+//la nave estï¿½ dentro del rango. Se pide tambï¿½n una figura para anexar a las balas dispraradas. Devuelve NULL en caso de fallo.
 //Pre: la nave y la figura debieron haber sido creadas.
 bool nivel_torretas_disparan_a_nave(nivel_t* nivel, nave_t* nave, double abanico, size_t chances, double rango, double vel, figura_t* fig_bala);
 
-//Devuelve la cantidad de torretas colisionadas por balas según DISTANCIA_COLISION. Tanto la bala como la torreta que colisionan son eliminadas del nivel.
+//Devuelve la cantidad de torretas colisionadas por balas segï¿½n DISTANCIA_COLISION. Tanto la bala como la torreta que colisionan son eliminadas del nivel.
 size_t nivel_torretas_disparadas(nivel_t* nivel);
 
-//Devuelve la cantidad de combustibles recogidos por balas según DISTANCIA_RECOLECCION. El combustible es eliminado del nivel.
-//Pre: la nave debió haber sido creada.
+//Devuelve la cantidad de combustibles recogidos por balas segï¿½n DISTANCIA_RECOLECCION. El combustible es eliminado del nivel.
+//Pre: la nave debiï¿½ haber sido creada.
 size_t nivel_nave_recoge_combustible(nivel_t* nivel, nave_t* nave);
 
 //Actualiza todas las balas del nivel un cierto <dt>. Moviendolas y eliminandolas si su tiempo se acaba o colisionan con el layout segun DISTANCIA_COLISION
@@ -113,14 +112,14 @@ void nivel_balas_trasladar(nivel_t* nivel, double dx, double dy);
 //Elimina todas las balas del nivel
 void nivel_balas_vaciar(nivel_t* nivel);
 
-//Chequea si la nave colisiona con algunos de los planetas del nivel según DISTANCIA_COLISION y setea el estadio de este planeta a la nave.
-//Devuelve true si la nave colisionó.
+//Chequea si la nave colisiona con algunos de los planetas del nivel segï¿½n DISTANCIA_COLISION y setea el estadio de este planeta a la nave.
+//Devuelve true si la nave colisionï¿½.
 bool nivel_nave_accede_planetas(nivel_t* nivel, nave_t* nave);
 
-//Actuaiza el contador de todos los reactores, devuelve la cantidad de reactores que están en 0.
+//Actuaiza el contador de todos los reactores, devuelve la cantidad de reactores que estï¿½n en 0.
 size_t nivel_reactores_actualizar(nivel_t* nivel);
 
-//Devuelve la cantidad de reactores colisionados por balas según DISTANCIA_COLISION. Tanto la bala como el reactor que colisionan son eliminados del nivel.
+//Devuelve la cantidad de reactores colisionados por balas segï¿½n DISTANCIA_COLISION. Tanto la bala como el reactor que colisionan son eliminados del nivel.
 size_t nivel_reactores_disparados(nivel_t* nivel);
 
 //Reinicia todos los reactores a su tiempo original.
@@ -130,8 +129,8 @@ void nivel_reactores_reiniciar(nivel_t* nivel);
 
 //DIBUJO
 
-//Dibuja el nivel con todos sus objetos centrados en <centro> y escalados según <escala>. Ejecuta diferentes rutinas de dibujado dependiendo de si la figura pasada al nivel es infinita o no.
-//Pre: el renderer pasado debe haber sido creado con la librería SDL2
+//Dibuja el nivel con todos sus objetos centrados en <centro> y escalados segï¿½n <escala>. Ejecuta diferentes rutinas de dibujado dependiendo de si la figura pasada al nivel es infinita o no.
+//Pre: el renderer pasado debe haber sido creado con la librerï¿½a SDL2
 void nivel_dibujar(nivel_t* nivel, double centro, double escala, double ventana_ancho, double ventana_alto, SDL_Renderer* renderer);
 
 

@@ -5,7 +5,7 @@
 #include "polilinea.h"
 #include <stdio.h>
 #include "config.h"
-	
+
 struct figura {
 	char nombre[20];
 	bool inf;
@@ -14,7 +14,7 @@ struct figura {
 	polilinea_t** polis;
 };
 
-//CREACIÓN, DESTRUCCIÓN Y LECTURA
+//CREACIï¿½N, DESTRUCCIï¿½N Y LECTURA
 
 figura_t* figura_crear(bool inf, figura_tipo_t tipo, char* nombre) {
 	figura_t* figura = malloc(sizeof(figura_t));
@@ -43,6 +43,30 @@ void figura_destruir(figura_t* figura) {
 	free(figura);
 }
 
+//DE USO PROPIO
+
+bool leer_encabezado_figura(FILE* f, char nombre[], figura_tipo_t* tipo, bool* infinito, size_t* cantidad_polilineas) {
+	size_t nom_size, carac_size, cant_size;
+
+	nom_size = fread(nombre, sizeof(char), 20, f);
+	if (nom_size < 20) return false;
+
+	uint8_t carac = 0;
+	carac_size = fread(&carac, sizeof(char), 1, f);
+	if (carac_size < 1) return false;
+
+	uint16_t cant = 0;
+	cant_size = fread(&cant, sizeof(uint16_t), 1, f);
+	if (cant_size < 1) return false;
+
+	*cantidad_polilineas = cant;
+	*infinito = (carac & INFINITO);
+	*tipo = ((carac >> 1) & TIPO);
+	return 1;
+}
+
+//LECTURA
+
 figura_t* figura_leer(FILE* f) {
 	bool inf;
 	size_t cant;
@@ -67,36 +91,18 @@ figura_t* figura_leer(FILE* f) {
 	return figura;
 }
 
-//DE USO PROPIO
-
-bool leer_encabezado_figura(FILE* f, char nombre[], figura_tipo_t* tipo, bool* infinito, size_t* cantidad_polilineas) {
-	size_t nom_size, carac_size, cant_size;
-
-	nom_size = fread(nombre, sizeof(char), 20, f);
-	if (nom_size < 20) return false;
-
-	uint8_t carac = 0;
-	carac_size = fread(&carac, sizeof(char), 1, f);
-	if (carac_size < 1) return false;
-
-	uint16_t cant = 0;
-	cant_size = fread(&cant, sizeof(uint16_t), 1, f);
-	if (cant_size < 1) return false;
-
-	*cantidad_polilineas = cant;
-	*infinito = (carac & INFINITO);
-	*tipo = ((carac >> 1) & TIPO);
-	return 1;
-}
-
 //GETTERS Y SETTERS
 
 bool figura_agregar_poli(figura_t* figura, polilinea_t* poli) {
+	polilinea_t* clon = polilinea_clonar(poli);    //Agrega una copia de la polilinea pasada a la figura, actualiza cant yhace realloc
+	if (clon == NULL) return false;
 	polilinea_t** aux = realloc(figura->polis, sizeof(polilinea_t*) * (figura->cant + 1));
-	if (aux == NULL) return false;
+	if (aux == NULL) {
+		polilinea_destruir(clon);
+		return false;
+	}
 	figura->polis = aux;
-	figura->polis[figura->cant] = polilinea_clonar(poli);    //Agrega una copia de la polilinea pasada a la figura, actualiza cant yhace realloc
-	if (figura->polis[figura->cant] == NULL) return NULL;
+	figura->polis[figura->cant] = clon;
 	figura->cant++;
 	return true;
 }

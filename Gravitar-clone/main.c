@@ -24,7 +24,7 @@ figura_t* figura_buscar_nombre(lista_t *figuras, char* nombre) {
             return figura;
         }
         lista_iter_avanzar(iter);
-    } 
+    }
     lista_iter_destruir(iter);
     return NULL;
 }
@@ -32,19 +32,19 @@ figura_t* figura_buscar_nombre(lista_t *figuras, char* nombre) {
 //Convierte size_t a cadena
 char* itoa_(size_t num, char* cadena) {
     if (num == 0) {
-        cadena[1] = '\0';
+        cadena[1] = '\0';  //En caso de que sea 0
         cadena[0] = '0';
         return cadena;
     }
     size_t a = num;
     size_t digitos_cant = 0;
     while (a != 0) {
-        digitos_cant++;
+        digitos_cant++;         //Cuenta los digitos dividiendo por 10
         a /= 10;
     }
     cadena[digitos_cant--] = '\0';
     while (num != 0) {
-        size_t digito = num % 10;
+        size_t digito = num % 10;   //extrae cada digito con el operador % y los concatena
         num /= 10;
         cadena[digitos_cant] = 48 + digito;
         if (digitos_cant != 0) digitos_cant--;
@@ -121,7 +121,7 @@ int main() {
 
     nivel_randomizar_disparos();
 
-    // Armamos los niveles agregandole los objetos que corresponden (Nos ahorramos los chequeos en esta parte, pues el complicaría la lectura del codigo, además, 
+    // Armamos los niveles agregandole los objetos que corresponden (Nos ahorramos los chequeos en esta parte, pues el complicaría la lectura del codigo, además,
     //si algo se crea mal directamente no lo veremos en pantalla o el juego crasheará)
 
     // INICIO
@@ -140,7 +140,7 @@ int main() {
     nivel_agregar_combustible(niveles[NIVEL1], 1064, 13, 0, combustible_fig);
     nivel_agregar_combustible(niveles[NIVEL1], 1685, 113, 0, combustible_fig);
 
-    // NIVEL2 
+    // NIVEL2
     nivel_agregar_combustible(niveles[NIVEL2], 482, 94, 0, combustible_fig);
     nivel_agregar_combustible(niveles[NIVEL2], 1751, 247, 0, combustible_fig);
     nivel_agregar_torreta(niveles[NIVEL2], 423, 195, -0.66, torreta_fig, torreta_disparo_fig);
@@ -295,9 +295,9 @@ int main() {
                 contador_esc--;
             else {
                 contador_esc = 2;
-                if (fuel_nav < JUEGO_COMBUSTIBLE_ESC_X_SEG/50) 
+                if (fuel_nav < JUEGO_COMBUSTIBLE_ESC_X_SEG/50)
                     nave_restar_combustible(jugador, JUEGO_COMBUSTIBLE_POT_X_SEG/50);
-                else 
+                else
                     nave_restar_combustible(jugador, JUEGO_COMBUSTIBLE_ESC_X_SEG/50);
             }
         }
@@ -305,18 +305,17 @@ int main() {
 
         double x_nav = nave_get_posx(jugador);
         double y_nav = nave_get_posy(jugador);
-        double vel_nav = nave_get_vel(jugador);
         double x_vel_nav = nave_get_velx(jugador);
         double y_vel_nav = nave_get_vely(jugador);
         double ang_nav = nave_get_ang(jugador);
         estadio_t nivel_nav = nave_get_estadio(jugador);
-        
+
 
         nivel_t* nivel_act = niveles[nivel_nav];
         figura_t* layout = nivel_get_figura(nivel_act);
         bool inf = nivel_es_inf(nivel_act);
 
-        
+
 
         // Condiciones según el estadio de la nave
         if (nivel_nav == INICIO) {
@@ -340,7 +339,7 @@ int main() {
             // Chequea si la nave entró a algun planeta
             if (nivel_nave_accede_planetas(nivel_act, jugador)) {
                 nave_setear_vel(jugador, 0, -5);
-                nave_setear_ang_g(jugador, 3 * PI / 2); 
+                nave_setear_ang_g(jugador, 3 * PI / 2);
                 nave_setear_ang_nave(jugador, 3 * PI / 2);
                 centro = nave_get_posx(jugador); // Setea el centro en la posicion de la nave por si el nivel es infinito
                 continue;
@@ -370,7 +369,7 @@ int main() {
                 }
 
                 // Calcula de centro y escala
-
+                
                 escala = VENTANA_ALTO * 1.0 / alto;
                 if (VENTANA_ANCHO * 1.0 / (ancho + x_min) < escala)
                     escala = VENTANA_ANCHO * 1.0 / (ancho + x_min);
@@ -378,7 +377,7 @@ int main() {
 
                 centro = x_min + ancho / 2 - centro;
             }
-            
+
             else {
 
                 // Verifica si la nave escapó del nivel
@@ -416,13 +415,13 @@ int main() {
                 }
             }
         }
-        
+
         // Actualizacion y manejo de los objetos del nivel
 
 
         // Actualiza las balas y verifica si se tienen que crear nuevas
         nivel_balas_actualizar(nivel_act, DT);
-        
+
         if (dispara && disparo_delay == 0) {
             nivel_nave_dispara(nivel_act, jugador, BALA_VELOCIDAD, disparo_fig);
             disparo_delay = DISPARO_DELAY;
@@ -431,7 +430,7 @@ int main() {
 
         // Actualiza las torretas
         if (disparo_delay_t == 0) {
-            nivel_torretas_disparan_a_nave(nivel_act, jugador, PI / 8, 70, DISPARO_RANGO, BALA_VELOCIDAD, disparo_fig);
+            nivel_torretas_disparan_a_nave(nivel_act, jugador, PI / 8, 80, DISPARO_RANGO, BALA_VELOCIDAD, disparo_fig);
             disparo_delay_t = DISPARO_DELAY;
         }
         if (disparo_delay_t != 0) disparo_delay_t--;
@@ -474,7 +473,7 @@ int main() {
             nave_sumar_vida(jugador);
             puntos_para_nave += 10000;
         }
-        
+
         //Muestra GAME OVER si la nave se queda sin vidas
         if (nave_get_vidas(jugador) == 0) {
             if (!chorro_prendido) {
@@ -487,7 +486,7 @@ int main() {
             }
             else break;
         }
- 
+
         //----------------------------------------------------DIBUJADO------------------------------------------------------
 
         // Ejecutamos diferentes rutinas de dibujado con diferentes parámetros según el estadio
@@ -496,10 +495,10 @@ int main() {
             figura_dibujar(base_fig, x_base, y_base, 0, 0, 1, VENTANA_ALTO, renderer);
             if (escudo) figura_dibujar(escudo_fig, x_nav, y_nav, ang_nav + PI / 2, 0, 1, VENTANA_ALTO, renderer); //Dibujamos nave y escudo
             nave_dibujar(jugador, 0, 0, 0, 1, VENTANA_ALTO, renderer);
-            
+
         }
 
-        //Dibujamos la nave y el escudo (angulado hacia el centro o no) dependiendo del estadio 
+        //Dibujamos la nave y el escudo (angulado hacia el centro o no) dependiendo del estadio
         if (nivel_nav != INICIO && !game_over) {
             if (!inf) {
                 if (nivel_es_asteroide(niveles[nivel_nav])) {
@@ -539,7 +538,7 @@ int main() {
         }
 
         // Dibujamos el nivel con todos sus objetos
-        if(!game_over)
+        if (!game_over)
             nivel_dibujar(nivel_act, centro, escala, VENTANA_ANCHO, VENTANA_ALTO, renderer);
 
         // END código del alumno
@@ -553,12 +552,12 @@ int main() {
         else if(ticks < 1000 / JUEGO_FPS)
             SDL_Delay(1000 / JUEGO_FPS - ticks);
         ticks = SDL_GetTicks();
-        
+
     }
 
 
     // BEGIN código del alumno
-    lista_destruir(figuras, figura_destruir);
+    lista_destruir(figuras, (void(*)(void*))figura_destruir);
     nave_destruir(jugador, NULL, NULL);
     nivel_destruir(niveles[INICIO], NULL);
     nivel_destruir(niveles[NIVEL1], NULL);

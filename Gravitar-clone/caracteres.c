@@ -1,9 +1,4 @@
 #include "caracteres.h"
-#include "SDL.h"
-
-void texto_a_caracteres(char *texto, double posx, double posy, double ang, SDL_Renderer *renderer) {
-
-}
 
 const float caracter_a[7][2] = {
 	{0, 0},
@@ -345,4 +340,3 @@ const float caracter_abajo[5][2] = {
 const float caracter_espacio[1][2] = {
 	{0, 0},
 };
-
